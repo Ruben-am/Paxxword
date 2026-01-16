@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
         )
     ]
 )
-data class Accounts(
+data class Account(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
