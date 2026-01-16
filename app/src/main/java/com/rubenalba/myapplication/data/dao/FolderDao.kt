@@ -27,3 +27,6 @@ interface FolderDao {
     @Query("SELECT * FROM folders WHERE id = :folderId")
     suspend fun getFolderById(folderId: Long): Folder?
 }
+
+// Personal notes:
+// @Insert, @Update, @Delete (room automates queries), @Query custom query
