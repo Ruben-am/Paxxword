@@ -116,7 +116,7 @@ fun AuthContent(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = password.isNotBlank()
                 ) {
-                    Text(if (isRegister) "Crear Bóveda" else "Desbloquear")
+                    Text(if (isRegister) "Registrar" else "Iniciar sesion")
                 }
             }
 
