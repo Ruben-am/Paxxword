@@ -29,9 +29,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        val devKeyPass = localProperties.getProperty("DEV_KEY_PASS") ?: "123456"
-        buildConfigField("String", "DEV_KEY_PASS", "\"$devKeyPass\"")
     }
 
     buildTypes {
