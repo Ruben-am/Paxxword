@@ -16,31 +16,9 @@ class PasswordRepositoryImpl @Inject constructor(
     private val accountDao: AccountDao,
     private val sessionManager: SessionManager
 ) : PasswordRepository {
-
-    /*
-     * SECURITY NOTE / NOTA DE SEGURIDAD
-     *
-     * [EN] TEMPORARY DEV SHORTCUT:
-     * The dev key is injected via BuildConfig. It attempts to read from 'local.properties' (ignored by Git).
-     * If not found, it defaults to "123456" to ensure the project builds and runs out-of-the-box
-     * without requiring manual configuration from the reviewer.
-     * This bypasses the auth flow until the Login Screen is fully implemented (Ref: Issue #7).
-     *
-     * [ES] ATAJO TEMPORAL DE DESARROLLO:
-     * La clave de desarrollo se inyecta vía BuildConfig. Intenta leer de 'local.properties' (ignorado por Git).
-     * Si no se encuentra, usa "123456" por defecto para asegurar que el proyecto compile y funcione
-     * inmediatamente sin requerir configuración manual por parte del revisor.
-     * Esto omite el flujo de autenticación hasta que la Pantalla de Login esté implementada (Ref: Issue #7).
-     */
-
-    private val devKey: SecretKeySpec by lazy {
-        val passwordChars = BuildConfig.DEV_KEY_PASS.toCharArray()
-        val fixedSalt = ByteArray(16) { 0 }
-        KeyDerivationUtil.deriveKey(passwordChars, fixedSalt)
-    }
-
     private fun getKey(): SecretKeySpec {
-        return sessionManager.getKey() ?: devKey
+        return sessionManager.getKey()
+            ?: throw IllegalStateException("¡ERROR CRÍTICO! Intento de acceso a datos sin sesión activa.")
     }
 
     override fun getAccounts(folderId: Long?): Flow<List<AccountModel>> {
@@ -71,11 +49,18 @@ class PasswordRepositoryImpl @Inject constructor(
         val ivUrl = CryptoManager.generateIv()
         val ivNotes = CryptoManager.generateIv()
 
-        val encUser = if (model.username.isNotEmpty()) CryptoManager.encrypt(model.username, key, ivUser) else null
-        val encEmail = if (model.email.isNotEmpty()) CryptoManager.encrypt(model.email, key, ivEmail) else null
+        val encUser = if (model.username.isNotEmpty()) CryptoManager.encrypt(
+            model.username,
+            key,
+            ivUser
+        ) else null
+        val encEmail =
+            if (model.email.isNotEmpty()) CryptoManager.encrypt(model.email, key, ivEmail) else null
         val encPass = CryptoManager.encrypt(model.password, key, ivPass)
-        val encUrl = if (model.url.isNotEmpty()) CryptoManager.encrypt(model.url, key, ivUrl) else null
-        val encNotes = if (model.notes.isNotEmpty()) CryptoManager.encrypt(model.notes, key, ivNotes) else null
+        val encUrl =
+            if (model.url.isNotEmpty()) CryptoManager.encrypt(model.url, key, ivUrl) else null
+        val encNotes =
+            if (model.notes.isNotEmpty()) CryptoManager.encrypt(model.notes, key, ivNotes) else null
 
         val entity = Account(
             id = model.id,
