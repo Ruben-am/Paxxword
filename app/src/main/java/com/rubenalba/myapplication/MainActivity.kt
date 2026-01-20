@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.rubenalba.myapplication.data.dao.UserDao
 import com.rubenalba.myapplication.ui.addedit.AddAccountScreen
 import com.rubenalba.myapplication.ui.auth.AuthScreen
+import com.rubenalba.myapplication.ui.splash.SplashScreen
 import com.rubenalba.myapplication.ui.vault.VaultScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
@@ -24,24 +25,22 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // initial path
-        var startDestination = "signup" // default sing up
-
-        // block main threat for check db
-        runBlocking {
-            val user = userDao.getAppUser()
-            if (user != null) {
-                startDestination = "login" // if user -> login
-            }
-        }
-
         setContent {
             MaterialTheme {
                 Surface {
                     val navController = rememberNavController()
 
-                    NavHost(navController = navController, startDestination = startDestination) {
+                    NavHost(navController = navController, startDestination = "splash") {
+
+                        composable("splash") {
+                            SplashScreen(
+                                onNavigate = { destination ->
+                                    navController.navigate(destination) {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
 
                         // login
                         composable("login") {
