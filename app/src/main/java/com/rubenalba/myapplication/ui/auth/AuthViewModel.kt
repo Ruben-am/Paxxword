@@ -14,9 +14,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class AuthState {
-    data object Idle : AuthState()        // waiting user input
-    data object Loading : AuthState()     // auth
-    data object Success : AuthState()     // enter
+    data object Idle : AuthState() // waiting user input
+    data object Loading : AuthState() // auth
+    data object Success : AuthState() // enter
     data class Error(val message: String) : AuthState() // incorrect password
 }
 
@@ -47,11 +47,13 @@ class AuthViewModel @Inject constructor(
 
                 // encrypt VERIFICATION_PHRASE with key
                 val iv = CryptoManager.generateIv()
-                val encryptedVerification = CryptoManager.encrypt(VERIFICATION_PHRASE, key, iv)
+
+                val verificationBytes = VERIFICATION_PHRASE.toByteArray(Charsets.UTF_8)
+                val encryptedVerification = CryptoManager.encrypt(verificationBytes, key, iv)
 
                 // save in db (salt and VERIFICATION_PHRASE no key or password)
                 val user = User(
-                    userEmail = "usuario_local", // place holder
+                    userEmail = "usuario_local", //place holder
                     userSalt = CryptoManager.bytesToBase64(salt),
                     encryptedVerificationValue = encryptedVerification,
                     ivVerificationValue = CryptoManager.bytesToBase64(iv)
@@ -85,14 +87,12 @@ class AuthViewModel @Inject constructor(
             }
 
             try {
-                // recover salt
                 val salt = CryptoManager.base64ToBytes(user.userSalt)
 
-                // generate key with the password
                 val keyCandidate = KeyDerivationUtil.deriveKey(password.toCharArray(), salt)
 
-                // try to decrypt VERIFICATION_PHRASE
                 val iv = CryptoManager.base64ToBytes(user.ivVerificationValue)
+
                 val decryptedPhrase = CryptoManager.decrypt(
                     user.encryptedVerificationValue,
                     keyCandidate,
