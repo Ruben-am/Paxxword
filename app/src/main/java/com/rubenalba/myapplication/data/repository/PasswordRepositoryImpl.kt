@@ -1,16 +1,15 @@
 package com.rubenalba.myapplication.data.repository
 
-import com.rubenalba.myapplication.data.SessionManager
-import com.rubenalba.myapplication.data.dao.AccountDao
-import com.rubenalba.myapplication.data.model.Account
-import com.rubenalba.myapplication.data.model.AccountModel
-import com.rubenalba.myapplication.utils.crypto.CryptoManager
-import com.rubenalba.myapplication.utils.crypto.KeyDerivationUtil
+import com.rubenalba.myapplication.data.manager.SessionManager
+import com.rubenalba.myapplication.data.local.dao.AccountDao
+import com.rubenalba.myapplication.data.local.entity.Account
+import com.rubenalba.myapplication.domain.model.AccountModel
+import com.rubenalba.myapplication.data.manager.CryptoManager
+import com.rubenalba.myapplication.domain.repository.PasswordRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject
-import com.rubenalba.myapplication.BuildConfig
 
 class PasswordRepositoryImpl @Inject constructor(
     private val accountDao: AccountDao,

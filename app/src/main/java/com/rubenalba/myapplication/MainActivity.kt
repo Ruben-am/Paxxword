@@ -8,13 +8,12 @@ import androidx.compose.material3.Surface
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.rubenalba.myapplication.data.dao.UserDao
+import com.rubenalba.myapplication.data.local.dao.UserDao
 import com.rubenalba.myapplication.ui.addedit.AddAccountScreen
 import com.rubenalba.myapplication.ui.auth.AuthScreen
 import com.rubenalba.myapplication.ui.splash.SplashScreen
 import com.rubenalba.myapplication.ui.vault.VaultScreen
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint

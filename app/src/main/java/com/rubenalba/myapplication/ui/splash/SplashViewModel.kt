@@ -2,7 +2,7 @@ package com.rubenalba.myapplication.ui.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rubenalba.myapplication.data.dao.UserDao
+import com.rubenalba.myapplication.data.local.dao.UserDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

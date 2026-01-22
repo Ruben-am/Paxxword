@@ -2,10 +2,10 @@ package com.rubenalba.myapplication.di
 
 import android.app.Application
 import androidx.room.Room
-import com.rubenalba.myapplication.data.AppDatabase
-import com.rubenalba.myapplication.data.dao.AccountDao
-import com.rubenalba.myapplication.data.dao.FolderDao
-import com.rubenalba.myapplication.data.dao.UserDao
+import com.rubenalba.myapplication.data.local.AppDatabase
+import com.rubenalba.myapplication.data.local.dao.AccountDao
+import com.rubenalba.myapplication.data.local.dao.FolderDao
+import com.rubenalba.myapplication.data.local.dao.UserDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

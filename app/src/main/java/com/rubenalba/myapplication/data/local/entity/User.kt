@@ -1,4 +1,4 @@
-package com.rubenalba.myapplication.data.model
+package com.rubenalba.myapplication.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

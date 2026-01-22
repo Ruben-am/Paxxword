@@ -1,4 +1,4 @@
-package com.rubenalba.myapplication.data.dao
+package com.rubenalba.myapplication.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.rubenalba.myapplication.data.model.Account
+import com.rubenalba.myapplication.data.local.entity.Account
 import kotlinx.coroutines.flow.Flow
 
 @Dao

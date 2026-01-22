@@ -2,8 +2,8 @@ package com.rubenalba.myapplication.ui.addedit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rubenalba.myapplication.data.model.AccountModel
-import com.rubenalba.myapplication.data.repository.PasswordRepository
+import com.rubenalba.myapplication.domain.model.AccountModel
+import com.rubenalba.myapplication.domain.repository.PasswordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
