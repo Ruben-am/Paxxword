@@ -1,4 +1,4 @@
-package com.rubenalba.myapplication.data
+package com.rubenalba.myapplication.data.manager
 
 import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject

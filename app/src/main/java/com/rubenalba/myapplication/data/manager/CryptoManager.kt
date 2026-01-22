@@ -1,10 +1,9 @@
-package com.rubenalba.myapplication.utils.crypto
+package com.rubenalba.myapplication.data.manager
 
 import android.util.Base64
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 object CryptoManager {

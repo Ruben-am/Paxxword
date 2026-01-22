@@ -1,6 +1,6 @@
-package com.rubenalba.myapplication.data.repository
+package com.rubenalba.myapplication.domain.repository
 
-import com.rubenalba.myapplication.data.model.AccountModel
+import com.rubenalba.myapplication.domain.model.AccountModel
 import kotlinx.coroutines.flow.Flow
 
 interface PasswordRepository {

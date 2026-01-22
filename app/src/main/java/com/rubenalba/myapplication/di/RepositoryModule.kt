@@ -1,6 +1,6 @@
 package com.rubenalba.myapplication.di
 
-import com.rubenalba.myapplication.data.repository.PasswordRepository
+import com.rubenalba.myapplication.domain.repository.PasswordRepository
 import com.rubenalba.myapplication.data.repository.PasswordRepositoryImpl
 import dagger.Binds
 import dagger.Module

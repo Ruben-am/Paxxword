@@ -2,11 +2,11 @@ package com.rubenalba.myapplication.ui.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rubenalba.myapplication.data.SessionManager
-import com.rubenalba.myapplication.data.dao.UserDao
-import com.rubenalba.myapplication.data.model.User
-import com.rubenalba.myapplication.utils.crypto.CryptoManager
-import com.rubenalba.myapplication.utils.crypto.KeyDerivationUtil
+import com.rubenalba.myapplication.data.manager.SessionManager
+import com.rubenalba.myapplication.data.local.dao.UserDao
+import com.rubenalba.myapplication.data.local.entity.User
+import com.rubenalba.myapplication.data.manager.CryptoManager
+import com.rubenalba.myapplication.data.manager.KeyDerivationUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

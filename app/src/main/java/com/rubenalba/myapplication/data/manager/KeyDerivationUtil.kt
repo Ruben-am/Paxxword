@@ -1,4 +1,4 @@
-package com.rubenalba.myapplication.utils.crypto
+package com.rubenalba.myapplication.data.manager
 
 import java.security.SecureRandom
 import javax.crypto.SecretKeyFactory

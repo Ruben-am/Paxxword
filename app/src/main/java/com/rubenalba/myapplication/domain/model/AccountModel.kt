@@ -1,4 +1,4 @@
-package com.rubenalba.myapplication.data.model
+package com.rubenalba.myapplication.domain.model
 
 data class AccountModel(
     val id: Long = 0,
