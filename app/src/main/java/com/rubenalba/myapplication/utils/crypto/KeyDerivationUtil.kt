@@ -7,7 +7,7 @@ import javax.crypto.spec.SecretKeySpec
 
 object KeyDerivationUtil {
 
-    private const val ITERATIONS = 10000 // Repeat the process 10k times to make it "slow" and safe
+    private const val ITERATIONS = 600000 // Repeat the process 10k times to make it "slow" and safe
     private const val KEY_LENGTH = 256   // Standard military security size (AES-256)
     private const val ALGORITHM = "PBKDF2WithHmacSHA256"
 
@@ -21,12 +21,13 @@ object KeyDerivationUtil {
     fun deriveKey(password: CharArray, salt: ByteArray): SecretKeySpec {
         val spec = PBEKeySpec(password, salt, ITERATIONS, KEY_LENGTH)
         val factory = SecretKeyFactory.getInstance(ALGORITHM)
-        val keyBytes = factory.generateSecret(spec).encoded
-        return SecretKeySpec(keyBytes, "AES")
-    }
 
-    // erase the password stored in ram memory when finish
-    fun clearCharArray(charArray: CharArray) {
-        charArray.fill('\u0000')
+        try {
+            val keyBytes = factory.generateSecret(spec).encoded
+            return SecretKeySpec(keyBytes, "AES")
+        } finally {
+            // erase password memory copy of PBEKeySpec
+            spec.clearPassword()
+        }
     }
 }

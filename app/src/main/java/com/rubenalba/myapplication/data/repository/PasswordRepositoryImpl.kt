@@ -43,24 +43,26 @@ class PasswordRepositoryImpl @Inject constructor(
     override suspend fun saveAccount(model: AccountModel) {
         val key = getKey()
 
+        // generate iv (12 bytes)
         val ivUser = CryptoManager.generateIv()
         val ivEmail = CryptoManager.generateIv()
         val ivPass = CryptoManager.generateIv()
         val ivUrl = CryptoManager.generateIv()
         val ivNotes = CryptoManager.generateIv()
 
-        val encUser = if (model.username.isNotEmpty()) CryptoManager.encrypt(
-            model.username,
-            key,
-            ivUser
-        ) else null
-        val encEmail =
-            if (model.email.isNotEmpty()) CryptoManager.encrypt(model.email, key, ivEmail) else null
-        val encPass = CryptoManager.encrypt(model.password, key, ivPass)
-        val encUrl =
-            if (model.url.isNotEmpty()) CryptoManager.encrypt(model.url, key, ivUrl) else null
-        val encNotes =
-            if (model.notes.isNotEmpty()) CryptoManager.encrypt(model.notes, key, ivNotes) else null
+        fun encryptField(text: String, iv: ByteArray): String {
+            if (text.isEmpty()) return ""
+            val bytes = text.toByteArray(Charsets.UTF_8)
+            return CryptoManager.encrypt(bytes, key, iv)
+        }
+
+        val encUser = if (model.username.isNotEmpty()) encryptField(model.username, ivUser) else null
+        val encEmail = if (model.email.isNotEmpty()) encryptField(model.email, ivEmail) else null
+
+        val encPass = encryptField(model.password, ivPass)
+
+        val encUrl = if (model.url.isNotEmpty()) encryptField(model.url, ivUrl) else null
+        val encNotes = if (model.notes.isNotEmpty()) encryptField(model.notes, ivNotes) else null
 
         val entity = Account(
             id = model.id,
