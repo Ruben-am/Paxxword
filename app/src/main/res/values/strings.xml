@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Paxxword</string>
+
+    <string name="add_account_title">Nueva Contraseña</string>
+    <string name="label_service">Nombre del servicio *</string>
+    <string name="label_email">Email</string>
+    <string name="label_username">Usuario</string>
+    <string name="label_password">Contraseña *</string>
+    <string name="label_url">Sitio Web (URL)</string>
+    <string name="label_notes">Notas</string>
+    <string name="btn_save">Guardar</string>
+    <string name="error_service_required">El nombre del servicio es obligatorio</string>
+    <string name="error_password_required">La contraseña es obligatoria</string>
+
+    <string name="vault_title">Mis contraseñas</string>
+    <string name="vault_empty">No tienes contraseñas.\n¡Pulsa + para añadir una nueva!</string>
 </resources>

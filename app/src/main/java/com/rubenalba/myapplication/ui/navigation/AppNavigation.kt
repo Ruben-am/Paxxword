@@ -51,16 +51,7 @@ fun AppNavigation(
 
         // 3. Main
         composable("vault") {
-            VaultScreen(
-                onAddClick = { navController.navigate("add_account") },
-                onItemClick = { /* TODO: Detalles */ }
-            )
-        }
-
-        composable("add_account") {
-            AddAccountScreen(
-                onBackClick = { navController.popBackStack() }
-            )
+            VaultScreen()
         }
     }
 }
