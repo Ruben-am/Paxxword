@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.myapplication.domain.model.AccountModel
+import com.rubenalba.myapplication.ui.vault.components.AccountItem
 
 @Composable
 fun VaultScreen(
