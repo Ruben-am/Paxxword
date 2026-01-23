@@ -15,80 +15,83 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.rubenalba.myapplication.domain.model.AccountModel
+import com.rubenalba.myapplication.R
+import com.rubenalba.myapplication.ui.vault.VaultViewModel
+import com.rubenalba.myapplication.ui.vault.components.AccountDetailSheet
 import com.rubenalba.myapplication.ui.vault.components.AccountItem
-
-@Composable
-fun VaultScreen(
-    viewModel: VaultViewModel = hiltViewModel(),
-    onAddClick: () -> Unit,
-    onItemClick: (Long) -> Unit
-) {
-    val uiState by viewModel.uiState.collectAsState()
-
-    VaultContent(
-        state = uiState,
-        onAddClick = onAddClick,
-        onItemClick = onItemClick
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VaultContent(
-    state: VaultUiState,
-    onAddClick: () -> Unit,
-    onItemClick: (Long) -> Unit
+fun VaultScreen(
+    viewModel: VaultViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val selectedAccount by viewModel.selectedAccount.collectAsState()
+    val isSheetOpen by viewModel.isSheetOpen.collectAsState()
+
+    AccountDetailSheet(
+        account = selectedAccount,
+        isOpen = isSheetOpen,
+        onDismiss = viewModel::onDismissSheet,
+        onSave = viewModel::saveAccount,
+        onDelete = viewModel::deleteAccount
+    )
+
+    // body
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mis contraseñas") }
+                title = { Text(stringResource(R.string.vault_title)) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddClick) {
-                Icon(Icons.Default.Add, contentDescription = "Añadir")
+            FloatingActionButton(onClick = viewModel::onAddClick) { // Abre el Sheet vacío
+                Icon(Icons.Default.Add, contentDescription = "Añadir Cuenta")
             }
         }
     ) { paddingValues ->
-
-        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
-
-            when (state) {
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            when (val state = uiState) {
                 is VaultUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    CircularProgressIndicator()
                 }
 
                 is VaultUiState.Error -> {
                     Text(
-                        text = "Error: ${state.message}",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
+                        text = state.message,
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
 
                 is VaultUiState.Success -> {
                     if (state.accounts.isEmpty()) {
                         Text(
-                            text = "No tienes contraseñas.\n¡Pulsa + para añadir una nueva!",
-                            modifier = Modifier.align(Alignment.Center),
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            text = stringResource(R.string.vault_empty),
+                            style = MaterialTheme.typography.bodyLarge
                         )
                     } else {
-                        LazyColumn {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
                             items(state.accounts) { account ->
                                 AccountItem(
                                     account = account,
-                                    onClick = { onItemClick(account.id) }
+                                    onClick = { viewModel.onAccountClick(account) }
                                 )
                             }
                         }
@@ -96,59 +99,5 @@ fun VaultContent(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true, name = "1. Estado con Datos")
-@Composable
-fun VaultScreenPreviewSuccess() {
-    val listaFalsa = listOf(
-        AccountModel(id = 1, serviceName = "Netflix", username = "yo@gmail.com", password = "123"),
-        AccountModel(id = 2, serviceName = "Amazon", username = "compras", password = "abc"),
-        AccountModel(id = 3, serviceName = "Spotify", username = "musica", password = "xyz")
-    )
-
-    MaterialTheme {
-        VaultContent(
-            state = VaultUiState.Success(listaFalsa),
-            onAddClick = {},
-            onItemClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "2. Estado Vacío")
-@Composable
-fun VaultScreenPreviewEmpty() {
-    MaterialTheme {
-        VaultContent(
-            state = VaultUiState.Success(emptyList()),
-            onAddClick = {},
-            onItemClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "3. Estado Cargando")
-@Composable
-fun VaultScreenPreviewLoading() {
-    MaterialTheme {
-        VaultContent(
-            state = VaultUiState.Loading,
-            onAddClick = {},
-            onItemClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "4. Estado Error")
-@Composable
-fun VaultScreenPreviewError() {
-    MaterialTheme {
-        VaultContent(
-            state = VaultUiState.Error("Fallo al desencriptar la base de datos"),
-            onAddClick = {},
-            onItemClick = {}
-        )
     }
 }

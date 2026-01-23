@@ -11,4 +11,7 @@
     <string name="btn_save">Guardar</string>
     <string name="error_service_required">El nombre del servicio es obligatorio</string>
     <string name="error_password_required">La contraseña es obligatoria</string>
+
+    <string name="vault_title">Mis contraseñas</string>
+    <string name="vault_empty">No tienes contraseñas.\n¡Pulsa + para añadir una nueva!</string>
 </resources>

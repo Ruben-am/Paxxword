@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -147,6 +148,17 @@ fun AccountDetailContent(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = isEditing,
                 singleLine = !(!isSecret && label == stringResource(R.string.label_notes)),
+
+                colors = OutlinedTextFieldDefaults.colors(
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+
+                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+
+                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+
+                    disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                ),
+
                 visualTransformation = if (isSecret && !isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
                 keyboardOptions = if (isSecret) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
                 trailingIcon = if (isSecret) {
