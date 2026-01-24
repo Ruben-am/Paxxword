@@ -27,7 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -70,17 +73,26 @@ fun AuthContent(
     onValidatePassword: (String) -> String?
 ) {
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
 
     var isPasswordVisible by remember { mutableStateOf(false) }
+    var isConfirmVisible by remember { mutableStateOf(false) }
 
-    val passwordError = if (isRegister && password.isNotEmpty()) {
+    val focusManager = LocalFocusManager.current
+
+    val policyError = if (isRegister && password.isNotEmpty()) {
         onValidatePassword(password)
-    } else {
-        null
-    }
+    } else null
+
+    val matchError = if (isRegister && confirmPassword.isNotEmpty() && password != confirmPassword) {
+        stringResource(R.string.error_password_mismatch)
+    } else null
 
     val isButtonEnabled = if (isRegister) {
-        password.isNotEmpty() && passwordError == null
+        password.isNotEmpty() &&
+                confirmPassword.isNotEmpty() &&
+                policyError == null &&
+                matchError == null
     } else {
         password.isNotEmpty()
     }
@@ -127,26 +139,65 @@ fun AuthContent(
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
+                    imeAction = if (isRegister) ImeAction.Next else ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = {
-                        if (password.isNotBlank()) onAuthAction(password)
-                    }
+                    onNext = { focusManager.moveFocus(FocusDirection.Down) },
+                    onDone = { if (isButtonEnabled) onAuthAction(password) }
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                isError = passwordError != null
+                isError = policyError != null
             )
 
-            if (passwordError != null) {
+            if (policyError != null) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = passwordError,
+                    text = policyError,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.align(Alignment.Start)
                 )
+            }
+
+            if (isRegister) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text("Confirmar contraseña") },
+                    visualTransformation = if (isConfirmVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { isConfirmVisible = !isConfirmVisible }) {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (isConfirmVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
+                                ),
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { if (isButtonEnabled) onAuthAction(password) }
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    isError = matchError != null
+                )
+
+                if (matchError != null) {
+                    Text(
+                        text = matchError,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.align(Alignment.Start).padding(top = 4.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
