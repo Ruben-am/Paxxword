@@ -111,4 +111,17 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
+
+    fun validatePasswordPolicy(password: String): String? {
+        if (password.length < 8) {
+            return "La contraseña debe tener al menos 8 caracteres."
+        }
+        if (!password.any { it.isDigit() }) {
+            return "La contraseña debe contener al menos un número."
+        }
+        if (!password.any { !it.isLetterOrDigit() }) {
+            return "La contraseña debe contener al menos un símbolo (e.g., @, #, $)."
+        }
+        return null
+    }
 }
