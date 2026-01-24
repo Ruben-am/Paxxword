@@ -14,4 +14,5 @@
 
     <string name="vault_title">Mis contraseñas</string>
     <string name="vault_empty">No tienes contraseñas.\n¡Pulsa + para añadir una nueva!</string>
+    <string name="error_password_mismatch">Error, no coinciden las contraseñas</string>
 </resources>
