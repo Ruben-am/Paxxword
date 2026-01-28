@@ -6,27 +6,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.rubenalba.myapplication.ui.addedit.AddAccountScreen
 import com.rubenalba.myapplication.ui.auth.AuthScreen
-import com.rubenalba.myapplication.ui.splash.SplashScreen
 import com.rubenalba.myapplication.ui.vault.VaultScreen
 
 @Composable
 fun AppNavigation(
-    navController: NavHostController
+    navController: NavHostController,
+    startDestination: String
 ) {
-    NavHost(navController = navController, startDestination = "splash") {
+    NavHost(navController = navController, startDestination = startDestination) {
 
-        // 1. Splash
-        composable("splash") {
-            SplashScreen(
-                onNavigate = { destination ->
-                    navController.navigate(destination) {
-                        popUpTo("splash") { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        // 2. Auth (Login/Sing up)
+        // Auth (Login/Sing up)
         composable("login") {
             AuthScreen(
                 isRegister = false,
@@ -49,7 +38,7 @@ fun AppNavigation(
             )
         }
 
-        // 3. Main
+        // Main
         composable("vault") {
             VaultScreen()
         }
