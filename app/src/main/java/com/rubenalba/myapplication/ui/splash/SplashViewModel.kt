@@ -25,7 +25,7 @@ class SplashViewModel @Inject constructor(
 
     private fun checkUserStatus() {
         viewModelScope.launch {
-            delay(1000)
+            // delay(1000)
 
             val user = userDao.getAppUser()
             if (user != null) {
