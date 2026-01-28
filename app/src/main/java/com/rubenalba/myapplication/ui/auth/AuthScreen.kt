@@ -37,8 +37,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.myapplication.R
+import com.rubenalba.myapplication.ui.theme.JetBrainsMonoFontFamily
 
 @Composable
 fun AuthScreen(
@@ -125,6 +127,10 @@ fun AuthContent(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
+                textStyle = androidx.compose.ui.text.TextStyle(
+                    fontFamily = JetBrainsMonoFontFamily,
+                    fontSize = 16.sp
+                ),
                 label = { Text("Contraseña Maestra") },
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -166,6 +172,10 @@ fun AuthContent(
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        fontFamily = JetBrainsMonoFontFamily,
+                        fontSize = 16.sp
+                    ),
                     label = { Text("Confirmar contraseña") },
                     visualTransformation = if (isConfirmVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {

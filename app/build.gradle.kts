@@ -83,4 +83,7 @@ dependencies {
 
     // HILT + NAVIGATION
     implementation(libs.androidx.hilt.navigation.compose)
+
+    // SPLASH SCREEN
+    implementation(libs.androidx.core.splashscreen)
 }

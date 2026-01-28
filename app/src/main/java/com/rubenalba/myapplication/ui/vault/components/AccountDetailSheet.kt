@@ -42,8 +42,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.rubenalba.myapplication.R
 import com.rubenalba.myapplication.domain.model.AccountModel
+import com.rubenalba.myapplication.ui.theme.JetBrainsMonoFontFamily
+import com.rubenalba.myapplication.ui.theme.ManropeFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,6 +147,10 @@ fun AccountDetailContent(
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
+                textStyle = androidx.compose.ui.text.TextStyle(
+                    fontFamily = if (isSecret) JetBrainsMonoFontFamily else ManropeFontFamily,
+                    fontSize = 16.sp
+                ),
                 label = { Text(label) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = isEditing,
