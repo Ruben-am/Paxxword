@@ -14,8 +14,10 @@ import javax.inject.Inject
 class SplashViewModel @Inject constructor(
     private val userDao: UserDao
 ) : ViewModel() {
-    private val _destination = MutableStateFlow<String?>(null)
-    val destination = _destination.asStateFlow()
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading = _isLoading.asStateFlow()
+    private val _startDestination = MutableStateFlow("signup")
+    val startDestination = _startDestination.asStateFlow()
 
     init {
         checkUserStatus()
@@ -27,10 +29,12 @@ class SplashViewModel @Inject constructor(
 
             val user = userDao.getAppUser()
             if (user != null) {
-                _destination.value = "login"
+                _startDestination.value = "login"
             } else {
-                _destination.value = "signup"
+                _startDestination.value = "signup"
             }
+
+            _isLoading.value = false
         }
     }
 }
