@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Paxxword</string>
+
+    <string name="auth_login_title">Bienvenido</string>
+    <string name="auth_register_title">Crear Contraseña Maestra</string>
+    <string name="auth_register_subtitle">Esta contraseña encriptará todos tus datos. No la olvides.</string>
+    <string name="auth_label_master_password">Contraseña Maestra</string>
+    <string name="auth_label_confirm_password">Confirmar contraseña</string>
+    <string name="auth_btn_register">Registrar</string>
+    <string name="auth_btn_login">Iniciar sesión</string>
+
+    <string name="auth_error_password_mismatch">Las contraseñas no coinciden</string>
+    <string name="auth_error_policy_length">La contraseña debe tener al menos 8 caracteres.</string>
+    <string name="auth_error_policy_digit">La contraseña debe contener al menos un número.</string>
+    <string name="auth_error_policy_symbol">La contraseña debe contener al menos un símbolo (e.g., @, #, $).</string>
+    <string name="auth_error_no_user">No hay usuario registrado. Reinstala la app.</string>
+    <string name="auth_error_incorrect">Contraseña incorrecta</string>
+    <string name="auth_error_generic">Error al registrar: %1$s</string>
+
+    <string name="vault_title">Bóveda</string>
+    <string name="vault_empty">Aún no hay cuentas. ¡Añade una!</string>
+    <string name="content_desc_add_account">Añadir Cuenta</string>
+
+    <string name="add_account_title">Nueva Contraseña</string>
+    <string name="edit_account_default_title">Detalles</string>
+    <string name="label_service">Nombre del servicio *</string>
+    <string name="label_email">Email</string>
+    <string name="label_username">Usuario</string>
+    <string name="label_password">Contraseña *</string>
+    <string name="label_url">Sitio Web (URL)</string>
+    <string name="label_notes">Notas</string>
+
+    <string name="btn_save">Guardar</string>
+    <string name="btn_delete_account">Eliminar Cuenta</string>
+    <string name="content_desc_back">Volver</string>
+    <string name="content_desc_save">Guardar</string>
+    <string name="content_desc_edit">Editar</string>
+    <string name="content_desc_visibility">Alternar visibilidad contraseña</string>
+
+    <string name="error_service_required">El nombre del servicio es obligatorio</string>
+    <string name="error_password_required">La contraseña es obligatoria</string>
+    <string name="error_save_generic">Error al guardar: %1$s</string>
+</resources>
