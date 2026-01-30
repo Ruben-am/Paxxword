@@ -42,6 +42,7 @@ import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -115,7 +116,8 @@ fun AuthContent(
                 .padding(padding)
                 .fillMaxSize()
                 .padding(32.dp)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
