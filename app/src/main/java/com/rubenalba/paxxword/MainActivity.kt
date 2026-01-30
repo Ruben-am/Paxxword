@@ -43,10 +43,12 @@ class MainActivity : ComponentActivity() {
 
                     val startDest by splashViewModel.startDestination.collectAsState()
 
-                    AppNavigation(
-                        navController = navController,
-                        startDestination = startDest
-                    )
+                    if (startDest != null) {
+                        AppNavigation(
+                            navController = navController,
+                            startDestination = startDest!!
+                        )
+                    }
                 }
             }
         }
