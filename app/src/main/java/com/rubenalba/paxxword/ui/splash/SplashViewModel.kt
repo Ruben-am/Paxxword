@@ -33,7 +33,7 @@ class SplashViewModel @Inject constructor(
                 _startDestination.value = "signup"
             }
 
-            delay(200)
+            delay(500)
 
             _isLoading.value = false
         }
