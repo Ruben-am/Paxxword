@@ -23,6 +23,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
+        android.util.Log.d("TEST_PACKAGE", "Mi paquete es: $packageName")
+
         val splashScreen = installSplashScreen()
 
         super.onCreate(savedInstanceState)
