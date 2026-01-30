@@ -17,12 +17,12 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.rubenalba.myapplication"
+    namespace = "com.rubenalba.paxxword"
 
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.rubenalba.myapplication"
+        applicationId = "com.rubenalba.paxxword"
         minSdk = 28
         targetSdk = 36
         versionCode = 1
