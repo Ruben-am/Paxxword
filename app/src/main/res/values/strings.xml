@@ -41,6 +41,5 @@
     <string name="error_password_required">Password is required</string>
     <string name="error_save_generic">Error saving: %1$s</string>
 
-    <string name="auth_subtitle_manager">Password Manager</string>
     <string name="content_desc_logo">App Logo</string>
 </resources>
