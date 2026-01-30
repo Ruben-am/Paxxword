@@ -40,4 +40,7 @@
     <string name="error_service_required">El nombre del servicio es obligatorio</string>
     <string name="error_password_required">La contraseña es obligatoria</string>
     <string name="error_save_generic">Error al guardar: %1$s</string>
+
+    <string name="auth_subtitle_manager">Gestor de Contraseñas</string>
+    <string name="content_desc_logo">Logo de la aplicación</string>
 </resources>
