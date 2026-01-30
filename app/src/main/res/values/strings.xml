@@ -1,18 +1,43 @@
 <resources>
     <string name="app_name">Paxxword</string>
 
-    <string name="add_account_title">Nueva Contraseña</string>
-    <string name="label_service">Nombre del servicio *</string>
-    <string name="label_email">Email</string>
-    <string name="label_username">Usuario</string>
-    <string name="label_password">Contraseña *</string>
-    <string name="label_url">Sitio Web (URL)</string>
-    <string name="label_notes">Notas</string>
-    <string name="btn_save">Guardar</string>
-    <string name="error_service_required">El nombre del servicio es obligatorio</string>
-    <string name="error_password_required">La contraseña es obligatoria</string>
+    <string name="auth_login_title">Welcome</string>
+    <string name="auth_register_title">Create Master Password</string>
+    <string name="auth_register_subtitle">This password will encrypt all your data. Do not forget it.</string>
+    <string name="auth_label_master_password">Master Password</string>
+    <string name="auth_label_confirm_password">Confirm Password</string>
+    <string name="auth_btn_register">Register</string>
+    <string name="auth_btn_login">Log In</string>
 
-    <string name="vault_title">Mis contraseñas</string>
-    <string name="vault_empty">No tienes contraseñas.\n¡Pulsa + para añadir una nueva!</string>
-    <string name="error_password_mismatch">Error, no coinciden las contraseñas</string>
+    <string name="auth_error_password_mismatch">Passwords do not match</string>
+    <string name="auth_error_policy_length">Password must be at least 8 characters.</string>
+    <string name="auth_error_policy_digit">Password must contain at least one number.</string>
+    <string name="auth_error_policy_symbol">Password must contain at least one symbol (e.g., @, #, $).</string>
+    <string name="auth_error_no_user">No user registered. Please reinstall the app.</string>
+    <string name="auth_error_incorrect">Incorrect password</string>
+    <string name="auth_error_generic">Error during authentication: %1$s</string>
+
+    <string name="vault_title">Vault</string>
+    <string name="vault_empty">No accounts yet. Add one!</string>
+    <string name="content_desc_add_account">Add Account</string>
+
+    <string name="add_account_title">New Password</string>
+    <string name="edit_account_default_title">Details</string>
+    <string name="label_service">Service Name *</string>
+    <string name="label_email">Email</string>
+    <string name="label_username">Username</string>
+    <string name="label_password">Password *</string>
+    <string name="label_url">Website (URL)</string>
+    <string name="label_notes">Notes</string>
+
+    <string name="btn_save">Save</string>
+    <string name="btn_delete_account">Delete Account</string>
+    <string name="content_desc_back">Back</string>
+    <string name="content_desc_save">Save</string>
+    <string name="content_desc_edit">Edit</string>
+    <string name="content_desc_visibility">Toggle password visibility</string>
+
+    <string name="error_service_required">Service name is required</string>
+    <string name="error_password_required">Password is required</string>
+    <string name="error_save_generic">Error saving: %1$s</string>
 </resources>
