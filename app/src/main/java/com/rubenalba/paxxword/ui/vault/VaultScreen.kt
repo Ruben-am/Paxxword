@@ -57,7 +57,7 @@ fun VaultScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = viewModel::onAddClick) { // Abre el Sheet vacío
-                Icon(Icons.Default.Add, contentDescription = "Añadir Cuenta")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.content_desc_add_account))
             }
         }
     ) { paddingValues ->

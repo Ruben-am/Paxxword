@@ -70,7 +70,7 @@ fun AuthContent(
     isRegister: Boolean,
     state: AuthState,
     onAuthAction: (String) -> Unit,
-    onValidatePassword: (String) -> String?
+    onValidatePassword: (String) -> Int?
 ) {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -80,19 +80,19 @@ fun AuthContent(
 
     val focusManager = LocalFocusManager.current
 
-    val policyError = if (isRegister && password.isNotEmpty()) {
+    val policyErrorId = if (isRegister && password.isNotEmpty()) {
         onValidatePassword(password)
     } else null
 
-    val matchError = if (isRegister && confirmPassword.isNotEmpty() && password != confirmPassword) {
-        stringResource(R.string.error_password_mismatch)
+    val matchErrorId = if (isRegister && confirmPassword.isNotEmpty() && password != confirmPassword) {
+        R.string.auth_error_password_mismatch
     } else null
 
     val isButtonEnabled = if (isRegister) {
         password.isNotEmpty() &&
                 confirmPassword.isNotEmpty() &&
-                policyError == null &&
-                matchError == null
+                policyErrorId == null &&
+                matchErrorId == null
     } else {
         password.isNotEmpty()
     }
@@ -107,13 +107,13 @@ fun AuthContent(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = if (isRegister) "Crear Contraseña Maestra" else "Bienvenido",
+                text = if (isRegister) stringResource(R.string.auth_register_title) else stringResource(R.string.auth_login_title),
                 style = MaterialTheme.typography.headlineMedium
             )
 
             if (isRegister) {
                 Text(
-                    text = "Esta contraseña encriptará todos tus datos. No la olvides.",
+                    text = stringResource(R.string.auth_register_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp)
@@ -129,7 +129,7 @@ fun AuthContent(
                     fontFamily = JetBrainsMonoFontFamily,
                     fontSize = 16.sp
                 ),
-                label = { Text("Contraseña Maestra") },
+                label = { Text(stringResource(R.string.auth_label_master_password)) },
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
@@ -137,7 +137,7 @@ fun AuthContent(
                             painter = painterResource(
                                 id = if (isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
                             ),
-                            contentDescription = null
+                            contentDescription = stringResource(R.string.content_desc_visibility)
                         )
                     }
                 },
@@ -151,13 +151,13 @@ fun AuthContent(
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                isError = policyError != null
+                isError = policyErrorId != null
             )
 
-            if (policyError != null) {
+            if (policyErrorId != null) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = policyError,
+                    text = stringResource(policyErrorId),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.align(Alignment.Start)
@@ -174,7 +174,7 @@ fun AuthContent(
                         fontFamily = JetBrainsMonoFontFamily,
                         fontSize = 16.sp
                     ),
-                    label = { Text("Confirmar contraseña") },
+                    label = { Text(stringResource(R.string.auth_label_confirm_password)) },
                     visualTransformation = if (isConfirmVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { isConfirmVisible = !isConfirmVisible }) {
@@ -182,7 +182,7 @@ fun AuthContent(
                                 painter = painterResource(
                                     id = if (isConfirmVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
                                 ),
-                                contentDescription = null
+                                contentDescription = stringResource(R.string.content_desc_visibility)
                             )
                         }
                     },
@@ -195,12 +195,12 @@ fun AuthContent(
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    isError = matchError != null
+                    isError = matchErrorId != null
                 )
 
-                if (matchError != null) {
+                if (matchErrorId != null) {
                     Text(
-                        text = matchError,
+                        text = stringResource(matchErrorId),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.align(Alignment.Start).padding(top = 4.dp)
@@ -218,14 +218,14 @@ fun AuthContent(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = isButtonEnabled
                 ) {
-                    Text(if (isRegister) "Registrar" else "Iniciar sesion")
+                    Text(if (isRegister) stringResource(R.string.auth_btn_register) else stringResource(R.string.auth_btn_login))
                 }
             }
 
             if (state is AuthState.Error) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = state.message,
+                    text = stringResource(state.messageId),
                     color = MaterialTheme.colorScheme.error
                 )
             }

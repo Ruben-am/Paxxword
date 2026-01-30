@@ -2,6 +2,7 @@ package com.rubenalba.paxxword.ui.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.data.manager.SessionManager
 import com.rubenalba.paxxword.data.local.dao.UserDao
 import com.rubenalba.paxxword.data.local.entity.User
@@ -17,7 +18,7 @@ sealed class AuthState {
     data object Idle : AuthState() // waiting user input
     data object Loading : AuthState() // auth
     data object Success : AuthState() // enter
-    data class Error(val message: String) : AuthState() // incorrect password
+    data class Error(val messageId: Int) : AuthState() // incorrect password
 }
 
 @HiltViewModel
@@ -67,7 +68,7 @@ class AuthViewModel @Inject constructor(
                 _authState.value = AuthState.Success
 
             } catch (e: Exception) {
-                _authState.value = AuthState.Error("Error al registrar: ${e.message}")
+                _authState.value = AuthState.Error(R.string.auth_error_generic)
             }
         }
     }
@@ -82,7 +83,7 @@ class AuthViewModel @Inject constructor(
             // search user
             val user = userDao.getAppUser()
             if (user == null) {
-                _authState.value = AuthState.Error("No hay usuario registrado. Reinstala la app.")
+                _authState.value = AuthState.Error(R.string.auth_error_no_user)
                 return@launch
             }
 
@@ -104,23 +105,23 @@ class AuthViewModel @Inject constructor(
                     sessionManager.setKey(keyCandidate)
                     _authState.value = AuthState.Success
                 } else {
-                    _authState.value = AuthState.Error("Contraseña incorrecta")
+                    _authState.value = AuthState.Error(R.string.auth_error_incorrect)
                 }
             } catch (e: Exception) {
-                _authState.value = AuthState.Error("Contraseña incorrecta")
+                _authState.value = AuthState.Error(R.string.auth_error_incorrect)
             }
         }
     }
 
-    fun validatePasswordPolicy(password: String): String? {
+    fun validatePasswordPolicy(password: String): Int? {
         if (password.length < 8) {
-            return "La contraseña debe tener al menos 8 caracteres."
+            return R.string.auth_error_policy_length
         }
         if (!password.any { it.isDigit() }) {
-            return "La contraseña debe contener al menos un número."
+            return R.string.auth_error_policy_digit
         }
         if (!password.any { !it.isLetterOrDigit() }) {
-            return "La contraseña debe contener al menos un símbolo (e.g., @, #, $)."
+            return R.string.auth_error_policy_symbol
         }
         return null
     }

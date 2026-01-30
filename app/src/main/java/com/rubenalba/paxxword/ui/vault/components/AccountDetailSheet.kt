@@ -117,8 +117,15 @@ fun AccountDetailContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+
+            val titleText = if (account.id == 0L) {
+                stringResource(R.string.add_account_title)
+            } else {
+                serviceName.ifEmpty { stringResource(R.string.edit_account_default_title) }
+            }
+
             Text(
-                text = if (account.id == 0L) stringResource(R.string.add_account_title) else serviceName.ifEmpty { "Detalles" },
+                text = titleText,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -128,7 +135,7 @@ fun AccountDetailContent(
                 IconButton(onClick = { isEditing = !isEditing }) {
                     Icon(
                         imageVector = if (isEditing) Icons.Default.Close else Icons.Default.Edit,
-                        contentDescription = "Editar"
+                        contentDescription = stringResource(R.string.content_desc_edit)
                     )
                 }
             }
@@ -144,6 +151,8 @@ fun AccountDetailContent(
             label: String,
             isSecret: Boolean = false
         ) {
+            val isNotesField = label == stringResource(R.string.label_notes)
+
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
@@ -154,7 +163,7 @@ fun AccountDetailContent(
                 label = { Text(label) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = isEditing,
-                singleLine = !(!isSecret && label == stringResource(R.string.label_notes)),
+                singleLine = !(!isSecret && isNotesField),
 
                 colors = OutlinedTextFieldDefaults.colors(
                     disabledTextColor = MaterialTheme.colorScheme.onSurface,
@@ -175,7 +184,7 @@ fun AccountDetailContent(
                                 painter = painterResource(
                                     id = if (isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
                                 ),
-                                contentDescription = null
+                                contentDescription = stringResource(R.string.content_desc_visibility)
                             )
                         }
                     }
@@ -224,7 +233,7 @@ fun AccountDetailContent(
             ) {
                 Icon(Icons.Default.Delete, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Eliminar Cuenta")
+                Text(stringResource(R.string.btn_delete_account))
             }
         }
     }
