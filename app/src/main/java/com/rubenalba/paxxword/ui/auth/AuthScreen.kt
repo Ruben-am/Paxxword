@@ -1,5 +1,6 @@
 package com.rubenalba.paxxword.ui.auth
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -39,6 +40,17 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import com.rubenalba.paxxword.ui.theme.PaxxwordTheme
 
 @Composable
 fun AuthScreen(
@@ -102,21 +114,28 @@ fun AuthContent(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .padding(32.dp),
+                .padding(32.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
+            AuthHeader()
+
+            Spacer(modifier = Modifier.height(32.dp))
+
             Text(
                 text = if (isRegister) stringResource(R.string.auth_register_title) else stringResource(R.string.auth_login_title),
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineSmall
             )
 
             if (isRegister) {
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.auth_register_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 8.dp)
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -233,50 +252,69 @@ fun AuthContent(
     }
 }
 
-//@Preview(showBackground = true, name = "1. Login - Normal")
-//@Composable
-//fun AuthScreenLoginPreview() {
-//    MaterialTheme {
-//        AuthContent(
-//            isRegister = false,
-//            state = AuthState.Idle,
-//            onAuthAction = {}
-//        )
-//    }
-//}
-//
-//@Preview(showBackground = true, name = "2. Registro - Normal")
-//@Composable
-//fun AuthScreenRegisterPreview() {
-//    MaterialTheme {
-//        AuthContent(
-//            isRegister = true,
-//            state = AuthState.Idle,
-//            onAuthAction = {}
-//        )
-//    }
-//}
-//
-//@Preview(showBackground = true, name = "3. Cargando")
-//@Composable
-//fun AuthScreenLoadingPreview() {
-//    MaterialTheme {
-//        AuthContent(
-//            isRegister = false,
-//            state = AuthState.Loading,
-//            onAuthAction = {}
-//        )
-//    }
-//}
-//
-//@Preview(showBackground = true, name = "4. Error Contraseña")
-//@Composable
-//fun AuthScreenErrorPreview() {
-//    MaterialTheme {
-//        AuthContent(
-//            isRegister = false,
-//            state = AuthState.Error("Contraseña incorrecta, inténtalo de nuevo"),
-//            onAuthAction = {}
-//        )
-//    }
-//}
+@Composable
+fun AuthHeader() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_paxxword_name),
+                contentDescription = stringResource(R.string.content_desc_logo),
+                modifier = Modifier.height(40.dp),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Image(
+                painter = painterResource(id = R.drawable.ic_paxxword_shield),
+                contentDescription = null,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+    }
+}
+
+@Preview(name = "1. Header Only", showBackground = true)
+@Composable
+fun HeaderPreview() {
+    PaxxwordTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            AuthHeader()
+        }
+    }
+}
+
+@Preview(name = "2. Login Screen (Light)", showBackground = true)
+@Composable
+fun AuthScreenLightPreview() {
+    PaxxwordTheme {
+        AuthContent(
+            isRegister = true,
+            state = AuthState.Idle,
+            onAuthAction = {},
+            onValidatePassword = { null }
+        )
+    }
+}
+
+@Preview(
+    name = "3. Login Screen (Dark)",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun AuthScreenDarkPreview() {
+    PaxxwordTheme {
+        AuthContent(
+            isRegister = false,
+            state = AuthState.Idle,
+            onAuthAction = {},
+            onValidatePassword = { null }
+        )
+    }
+}
