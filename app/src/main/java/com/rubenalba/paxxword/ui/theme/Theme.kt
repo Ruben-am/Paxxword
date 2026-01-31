@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.rubenalba.paxxword.domain.model.AppTheme
 
 private val DarkColors = darkColorScheme(
     primary = md_theme_dark_primary,
@@ -55,10 +56,16 @@ private val LightColors = lightColorScheme(
 
 @Composable
 fun PaxxwordTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    appTheme: AppTheme = AppTheme.SYSTEM,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val darkTheme = when (appTheme) {
+        AppTheme.LIGHT -> false
+        AppTheme.DARK -> true
+        AppTheme.SYSTEM -> isSystemInDarkTheme()
+    }
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current

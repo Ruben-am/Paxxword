@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.rubenalba.paxxword.ui.auth.AuthScreen
+import com.rubenalba.paxxword.ui.settings.SettingsScreen
 import com.rubenalba.paxxword.ui.vault.VaultScreen
 
 @Composable
@@ -39,7 +40,15 @@ fun AppNavigation(
 
         // Main
         composable("vault") {
-            VaultScreen()
+            VaultScreen(
+                onNavigateToSettings = { navController.navigate("settings") }
+            )
+        }
+
+        composable("settings") {
+            SettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }
