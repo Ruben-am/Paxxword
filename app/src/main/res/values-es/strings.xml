@@ -46,4 +46,18 @@
     <string name="settings_title">Ajustes</string>
     <string name="settings_theme_label">Tema</string>
     <string name="settings_language_label">Idioma</string>
+
+    <string name="folder_filter_all">Todas</string>
+    <string name="folder_dialog_delete_title">¿Borrar carpeta?</string>
+    <string name="folder_dialog_delete_message">Se borrará \'%1$s\'. Las cuentas dentro perderán su carpeta.</string>
+    <string name="folder_dialog_new_title">Nueva Carpeta</string>
+    <string name="folder_label_name">Nombre</string>
+    <string name="folder_btn_create">Crear</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_delete">Borrar</string>
+
+    <string name="label_folder_dropdown">Carpeta</string>
+    <string name="option_no_folder">Sin carpeta</string>
+
+    <string name="error_unknown">Error desconocido</string>
 </resources>

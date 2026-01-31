@@ -46,4 +46,18 @@
     <string name="settings_title">Settings</string>
     <string name="settings_theme_label">Theme</string>
     <string name="settings_language_label">Language</string>
+
+    <string name="folder_filter_all">All</string>
+    <string name="folder_dialog_delete_title">Delete folder?</string>
+    <string name="folder_dialog_delete_message">\'%1$s\' will be deleted. Accounts inside will lose their folder.</string>
+    <string name="folder_dialog_new_title">New Folder</string>
+    <string name="folder_label_name">Name</string>
+    <string name="folder_btn_create">Create</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_delete">Delete</string>
+
+    <string name="label_folder_dropdown">Folder</string>
+    <string name="option_no_folder">No folder</string>
+
+    <string name="error_unknown">Unknown error</string>
 </resources>
