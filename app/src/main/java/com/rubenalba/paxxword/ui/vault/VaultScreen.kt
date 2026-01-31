@@ -7,10 +7,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,7 +32,8 @@ import com.rubenalba.paxxword.ui.vault.components.AccountItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VaultScreen(
-    viewModel: VaultViewModel = hiltViewModel()
+    viewModel: VaultViewModel = hiltViewModel(),
+    onNavigateToSettings: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val selectedAccount by viewModel.selectedAccount.collectAsState()
@@ -49,6 +52,11 @@ fun VaultScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.vault_title)) },
+                actions = { // Botón de ajustes
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer

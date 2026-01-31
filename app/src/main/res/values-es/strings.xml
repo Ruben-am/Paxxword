@@ -42,4 +42,8 @@
     <string name="error_save_generic">Error al guardar: %1$s</string>
 
     <string name="content_desc_logo">Logo de la aplicación</string>
+
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_theme_label">Tema</string>
+    <string name="settings_language_label">Idioma</string>
 </resources>
