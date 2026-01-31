@@ -3,6 +3,8 @@ package com.rubenalba.paxxword.data.repository
 import com.rubenalba.paxxword.data.manager.SessionManager
 import com.rubenalba.paxxword.data.local.dao.AccountDao
 import com.rubenalba.paxxword.data.local.entity.Account
+import com.rubenalba.paxxword.data.local.entity.Folder
+import com.rubenalba.paxxword.data.local.dao.FolderDao
 import com.rubenalba.paxxword.domain.model.AccountModel
 import com.rubenalba.paxxword.data.manager.CryptoManager
 import com.rubenalba.paxxword.domain.repository.PasswordRepository
@@ -13,6 +15,7 @@ import javax.inject.Inject
 
 class PasswordRepositoryImpl @Inject constructor(
     private val accountDao: AccountDao,
+    private val folderDao: FolderDao,
     private val sessionManager: SessionManager
 ) : PasswordRepository {
     private fun getKey(): SecretKeySpec {
@@ -135,5 +138,17 @@ class PasswordRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             "Error"
         }
+    }
+
+    override fun getAllFolders(): Flow<List<Folder>> {
+        return folderDao.getAllFolders()
+    }
+
+    override suspend fun insertFolder(folder: Folder) {
+        folderDao.insert(folder)
+    }
+
+    override suspend fun deleteFolder(folder: Folder) {
+        folderDao.delete(folder)
     }
 }

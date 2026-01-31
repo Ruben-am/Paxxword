@@ -1,5 +1,6 @@
 package com.rubenalba.paxxword.domain.repository
 
+import com.rubenalba.paxxword.data.local.entity.Folder
 import com.rubenalba.paxxword.domain.model.AccountModel
 import kotlinx.coroutines.flow.Flow
 
@@ -11,4 +12,7 @@ interface PasswordRepository {
     suspend fun saveAccount(account: AccountModel)
 
     suspend fun deleteAccount(id: Long)
+    fun getAllFolders(): Flow<List<Folder>>
+    suspend fun insertFolder(folder: Folder)
+    suspend fun deleteFolder(folder: Folder)
 }
