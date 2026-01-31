@@ -14,8 +14,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rubenalba.paxxword.data.local.entity.Folder
+import com.rubenalba.paxxword.R
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -35,7 +37,7 @@ fun FolderFilterBar(
             FilterChip(
                 selected = selectedFolderId == null,
                 onClick = { onFolderSelected(null) },
-                label = { Text("Todas") }
+                label = { Text(stringResource(R.string.folder_filter_all)) }
             )
         }
 
@@ -47,15 +49,17 @@ fun FolderFilterBar(
             if (showDeleteDialog) {
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = false },
-                    title = { Text("¿Borrar carpeta?") },
-                    text = { Text("Se borrará '${folder.folderName}'. Las cuentas dentro perderán su carpeta.") },
+                    title = { Text(stringResource(R.string.folder_dialog_delete_title)) },
+                    text = { Text(stringResource(R.string.folder_dialog_delete_message, folder.folderName)) },
                     confirmButton = {
                         TextButton(onClick = { onDeleteFolder(folder); showDeleteDialog = false }) {
-                            Text("Borrar", color = MaterialTheme.colorScheme.error)
+                            Text(stringResource(R.string.btn_delete), color = MaterialTheme.colorScheme.error)
                         }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showDeleteDialog = false }) { Text("Cancelar") }
+                        TextButton(onClick = { showDeleteDialog = false }) {
+                            Text(stringResource(R.string.btn_cancel))
+                        }
                     }
                 )
             }
@@ -89,7 +93,7 @@ fun FolderFilterBar(
 
         item {
             IconButton(onClick = onAddFolderClick) {
-                Icon(Icons.Default.Add, contentDescription = "Nueva Carpeta")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.folder_dialog_new_title))
             }
         }
     }
@@ -104,12 +108,12 @@ fun AddFolderDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Nueva Carpeta") },
+        title = { Text(stringResource(R.string.folder_dialog_new_title)) },
         text = {
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
-                label = { Text("Nombre") },
+                label = { Text(stringResource(R.string.folder_label_name)) },
                 singleLine = true
             )
         },
@@ -118,11 +122,11 @@ fun AddFolderDialog(
                 onClick = { onConfirm(text) },
                 enabled = text.isNotBlank()
             ) {
-                Text("Crear")
+                Text(stringResource(R.string.folder_btn_create))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.btn_cancel)) }
         }
     )
 }

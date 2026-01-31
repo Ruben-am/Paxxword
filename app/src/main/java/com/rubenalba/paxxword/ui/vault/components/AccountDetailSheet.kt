@@ -223,11 +223,13 @@ fun AccountDetailContent(
                 onExpandedChange = { expanded = !expanded },
                 modifier = Modifier.fillMaxWidth()
             ) {
+                val noFolderLabel = stringResource(R.string.option_no_folder)
+
                 OutlinedTextField(
                     readOnly = true,
-                    value = folderLabel,
+                    value = allFolders.find { it.id == selectedFolderId }?.folderName ?: noFolderLabel,
                     onValueChange = {},
-                    label = { Text("Carpeta") },
+                    label = { Text(stringResource(R.string.label_folder_dropdown)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                     modifier = Modifier.menuAnchor().fillMaxWidth()
@@ -239,7 +241,7 @@ fun AccountDetailContent(
                 ) {
 
                     DropdownMenuItem(
-                        text = { Text("Sin carpeta") },
+                        text = { Text(stringResource(R.string.option_no_folder)) },
                         onClick = {
                             selectedFolderId = null
                             expanded = false
