@@ -5,6 +5,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -12,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.rubenalba.paxxword.data.local.entity.Folder
 
@@ -40,6 +42,8 @@ fun FolderFilterBar(
         items(folders) { folder ->
             var showDeleteDialog by remember { mutableStateOf(false) }
 
+            val chipShape = RoundedCornerShape(8.dp)
+
             if (showDeleteDialog) {
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = false },
@@ -56,16 +60,31 @@ fun FolderFilterBar(
                 )
             }
 
-            FilterChip(
-                selected = selectedFolderId == folder.id,
-                onClick = { onFolderSelected(folder.id) },
-                label = { Text(folder.folderName) },
-                leadingIcon = { Icon(Icons.Default.Menu, null, Modifier.size(16.dp)) },
-                modifier = Modifier.combinedClickable(
-                    onClick = { onFolderSelected(folder.id) },
-                    onLongClick = { showDeleteDialog = true }
+            Box(contentAlignment = Alignment.Center) {
+
+                FilterChip(
+                    selected = selectedFolderId == folder.id,
+                    onClick = { /* managed by upper box */ },
+                    label = { Text(folder.folderName) },
+                    leadingIcon = { Icon(Icons.Default.Menu, null, Modifier.size(16.dp)) },
+                    shape = chipShape,
+                    modifier = Modifier.height(32.dp),
+                    border = FilterChipDefaults.filterChipBorder(
+                        enabled = true,
+                        selected = selectedFolderId == folder.id
+                    )
                 )
-            )
+
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(chipShape)
+                        .combinedClickable(
+                            onClick = { onFolderSelected(folder.id) },
+                            onLongClick = { showDeleteDialog = true }
+                        )
+                )
+            }
         }
 
         item {

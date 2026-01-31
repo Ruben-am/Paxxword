@@ -1,7 +1,9 @@
 package com.rubenalba.paxxword.ui.vault
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,6 +23,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -28,6 +33,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.ui.vault.components.AccountDetailSheet
 import com.rubenalba.paxxword.ui.vault.components.AccountItem
+import com.rubenalba.paxxword.ui.vault.components.AddFolderDialog
+import com.rubenalba.paxxword.ui.vault.components.FolderFilterBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,20 +46,35 @@ fun VaultScreen(
     val selectedAccount by viewModel.selectedAccount.collectAsState()
     val isSheetOpen by viewModel.isSheetOpen.collectAsState()
 
+    val folders by viewModel.folders.collectAsState()
+    val selectedFolderId by viewModel.selectedFolderId.collectAsState()
+    var showAddFolderDialog by remember { mutableStateOf(false) }
+
     AccountDetailSheet(
         account = selectedAccount,
+        allFolders = folders,
         isOpen = isSheetOpen,
         onDismiss = viewModel::onDismissSheet,
         onSave = viewModel::saveAccount,
         onDelete = viewModel::deleteAccount
     )
 
+    if (showAddFolderDialog) {
+        AddFolderDialog(
+            onDismiss = { showAddFolderDialog = false },
+            onConfirm = { name ->
+                viewModel.onCreateFolder(name)
+                showAddFolderDialog = false
+            }
+        )
+    }
+
     // body
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.vault_title)) },
-                actions = { // Botón de ajustes
+                actions = {
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
@@ -64,42 +86,57 @@ fun VaultScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = viewModel::onAddClick) { // Abre el Sheet vacío
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.content_desc_add_account))
+            FloatingActionButton(onClick = viewModel::onAddClick) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = stringResource(R.string.content_desc_add_account)
+                )
             }
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .padding(paddingValues)
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
         ) {
-            when (val state = uiState) {
-                is VaultUiState.Loading -> {
-                    CircularProgressIndicator()
-                }
+            FolderFilterBar(
+                folders = folders,
+                selectedFolderId = selectedFolderId,
+                onFolderSelected = viewModel::onFolderSelect,
+                onAddFolderClick = { showAddFolderDialog = true },
+                onDeleteFolder = viewModel::onDeleteFolder
+            )
 
-                is VaultUiState.Error -> {
-                    Text(
-                        text = state.message,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
+            Box(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                when (val state = uiState) {
+                    is VaultUiState.Loading -> {
+                        CircularProgressIndicator()
+                    }
 
-                is VaultUiState.Success -> {
-                    if (state.accounts.isEmpty()) {
+                    is VaultUiState.Error -> {
                         Text(
-                            text = stringResource(R.string.vault_empty),
-                            style = MaterialTheme.typography.bodyLarge
+                            text = state.message,
+                            color = MaterialTheme.colorScheme.error
                         )
-                    } else {
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(state.accounts) { account ->
-                                AccountItem(
-                                    account = account,
-                                    onClick = { viewModel.onAccountClick(account) }
-                                )
+                    }
+
+                    is VaultUiState.Success -> {
+                        if (state.accounts.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.vault_empty),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        } else {
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                items(state.accounts) { account ->
+                                    AccountItem(
+                                        account = account,
+                                        onClick = { viewModel.onAccountClick(account) }
+                                    )
+                                }
                             }
                         }
                     }
