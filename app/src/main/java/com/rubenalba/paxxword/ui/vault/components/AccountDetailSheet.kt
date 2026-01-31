@@ -18,7 +18,10 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +48,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rubenalba.paxxword.R
+import com.rubenalba.paxxword.data.local.entity.Folder
 import com.rubenalba.paxxword.domain.model.AccountModel
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import com.rubenalba.paxxword.ui.theme.ManropeFontFamily
@@ -53,6 +57,7 @@ import com.rubenalba.paxxword.ui.theme.ManropeFontFamily
 @Composable
 fun AccountDetailSheet(
     account: AccountModel?, // id 0 -> new account, id -> edit
+    allFolders: List<Folder>,
     isOpen: Boolean,
     onDismiss: () -> Unit,
     onSave: (AccountModel) -> Unit,
@@ -67,6 +72,7 @@ fun AccountDetailSheet(
         ) {
             AccountDetailContent(
                 account = account,
+                allFolders = allFolders,
                 onSave = onSave,
                 onDelete = onDelete,
                 onCancel = onDismiss
@@ -75,9 +81,11 @@ fun AccountDetailSheet(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountDetailContent(
     account: AccountModel,
+    allFolders: List<Folder>,
     onSave: (AccountModel) -> Unit,
     onDelete: (Long) -> Unit,
     onCancel: () -> Unit
@@ -202,6 +210,55 @@ fun AccountDetailContent(
         SheetTextField(url, { url = it }, stringResource(R.string.label_url))
         SheetTextField(notes, { notes = it }, stringResource(R.string.label_notes))
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        var expanded by remember { mutableStateOf(false) }
+        var selectedFolderId by remember { mutableStateOf(account.folderId) }
+
+        val folderLabel = allFolders.find { it.id == selectedFolderId }?.folderName ?: "Sin carpeta"
+
+        if (isEditing) {
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    readOnly = true,
+                    value = folderLabel,
+                    onValueChange = {},
+                    label = { Text("Carpeta") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+
+                    DropdownMenuItem(
+                        text = { Text("Sin carpeta") },
+                        onClick = {
+                            selectedFolderId = null
+                            expanded = false
+                        }
+                    )
+
+                    allFolders.forEach { folder ->
+                        DropdownMenuItem(
+                            text = { Text(folder.folderName) },
+                            onClick = {
+                                selectedFolderId = folder.id
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         // action buttons
@@ -214,7 +271,8 @@ fun AccountDetailContent(
                         email = email,
                         password = password,
                         url = url,
-                        notes = notes
+                        notes = notes,
+                        folderId = selectedFolderId
                     )
                     onSave(updatedAccount)
                 },
