@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/Kotlin-6750A4?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
   <img src="https://img.shields.io/badge/Jetpack_Compose-6750A4?style=for-the-badge&logo=android&logoColor=white" alt="Compose" />
   <img src="https://img.shields.io/badge/Security-AES_GCM_256-6750A4?style=for-the-badge&logo=adguard&logoColor=white" alt="Security" />
+  <img src="https://img.shields.io/badge/License-Apache_2.0-6750A4?style=for-the-badge&logo=apache&logoColor=white" alt="License" />
 </div>
 
 ## Application Overview
@@ -193,8 +194,6 @@ This project is built using modern Android technologies:
 * **Theming:** Full support for Light and Dark modes.
 * **Localization:** Native support for 🇬🇧 English and 🇪🇸 Spanish.
 
----
-
 ## Contribution
 
 Contributions are welcome! To maintain the project's stability and strict Clean Architecture standards, please follow this workflow:
@@ -211,7 +210,11 @@ Contributions are welcome! To maintain the project's stability and strict Clean 
 
 > **Note:** Pull Requests without an associated Issue may be closed without review.
 
----
+## License
+
+Copyright © 2026 Rubén Alba.
+
+This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
 
 > [!WARNING]
 > **Important Disclaimer**
