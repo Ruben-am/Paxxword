@@ -53,18 +53,18 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _backupState.value = BackupState.Loading
 
-            // 1. Verificar que la contraseña es la correcta del usuario actual
             val isValid = verifyMasterPassword(password)
 
             if (isValid) {
                 try {
-                    // 2. Si es correcta, usamos esa misma contraseña para exportar
                     backupManager.exportBackup(uri, password)
                     _backupState.value = BackupState.Success("Exportación completada y cifrada con tu Contraseña Maestra.")
                 } catch (e: Exception) {
+                    backupManager.deleteBackupFile(uri)
                     _backupState.value = BackupState.Error("Error al escribir el archivo.")
                 }
             } else {
+                backupManager.deleteBackupFile(uri)
                 _backupState.value = BackupState.Error("Contraseña incorrecta. Debes usar tu Contraseña Maestra actual.")
             }
         }
@@ -73,8 +73,6 @@ class SettingsViewModel @Inject constructor(
     fun importVault(uri: Uri, password: String) {
         viewModelScope.launch {
             _backupState.value = BackupState.Loading
-            // Aquí intentamos descifrar el archivo con la contraseña que nos den.
-            // Si exportaste con la maestra, aquí tendrás que poner la maestra por narices.
             val result = backupManager.importBackup(uri, password)
             if (result) {
                 _backupState.value = BackupState.Success("Importación exitosa")

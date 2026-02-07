@@ -25,7 +25,7 @@ class PasswordRepositoryImpl @Inject constructor(
 
     override fun getAccounts(folderId: Long?): Flow<List<AccountModel>> {
         val sourceFlow = if (folderId == null) {
-            accountDao.getAccountsWithoutFolder()
+            accountDao.getAllAccounts()
         } else {
             accountDao.getAccountsForFolder(folderId)
         }

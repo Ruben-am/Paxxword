@@ -2,6 +2,7 @@ package com.rubenalba.paxxword.data.manager
 
 import android.content.Context
 import android.net.Uri
+import android.provider.DocumentsContract
 import com.google.gson.Gson
 import com.rubenalba.paxxword.data.local.entity.Folder
 import com.rubenalba.paxxword.domain.model.AccountModel
@@ -114,6 +115,14 @@ class BackupManager @Inject constructor(
         }
     }
 
+    fun deleteBackupFile(uri: Uri) {
+        try {
+            DocumentsContract.deleteDocument(context.contentResolver, uri)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     private suspend fun restoreDataToRepository(data: BackupData) {
         // obtain folders (no duplicates)
         val currentFolders = repository.getAllFolders().first()
@@ -121,19 +130,25 @@ class BackupManager @Inject constructor(
 
         // restore folders
         data.folders.forEach { bFolder ->
-            val existing = currentFolders.find { it.folderName == bFolder.name }
+            val cleanName = bFolder.name.trim()
+            val existing = currentFolders.find { it.folderName.trim() == cleanName }
+
             if (existing != null) {
-                folderMap[bFolder.name] = existing.id
+                folderMap[cleanName] = existing.id
             } else {
-                val newFolder = Folder(folderName = bFolder.name)
+                val newFolder = Folder(folderName = cleanName)
                 val newId = repository.insertFolder(newFolder)
-                folderMap[bFolder.name] = newId
+                if (newId > 0) {
+                    folderMap[cleanName] = newId
+                }
             }
         }
 
         // restore accounts
         data.accounts.forEach { bAccount ->
-            val targetFolderId = if (bAccount.folderName != null) folderMap[bAccount.folderName] else null
+            val targetFolderId = if (bAccount.folderName != null) {
+                folderMap[bAccount.folderName.trim()]
+            } else null
 
             val newAccount = AccountModel(
                 serviceName = bAccount.serviceName,

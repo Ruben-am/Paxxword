@@ -10,6 +10,7 @@ import com.rubenalba.paxxword.data.local.dao.UserDao
 import com.rubenalba.paxxword.data.local.entity.User
 import com.rubenalba.paxxword.data.manager.CryptoManager
 import com.rubenalba.paxxword.data.manager.KeyDerivationUtil
+import com.rubenalba.paxxword.domain.repository.PasswordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,7 +28,8 @@ sealed class AuthState {
 class AuthViewModel @Inject constructor(
     private val userDao: UserDao,
     private val sessionManager: SessionManager,
-    private val backupManager: BackupManager
+    private val backupManager: BackupManager,
+    private val repository: PasswordRepository
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
