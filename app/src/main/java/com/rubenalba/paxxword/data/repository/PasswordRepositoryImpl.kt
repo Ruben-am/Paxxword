@@ -25,7 +25,7 @@ class PasswordRepositoryImpl @Inject constructor(
 
     override fun getAccounts(folderId: Long?): Flow<List<AccountModel>> {
         val sourceFlow = if (folderId == null) {
-            accountDao.getAccountsWithoutFolder()
+            accountDao.getAllAccounts()
         } else {
             accountDao.getAccountsForFolder(folderId)
         }
@@ -144,8 +144,8 @@ class PasswordRepositoryImpl @Inject constructor(
         return folderDao.getAllFolders()
     }
 
-    override suspend fun insertFolder(folder: Folder) {
-        folderDao.insert(folder)
+    override suspend fun insertFolder(folder: Folder): Long {
+        return folderDao.insert(folder)
     }
 
     override suspend fun deleteFolder(folder: Folder) {

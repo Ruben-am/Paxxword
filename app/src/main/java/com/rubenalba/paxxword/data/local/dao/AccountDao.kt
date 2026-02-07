@@ -21,6 +21,9 @@ interface AccountDao {
     @Delete
     suspend fun delete(account: Account)
 
+    @Query("SELECT * FROM accounts ORDER BY service_name ASC")
+    fun getAllAccounts(): Flow<List<Account>>
+
     @Query("SELECT * FROM accounts WHERE folder_id = :folderId")
     fun getAccountsForFolder(folderId: Long): Flow<List<Account>>
 

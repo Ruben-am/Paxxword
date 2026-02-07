@@ -1,13 +1,16 @@
 package com.rubenalba.paxxword.ui.auth
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.data.manager.SessionManager
+import com.rubenalba.paxxword.data.manager.BackupManager
 import com.rubenalba.paxxword.data.local.dao.UserDao
 import com.rubenalba.paxxword.data.local.entity.User
 import com.rubenalba.paxxword.data.manager.CryptoManager
 import com.rubenalba.paxxword.data.manager.KeyDerivationUtil
+import com.rubenalba.paxxword.domain.repository.PasswordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +27,9 @@ sealed class AuthState {
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val userDao: UserDao,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val backupManager: BackupManager,
+    private val repository: PasswordRepository
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
@@ -124,5 +129,49 @@ class AuthViewModel @Inject constructor(
             return R.string.auth_error_policy_symbol
         }
         return null
+    }
+
+    fun restoreFromBackup(uri: Uri, password: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+
+            try {
+                // generate salt, derivate key (one time)
+                val salt = KeyDerivationUtil.generateSalt()
+                val key = KeyDerivationUtil.deriveKey(password.toCharArray(), salt)
+
+                // establish temporary session with that key
+                sessionManager.setKey(key)
+
+                // import data
+                val success = backupManager.importBackup(uri, password)
+
+                if (success) {
+                    // create user
+                    val iv = CryptoManager.generateIv()
+                    val verificationBytes = "PAXXWORD_VERIFIED_USER".toByteArray(Charsets.UTF_8)
+                    val encryptedVerification = CryptoManager.encrypt(verificationBytes, key, iv)
+
+                    val user = User(
+                        userEmail = "usuario_restaurado",
+                        userSalt = CryptoManager.bytesToBase64(salt),
+                        encryptedVerificationValue = encryptedVerification,
+                        ivVerificationValue = CryptoManager.bytesToBase64(iv)
+                    )
+
+                    userDao.deleteAllUsers()
+                    userDao.insertUser(user)
+
+                    _authState.value = AuthState.Success
+                } else {
+                    sessionManager.clearSession()
+                    _authState.value = AuthState.Error(R.string.auth_error_incorrect)
+                }
+            } catch (e: Exception) {
+                sessionManager.clearSession()
+                userDao.deleteAllUsers()
+                _authState.value = AuthState.Error(R.string.auth_error_generic)
+            }
+        }
     }
 }
