@@ -69,8 +69,19 @@ fun SettingsScreen(
     }
 
     if (showPasswordDialog != null) {
+        val dialogTitle = if (showPasswordDialog == BackupOperation.EXPORT)
+            "Confirmar Exportación"
+        else
+            "Importar Bóveda"
+
+        val dialogMessage = if (showPasswordDialog == BackupOperation.EXPORT)
+            "Por seguridad, introduce tu Contraseña Maestra actual para cifrar el archivo de respaldo."
+        else
+            "Introduce la contraseña con la que se creó el archivo .paxx"
+
         PasswordConfirmDialog(
-            title = if (showPasswordDialog == BackupOperation.EXPORT) "Cifrar Backup" else "Descifrar Backup",
+            title = dialogTitle,
+            message = dialogMessage,
             onConfirm = { pass ->
                 tempUri?.let { uri ->
                     if (showPasswordDialog == BackupOperation.EXPORT) {
@@ -179,21 +190,26 @@ fun LanguageSelector(currentLanguage: AppLanguage, onLanguageSelected: (AppLangu
 enum class BackupOperation { EXPORT, IMPORT }
 
 @Composable
-fun PasswordConfirmDialog(title: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
+fun PasswordConfirmDialog(
+    title: String,
+    message: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
     var password by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
             Column {
-                Text("Introduce la contraseña maestra para procesar el archivo.")
+                Text(message)
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     visualTransformation = PasswordVisualTransformation(),
                     singleLine = true,
-                    label = { Text("Contraseña Maestra") }
+                    label = { Text("Contraseña") }
                 )
             }
         },
