@@ -13,6 +13,6 @@ interface PasswordRepository {
 
     suspend fun deleteAccount(id: Long)
     fun getAllFolders(): Flow<List<Folder>>
-    suspend fun insertFolder(folder: Folder)
+    suspend fun insertFolder(folder: Folder): Long
     suspend fun deleteFolder(folder: Folder)
 }

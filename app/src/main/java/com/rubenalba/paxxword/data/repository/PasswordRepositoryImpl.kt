@@ -144,8 +144,8 @@ class PasswordRepositoryImpl @Inject constructor(
         return folderDao.getAllFolders()
     }
 
-    override suspend fun insertFolder(folder: Folder) {
-        folderDao.insert(folder)
+    override suspend fun insertFolder(folder: Folder): Long {
+        return folderDao.insert(folder)
     }
 
     override suspend fun deleteFolder(folder: Folder) {

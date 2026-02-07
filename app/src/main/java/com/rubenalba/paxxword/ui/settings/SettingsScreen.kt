@@ -17,6 +17,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.domain.model.AppLanguage
 import com.rubenalba.paxxword.domain.model.AppTheme
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,7 +34,56 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.settingsState.collectAsState()
+    val backupState by viewModel.backupState.collectAsState()
     val context = LocalContext.current
+
+    var showPasswordDialog by remember { mutableStateOf<BackupOperation?>(null) }
+    var tempUri by remember { mutableStateOf<android.net.Uri?>(null) }
+
+    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) {
+            tempUri = uri
+            showPasswordDialog = BackupOperation.EXPORT
+        }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            tempUri = uri
+            showPasswordDialog = BackupOperation.IMPORT
+        }
+    }
+
+    LaunchedEffect(backupState) {
+        when(val s = backupState) {
+            is BackupState.Success -> {
+                Toast.makeText(context, s.msg, Toast.LENGTH_SHORT).show()
+                viewModel.resetBackupState()
+            }
+            is BackupState.Error -> {
+                Toast.makeText(context, s.msg, Toast.LENGTH_LONG).show()
+                viewModel.resetBackupState()
+            }
+            else -> {}
+        }
+    }
+
+    if (showPasswordDialog != null) {
+        PasswordConfirmDialog(
+            title = if (showPasswordDialog == BackupOperation.EXPORT) "Cifrar Backup" else "Descifrar Backup",
+            onConfirm = { pass ->
+                tempUri?.let { uri ->
+                    if (showPasswordDialog == BackupOperation.EXPORT) {
+                        viewModel.exportVault(uri, pass)
+                    } else {
+                        viewModel.importVault(uri, pass)
+                    }
+                }
+                showPasswordDialog = null
+            },
+            onDismiss = { showPasswordDialog = null }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -62,6 +120,32 @@ fun SettingsScreen(
                     }
                 }
             )
+
+            Divider(modifier = Modifier.padding(vertical = 24.dp))
+
+            Text(text = "Gestión de Datos", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedButton(
+                onClick = { exportLauncher.launch("paxxword_backup.paxx") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Exportar Bóveda (.paxx)")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = { importLauncher.launch(arrayOf("*/*")) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Importar Bóveda")
+            }
+            Text(
+                text = "Nota: Importar fusionará los datos con los existentes.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -90,4 +174,34 @@ fun LanguageSelector(currentLanguage: AppLanguage, onLanguageSelected: (AppLangu
             )
         }
     }
+}
+
+enum class BackupOperation { EXPORT, IMPORT }
+
+@Composable
+fun PasswordConfirmDialog(title: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
+    var password by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column {
+                Text("Introduce la contraseña maestra para procesar el archivo.")
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true,
+                    label = { Text("Contraseña Maestra") }
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onConfirm(password) }, enabled = password.isNotEmpty()) {
+                Text("Confirmar")
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
+    )
 }

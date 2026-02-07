@@ -21,8 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class BackupManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val repository: PasswordRepository,
-    private val cryptoManager: CryptoManager
+    private val repository: PasswordRepository
 ) {
     private val gson = Gson()
 
@@ -116,7 +115,7 @@ class BackupManager @Inject constructor(
     }
 
     private suspend fun restoreDataToRepository(data: BackupData) {
-        // obtain actual folder
+        // obtain folders (no duplicates)
         val currentFolders = repository.getAllFolders().first()
         val folderMap = mutableMapOf<String, Long>()
 
@@ -127,10 +126,8 @@ class BackupManager @Inject constructor(
                 folderMap[bFolder.name] = existing.id
             } else {
                 val newFolder = Folder(folderName = bFolder.name)
-                repository.insertFolder(newFolder)
-                val updatedFolders = repository.getAllFolders().first()
-                val createdId = updatedFolders.find { it.folderName == bFolder.name }?.id
-                if (createdId != null) folderMap[bFolder.name] = createdId
+                val newId = repository.insertFolder(newFolder)
+                folderMap[bFolder.name] = newId
             }
         }
 

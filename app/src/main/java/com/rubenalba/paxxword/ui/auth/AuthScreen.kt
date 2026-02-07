@@ -52,6 +52,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.rubenalba.paxxword.ui.theme.PaxxwordTheme
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 
 @Composable
 fun AuthScreen(
@@ -73,8 +78,10 @@ fun AuthScreen(
         onAuthAction = { password ->
             if (isRegister) viewModel.register(password) else viewModel.login(password)
         },
-
-        onValidatePassword = viewModel::validatePasswordPolicy
+        onValidatePassword = viewModel::validatePasswordPolicy,
+        onRestoreBackup = { uri, password ->
+            viewModel.restoreFromBackup(uri, password)
+        }
     )
 }
 
@@ -83,13 +90,24 @@ fun AuthContent(
     isRegister: Boolean,
     state: AuthState,
     onAuthAction: (String) -> Unit,
-    onValidatePassword: (String) -> Int?
+    onValidatePassword: (String) -> Int?,
+    onRestoreBackup: (Uri, String) -> Unit
 ) {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isConfirmVisible by remember { mutableStateOf(false) }
+
+    var showRestoreDialog by remember { mutableStateOf(false) }
+    var restoreUri by remember { mutableStateOf<Uri?>(null) }
+
+    val restoreLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            restoreUri = uri
+            showRestoreDialog = true
+        }
+    }
 
     val focusManager = LocalFocusManager.current
 
@@ -108,6 +126,16 @@ fun AuthContent(
                 matchErrorId == null
     } else {
         password.isNotEmpty()
+    }
+
+    if (showRestoreDialog && restoreUri != null) {
+        RestorePasswordDialog(
+            onConfirm = { pass ->
+                onRestoreBackup(restoreUri!!, pass)
+                showRestoreDialog = false
+            },
+            onDismiss = { showRestoreDialog = false }
+        )
     }
 
     Scaffold { padding ->
@@ -243,6 +271,13 @@ fun AuthContent(
                 }
             }
 
+            if (isRegister && state !is AuthState.Loading) {
+                Spacer(modifier = Modifier.height(16.dp))
+                TextButton(onClick = { restoreLauncher.launch(arrayOf("*/*")) }) {
+                    Text("¿Tienes un backup? Restaura tu bóveda .paxx")
+                }
+            }
+
             if (state is AuthState.Error) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
@@ -281,6 +316,56 @@ fun AuthHeader() {
     }
 }
 
+@Composable
+fun RestorePasswordDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+    var isVisible by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Restaurar Copia de Seguridad") },
+        text = {
+            Column {
+                Text("Introduce la contraseña maestra original del archivo .paxx para descifrarlo e importarlo.")
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Contraseña del Backup") },
+                    singleLine = true,
+                    visualTransformation = if (isVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { isVisible = !isVisible }) {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (isVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
+                                ),
+                                contentDescription = null
+                            )
+                        }
+                    }
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConfirm(password) },
+                enabled = password.isNotEmpty()
+            ) {
+                Text("Restaurar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
 @Preview(name = "1. Header Only", showBackground = true)
 @Composable
 fun HeaderPreview() {
@@ -291,32 +376,32 @@ fun HeaderPreview() {
     }
 }
 
-@Preview(name = "2. Login Screen (Light)", showBackground = true)
-@Composable
-fun AuthScreenLightPreview() {
-    PaxxwordTheme {
-        AuthContent(
-            isRegister = true,
-            state = AuthState.Idle,
-            onAuthAction = {},
-            onValidatePassword = { null }
-        )
-    }
-}
-
-@Preview(
-    name = "3. Login Screen (Dark)",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-fun AuthScreenDarkPreview() {
-    PaxxwordTheme {
-        AuthContent(
-            isRegister = false,
-            state = AuthState.Idle,
-            onAuthAction = {},
-            onValidatePassword = { null }
-        )
-    }
-}
+//@Preview(name = "2. Login Screen (Light)", showBackground = true)
+//@Composable
+//fun AuthScreenLightPreview() {
+//    PaxxwordTheme {
+//        AuthContent(
+//            isRegister = true,
+//            state = AuthState.Idle,
+//            onAuthAction = {},
+//            onValidatePassword = { null }
+//        )
+//    }
+//}
+//
+//@Preview(
+//    name = "3. Login Screen (Dark)",
+//    showBackground = true,
+//    uiMode = Configuration.UI_MODE_NIGHT_YES
+//)
+//@Composable
+//fun AuthScreenDarkPreview() {
+//    PaxxwordTheme {
+//        AuthContent(
+//            isRegister = false,
+//            state = AuthState.Idle,
+//            onAuthAction = {},
+//            onValidatePassword = { null }
+//        )
+//    }
+//}
