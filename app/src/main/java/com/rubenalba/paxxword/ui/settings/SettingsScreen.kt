@@ -57,11 +57,11 @@ fun SettingsScreen(
     LaunchedEffect(backupState) {
         when(val s = backupState) {
             is BackupState.Success -> {
-                Toast.makeText(context, s.msg, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.resources.getString(s.msgId), Toast.LENGTH_SHORT).show()
                 viewModel.resetBackupState()
             }
             is BackupState.Error -> {
-                Toast.makeText(context, s.msg, Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.resources.getString(s.msgId), Toast.LENGTH_LONG).show()
                 viewModel.resetBackupState()
             }
             else -> {}
@@ -70,14 +70,14 @@ fun SettingsScreen(
 
     if (showPasswordDialog != null) {
         val dialogTitle = if (showPasswordDialog == BackupOperation.EXPORT)
-            "Confirmar Exportación"
+            stringResource(R.string.settings_dialog_export_title)
         else
-            "Importar Bóveda"
+            stringResource(R.string.settings_dialog_import_title)
 
         val dialogMessage = if (showPasswordDialog == BackupOperation.EXPORT)
-            "Por seguridad, introduce tu Contraseña Maestra actual para cifrar el archivo de respaldo."
+            stringResource(R.string.settings_dialog_export_msg)
         else
-            "Introduce la contraseña con la que se creó el archivo .paxx"
+            stringResource(R.string.settings_dialog_import_msg)
 
         PasswordConfirmDialog(
             title = dialogTitle,
@@ -141,7 +141,7 @@ fun SettingsScreen(
                 onClick = { exportLauncher.launch("paxxword_backup.paxx") },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Exportar Bóveda (.paxx)")
+                Text(stringResource(R.string.settings_btn_export))
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -150,10 +150,10 @@ fun SettingsScreen(
                 onClick = { importLauncher.launch(arrayOf("*/*")) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Importar Bóveda")
+                Text(stringResource(R.string.settings_btn_import))
             }
             Text(
-                text = "Nota: Importar fusionará los datos con los existentes.",
+                text = stringResource(R.string.settings_import_note),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -209,15 +209,15 @@ fun PasswordConfirmDialog(
                     onValueChange = { password = it },
                     visualTransformation = PasswordVisualTransformation(),
                     singleLine = true,
-                    label = { Text("Contraseña") }
+                    label = { Text(stringResource(R.string.settings_label_pass_simple)) }
                 )
             }
         },
         confirmButton = {
             Button(onClick = { onConfirm(password) }, enabled = password.isNotEmpty()) {
-                Text("Confirmar")
+                Text(stringResource(R.string.btn_confirm))
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.btn_cancel)) } }
     )
 }
