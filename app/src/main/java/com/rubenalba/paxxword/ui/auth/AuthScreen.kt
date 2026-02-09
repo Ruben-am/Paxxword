@@ -274,7 +274,7 @@ fun AuthContent(
             if (isRegister && state !is AuthState.Loading) {
                 Spacer(modifier = Modifier.height(16.dp))
                 TextButton(onClick = { restoreLauncher.launch(arrayOf("*/*")) }) {
-                    Text("¿Tienes un backup? Restaura tu bóveda .paxx")
+                    Text(stringResource(R.string.auth_restore_link))
                 }
             }
 
@@ -326,15 +326,15 @@ fun RestorePasswordDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Restaurar Copia de Seguridad") },
+        title = { Text(stringResource(R.string.auth_restore_dialog_title)) },
         text = {
             Column {
-                Text("Introduce la contraseña maestra original del archivo .paxx para descifrarlo e importarlo.")
+                Text(stringResource(R.string.auth_restore_dialog_msg))
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Contraseña del Backup") },
+                    label = { Text(stringResource(R.string.auth_restore_label_pass)) },
                     singleLine = true,
                     visualTransformation = if (isVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -355,12 +355,12 @@ fun RestorePasswordDialog(
                 onClick = { onConfirm(password) },
                 enabled = password.isNotEmpty()
             ) {
-                Text("Restaurar")
+                Text(stringResource(R.string.auth_restore_btn_restore))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.btn_cancel))
             }
         }
     )

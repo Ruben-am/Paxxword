@@ -3,6 +3,7 @@ package com.rubenalba.paxxword.ui.settings
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.data.local.dao.UserDao
 import com.rubenalba.paxxword.data.manager.BackupManager
 import com.rubenalba.paxxword.data.manager.CryptoManager
@@ -58,14 +59,14 @@ class SettingsViewModel @Inject constructor(
             if (isValid) {
                 try {
                     backupManager.exportBackup(uri, password)
-                    _backupState.value = BackupState.Success("Exportación completada y cifrada con tu Contraseña Maestra.")
+                    _backupState.value = BackupState.Success(R.string.backup_msg_export_success)
                 } catch (e: Exception) {
                     backupManager.deleteBackupFile(uri)
-                    _backupState.value = BackupState.Error("Error al escribir el archivo.")
+                    _backupState.value = BackupState.Error(R.string.backup_error_write)
                 }
             } else {
                 backupManager.deleteBackupFile(uri)
-                _backupState.value = BackupState.Error("Contraseña incorrecta. Debes usar tu Contraseña Maestra actual.")
+                _backupState.value = BackupState.Error(R.string.backup_error_pass_incorrect)
             }
         }
     }
@@ -75,9 +76,9 @@ class SettingsViewModel @Inject constructor(
             _backupState.value = BackupState.Loading
             val result = backupManager.importBackup(uri, password)
             if (result) {
-                _backupState.value = BackupState.Success("Importación exitosa")
+                _backupState.value = BackupState.Success(R.string.backup_msg_import_success)
             } else {
-                _backupState.value = BackupState.Error("Contraseña del archivo incorrecta o archivo dañado.")
+                _backupState.value = BackupState.Error(R.string.backup_error_import_pass)
             }
         }
     }
@@ -106,6 +107,6 @@ class SettingsViewModel @Inject constructor(
 sealed class BackupState {
     object Idle : BackupState()
     object Loading : BackupState()
-    data class Success(val msg: String) : BackupState()
-    data class Error(val msg: String) : BackupState()
+    data class Success(val msgId: Int) : BackupState()
+    data class Error(val msgId: Int) : BackupState()
 }

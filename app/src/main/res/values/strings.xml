@@ -60,4 +60,30 @@
     <string name="option_no_folder">No folder</string>
 
     <string name="error_unknown">Unknown error</string>
+
+    <string name="auth_restore_link">¿Tienes un backup? Restaura tu bóveda .paxx</string>
+    <string name="auth_restore_dialog_title">Restaurar Copia de Seguridad</string>
+    <string name="auth_restore_dialog_msg">Introduce la contraseña maestra original del archivo .paxx para descifrarlo e importarlo.</string>
+    <string name="auth_restore_label_pass">Contraseña del Backup</string>
+    <string name="auth_restore_btn_restore">Restaurar</string>
+
+    <string name="settings_section_data">Gestión de Datos</string>
+    <string name="settings_btn_export">Exportar Bóveda (.paxx)</string>
+    <string name="settings_btn_import">Importar Bóveda</string>
+    <string name="settings_import_note">Nota: Importar fusionará los datos con los existentes.</string>
+
+    <string name="settings_dialog_export_title">Confirmar Exportación</string>
+    <string name="settings_dialog_export_msg">Por seguridad, introduce tu Contraseña Maestra actual para cifrar el archivo de respaldo.</string>
+    <string name="settings_dialog_import_title">Importar Bóveda</string>
+    <string name="settings_dialog_import_msg">Introduce la contraseña con la que se creó el archivo .paxx</string>
+    <string name="settings_label_pass_simple">Contraseña</string>
+    <string name="btn_confirm">Confirmar</string>
+
+    <string name="backup_msg_export_success">Exportación completada y cifrada con tu Contraseña Maestra.</string>
+    <string name="backup_error_write">Error al escribir el archivo.</string>
+    <string name="backup_error_pass_incorrect">Contraseña incorrecta. Debes usar tu Contraseña Maestra actual.</string>
+    <string name="backup_msg_import_success">Importación exitosa</string>
+    <string name="backup_error_import_pass">Contraseña del archivo incorrecta o archivo dañado.</string>
+
+    <string name="folder_none_label">Sin carpeta</string>
 </resources>

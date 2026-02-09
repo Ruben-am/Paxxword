@@ -60,4 +60,30 @@
     <string name="option_no_folder">Sin carpeta</string>
 
     <string name="error_unknown">Error desconocido</string>
+
+    <string name="auth_restore_link">Got a backup? Restore your .paxx vault</string>
+    <string name="auth_restore_dialog_title">Restore Backup</string>
+    <string name="auth_restore_dialog_msg">Enter the original master password of the .paxx file to decrypt and import it.</string>
+    <string name="auth_restore_label_pass">Backup Password</string>
+    <string name="auth_restore_btn_restore">Restore</string>
+
+    <string name="settings_section_data">Data Management</string>
+    <string name="settings_btn_export">Export Vault (.paxx)</string>
+    <string name="settings_btn_import">Import Vault</string>
+    <string name="settings_import_note">Note: Importing will merge data with existing entries.</string>
+
+    <string name="settings_dialog_export_title">Confirm Export</string>
+    <string name="settings_dialog_export_msg">For security, enter your current Master Password to encrypt the backup file.</string>
+    <string name="settings_dialog_import_title">Import Vault</string>
+    <string name="settings_dialog_import_msg">Enter the password used to create the .paxx file</string>
+    <string name="settings_label_pass_simple">Password</string>
+    <string name="btn_confirm">Confirm</string>
+
+    <string name="backup_msg_export_success">Export completed and encrypted with your Master Password.</string>
+    <string name="backup_error_write">Error writing file.</string>
+    <string name="backup_error_pass_incorrect">Incorrect password. You must use your current Master Password.</string>
+    <string name="backup_msg_import_success">Import successful</string>
+    <string name="backup_error_import_pass">Incorrect file password or corrupted file.</string>
+
+    <string name="folder_none_label">No folder</string>
 </resources>
