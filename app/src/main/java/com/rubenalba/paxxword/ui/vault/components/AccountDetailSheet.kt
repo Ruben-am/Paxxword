@@ -215,7 +215,8 @@ fun AccountDetailContent(
         var expanded by remember { mutableStateOf(false) }
         var selectedFolderId by remember { mutableStateOf(account.folderId) }
 
-        val folderLabel = allFolders.find { it.id == selectedFolderId }?.folderName ?: "Sin carpeta"
+        val folderLabel = allFolders.find { it.id == selectedFolderId }?.folderName
+            ?: stringResource(R.string.folder_none_label)
 
         if (isEditing) {
             ExposedDropdownMenuBox(
