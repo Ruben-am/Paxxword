@@ -29,12 +29,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.ui.vault.components.AccountDetailSheet
 import com.rubenalba.paxxword.ui.vault.components.AccountItem
 import com.rubenalba.paxxword.ui.vault.components.AddFolderDialog
 import com.rubenalba.paxxword.ui.vault.components.FolderFilterBar
+import com.rubenalba.paxxword.ui.vault.components.VaultSearchBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +47,7 @@ fun VaultScreen(
     val uiState by viewModel.uiState.collectAsState()
     val selectedAccount by viewModel.selectedAccount.collectAsState()
     val isSheetOpen by viewModel.isSheetOpen.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
 
     val folders by viewModel.folders.collectAsState()
     val selectedFolderId by viewModel.selectedFolderId.collectAsState()
@@ -99,6 +102,11 @@ fun VaultScreen(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
+            VaultSearchBar(
+                query = searchQuery,
+                onQueryChange = viewModel::onSearchQueryChange
+            )
+
             FolderFilterBar(
                 folders = folders,
                 selectedFolderId = selectedFolderId,

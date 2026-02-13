@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rubenalba.paxxword.data.local.entity.Folder
@@ -29,7 +30,7 @@ fun FolderFilterBar(
     onDeleteFolder: (Folder) -> Unit
 ) {
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -70,7 +71,13 @@ fun FolderFilterBar(
                     selected = selectedFolderId == folder.id,
                     onClick = { /* managed by upper box */ },
                     label = { Text(folder.folderName) },
-                    leadingIcon = { Icon(Icons.Default.Menu, null, Modifier.size(16.dp)) },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_folder),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    },
                     shape = chipShape,
                     modifier = Modifier.height(32.dp),
                     border = FilterChipDefaults.filterChipBorder(
