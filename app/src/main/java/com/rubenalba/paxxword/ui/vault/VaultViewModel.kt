@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -32,18 +33,28 @@ class VaultViewModel @Inject constructor(
     val folders: StateFlow<List<Folder>> = repository.getAllFolders()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // 2. Carpeta seleccionada (null = "Todas")
     private val _selectedFolderId = MutableStateFlow<Long?>(null)
     val selectedFolderId = _selectedFolderId.asStateFlow()
 
-    // 3. UI State reactivo: Cada vez que cambia selectedFolderId, recarga las cuentas
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<VaultUiState> = _selectedFolderId
         .flatMapLatest { folderId ->
             repository.getAccounts(folderId)
         }
-        .map<List<AccountModel>, VaultUiState> { list ->
-            VaultUiState.Success(list)
+        .combine(_searchQuery) { accounts, query ->
+            if (query.isBlank()) {
+                VaultUiState.Success(accounts)
+            } else {
+                val filtered = accounts.filter { account ->
+                    account.serviceName.contains(query, ignoreCase = true) ||
+                            account.username.contains(query, ignoreCase = true) ||
+                            account.email.contains(query, ignoreCase = true)
+                }
+                VaultUiState.Success(filtered)
+            } as VaultUiState
         }
         .catch { e -> emit(VaultUiState.Error(e.message ?: "Error desconocido")) }
         .stateIn(
@@ -61,6 +72,9 @@ class VaultViewModel @Inject constructor(
     private val _isSheetOpen = MutableStateFlow(false)
     val isSheetOpen = _isSheetOpen.asStateFlow()
 
+    fun onSearchQueryChange(newQuery: String) {
+        _searchQuery.value = newQuery
+    }
     fun onFolderSelect(id: Long?) {
         _selectedFolderId.value = id
     }
