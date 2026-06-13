@@ -3,6 +3,7 @@ package com.rubenalba.paxxword.ui.vault
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rubenalba.paxxword.data.local.entity.Folder
+import com.rubenalba.paxxword.data.manager.SecureClipboardManager
 import com.rubenalba.paxxword.domain.model.AccountModel
 import com.rubenalba.paxxword.domain.repository.PasswordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +28,8 @@ sealed interface VaultUiState {
 
 @HiltViewModel
 class VaultViewModel @Inject constructor(
-    private val repository: PasswordRepository
+    private val repository: PasswordRepository,
+    private val secureClipboardManager: SecureClipboardManager
 ) : ViewModel() {
 
     val folders: StateFlow<List<Folder>> = repository.getAllFolders()
@@ -133,6 +135,14 @@ class VaultViewModel @Inject constructor(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+    }
+
+    fun copyToClipboard(label: String, text: String, isSensitive: Boolean) {
+        if (isSensitive) {
+            secureClipboardManager.copySensitiveText(label, text)
+        } else {
+            secureClipboardManager.copyStandardText(label, text)
         }
     }
 }
