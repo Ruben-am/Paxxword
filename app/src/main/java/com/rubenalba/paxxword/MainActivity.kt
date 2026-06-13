@@ -20,12 +20,18 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.rubenalba.paxxword.ui.settings.SettingsViewModel
 import com.rubenalba.paxxword.data.manager.LocaleManager
 import java.util.Locale
+import androidx.compose.runtime.LaunchedEffect
+import com.rubenalba.paxxword.data.manager.SessionManager
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val splashViewModel: SplashViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
+
+    @Inject
+    lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -43,10 +49,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             val settingsState by settingsViewModel.settingsState.collectAsState()
             ApplyLanguage(settingsState.language)
+
             PaxxwordTheme(appTheme = settingsState.theme) {
                 Surface(color = MaterialTheme.colorScheme.background) {
                     val navController = rememberNavController()
                     val startDest by splashViewModel.startDestination.collectAsState()
+
+                    val isSessionActive by sessionManager.sessionActive.collectAsState()
+
+                    LaunchedEffect(isSessionActive) {
+                        if (!isSessionActive && startDest != null) {
+                            val currentRoute = navController.currentDestination?.route
+                            if (currentRoute != "login" && currentRoute != "signup") {
+                                navController.navigate("login") {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        }
+                    }
 
                     if (startDest != null) {
                         AppNavigation(
@@ -56,7 +76,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-
         }
     }
 
