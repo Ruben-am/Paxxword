@@ -3,51 +3,56 @@ package com.rubenalba.paxxword.data.manager
 import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 @Singleton
 class SessionManager @Inject constructor() {
 
     private var encryptionKey: SecretKeySpec? = null
-    private var lastActivityTime: Long = 0
-
     private val SESSION_TIMEOUT_MS = 3 * 60 * 1000L
 
     private val _sessionActive = MutableStateFlow(false)
     val sessionActive = _sessionActive.asStateFlow()
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var timeoutJob: Job? = null
+
     fun setKey(key: SecretKeySpec) {
         this.encryptionKey = key
-        updateActivityTime()
         _sessionActive.value = true
+        resetTimer()
     }
 
     fun getKey(): SecretKeySpec? {
-        if (isSessionExpired()) {
-            clearSession()
+        if (encryptionKey == null) {
             return null
         }
-        updateActivityTime()
+        resetTimer()
         return encryptionKey
     }
 
-    private fun isSessionExpired(): Boolean {
-        val currentTime = System.currentTimeMillis()
-        return (currentTime - lastActivityTime) > SESSION_TIMEOUT_MS
-    }
-
-    private fun updateActivityTime() {
-        lastActivityTime = System.currentTimeMillis()
+    private fun resetTimer() {
+        timeoutJob?.cancel()
+        timeoutJob = scope.launch {
+            delay(SESSION_TIMEOUT_MS)
+            clearSession()
+        }
     }
 
     fun clearSession() {
+        timeoutJob?.cancel()
         encryptionKey = null
-        lastActivityTime = 0
         _sessionActive.value = false
     }
 
     fun isUserLoggedIn(): Boolean {
-        return getKey() != null
+        return encryptionKey != null
     }
 }
