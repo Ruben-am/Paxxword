@@ -114,15 +114,25 @@ class VaultViewModel @Inject constructor(
 
     fun saveAccount(account: AccountModel) {
         viewModelScope.launch {
-            repository.saveAccount(account)
-            onDismissSheet()
+            try {
+                repository.saveAccount(account)
+                onDismissSheet()
+            } catch (e: IllegalStateException) {
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
     fun deleteAccount(id: Long) {
         viewModelScope.launch {
-            repository.deleteAccount(id)
-            onDismissSheet()
+            try {
+                repository.deleteAccount(id)
+                onDismissSheet()
+            } catch (e: IllegalStateException) {
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }
