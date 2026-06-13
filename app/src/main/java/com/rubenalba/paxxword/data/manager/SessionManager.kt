@@ -3,23 +3,26 @@ package com.rubenalba.paxxword.data.manager
 import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 @Singleton
 class SessionManager @Inject constructor() {
 
-    // master key variable, app start = null
     private var encryptionKey: SecretKeySpec? = null
-
     private var lastActivityTime: Long = 0
-    private val SESSION_TIMEOUT_MS = 3 * 24 * 60 * 60 * 1000L // 3 days
 
-    // When user log key is stored here
+    private val SESSION_TIMEOUT_MS = 3 * 60 * 1000L
+
+    private val _sessionActive = MutableStateFlow(false)
+    val sessionActive = _sessionActive.asStateFlow()
+
     fun setKey(key: SecretKeySpec) {
         this.encryptionKey = key
         updateActivityTime()
+        _sessionActive.value = true
     }
 
-    // ask for the key when we need to decrypt something
     fun getKey(): SecretKeySpec? {
         if (isSessionExpired()) {
             clearSession()
@@ -41,6 +44,7 @@ class SessionManager @Inject constructor() {
     fun clearSession() {
         encryptionKey = null
         lastActivityTime = 0
+        _sessionActive.value = false
     }
 
     fun isUserLoggedIn(): Boolean {
