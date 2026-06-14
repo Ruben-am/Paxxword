@@ -18,6 +18,9 @@ interface AccountDao {
     @Update
     suspend fun update(account: Account)
 
+    @Update
+    suspend fun updateAll(accounts: List<Account>)
+
     @Delete
     suspend fun delete(account: Account)
 

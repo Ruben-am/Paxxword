@@ -3,7 +3,6 @@ package com.rubenalba.paxxword.ui.settings
 import android.app.Activity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,11 +20,19 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.window.Dialog
+import kotlinx.coroutines.launch
+
+enum class ChangePasswordStep { NONE, VERIFY_CURRENT, ENTER_NEW }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,10 +41,14 @@ fun SettingsScreen(
 ) {
     val state by viewModel.settingsState.collectAsState()
     val backupState by viewModel.backupState.collectAsState()
+    val changePassState by viewModel.changePasswordState.collectAsState()
+
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     var showPasswordDialog by remember { mutableStateOf<BackupOperation?>(null) }
     var tempUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var changePassStep by remember { mutableStateOf(ChangePasswordStep.NONE) }
 
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) {
@@ -65,6 +76,74 @@ fun SettingsScreen(
             }
             else -> {}
         }
+    }
+
+    LaunchedEffect(changePassState) {
+        when(val s = changePassState) {
+            is ChangePasswordState.Success -> {
+                Toast.makeText(context, "Contraseña actualizada con éxito", Toast.LENGTH_SHORT).show()
+                viewModel.resetChangePasswordState()
+            }
+            is ChangePasswordState.Error -> {
+                Toast.makeText(context, context.resources.getString(s.msgId), Toast.LENGTH_LONG).show()
+                viewModel.resetChangePasswordState()
+            }
+            else -> {}
+        }
+    }
+
+    if (changePassState is ChangePasswordState.Loading) {
+        Dialog(
+            onDismissRequest = { /* Bloqueado */ },
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+        ) {
+            Card(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Re-encriptando bóveda...")
+                    Text(
+                        text = "Por favor, no cierres la app.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        }
+    }
+
+    // Flujo 1: Verificar contraseña actual
+    if (changePassStep == ChangePasswordStep.VERIFY_CURRENT) {
+        PasswordConfirmDialog(
+            title = "Verificar identidad",
+            message = "Introduce tu contraseña maestra actual para continuar.",
+            onConfirm = { pass ->
+                scope.launch {
+                    val isValid = viewModel.verifyCurrentPasswordAuth(pass)
+                    if (isValid) {
+                        changePassStep = ChangePasswordStep.ENTER_NEW
+                    } else {
+                        Toast.makeText(context, "Contraseña incorrecta", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            },
+            onDismiss = { changePassStep = ChangePasswordStep.NONE }
+        )
+    }
+
+    // Flujo 2: Introducir nueva contraseña
+    if (changePassStep == ChangePasswordStep.ENTER_NEW) {
+        NewMasterPasswordDialog(
+            onConfirm = { newPass ->
+                viewModel.changeMasterPassword(newPass)
+                changePassStep = ChangePasswordStep.NONE
+            },
+            onDismiss = { changePassStep = ChangePasswordStep.NONE },
+            onValidatePolicy = viewModel::validatePasswordPolicy
+        )
     }
 
     if (showPasswordDialog != null) {
@@ -125,6 +204,18 @@ fun SettingsScreen(
                     }
                 }
             )
+
+            Divider(modifier = Modifier.padding(vertical = 24.dp))
+
+            Text(text = "Seguridad", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { changePassStep = ChangePasswordStep.VERIFY_CURRENT },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Cambiar Contraseña Maestra")
+            }
 
             Divider(modifier = Modifier.padding(vertical = 24.dp))
 
@@ -213,5 +304,68 @@ fun PasswordConfirmDialog(
             }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.btn_cancel)) } }
+    )
+}
+
+@Composable
+fun NewMasterPasswordDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onValidatePolicy: (String) -> Int?
+) {
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var isVisible by remember { mutableStateOf(false) }
+
+    val policyErrorId = if (password.isNotEmpty()) onValidatePolicy(password) else null
+    val matchErrorId = if (confirmPassword.isNotEmpty() && password != confirmPassword) R.string.auth_error_password_mismatch else null
+
+    val isEnabled = password.isNotEmpty() && confirmPassword.isNotEmpty() && policyErrorId == null && matchErrorId == null
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Nueva Contraseña Maestra") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Nueva contraseña") },
+                    singleLine = true,
+                    isError = policyErrorId != null,
+                    visualTransformation = if (isVisible) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { isVisible = !isVisible }) {
+                            Icon(imageVector = if (isVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = null)
+                        }
+                    }
+                )
+                if (policyErrorId != null) {
+                    Text(stringResource(policyErrorId), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text("Confirmar contraseña") },
+                    singleLine = true,
+                    isError = matchErrorId != null,
+                    visualTransformation = if (isVisible) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
+                )
+                if (matchErrorId != null) {
+                    Text(stringResource(matchErrorId), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onConfirm(password) }, enabled = isEnabled) {
+                Text("Actualizar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancelar") }
+        }
     )
 }
