@@ -12,7 +12,12 @@ interface PasswordRepository {
     suspend fun saveAccount(account: AccountModel)
 
     suspend fun deleteAccount(id: Long)
+
     fun getAllFolders(): Flow<List<Folder>>
+
     suspend fun insertFolder(folder: Folder): Long
+
     suspend fun deleteFolder(folder: Folder)
+
+    suspend fun changeMasterPassword(newPassword: String): Boolean
 }

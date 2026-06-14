@@ -20,12 +20,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.rubenalba.paxxword.domain.repository.PasswordRepository
+
+sealed class ChangePasswordState {
+    object Idle : ChangePasswordState()
+    object Loading : ChangePasswordState()
+    data class Success(val msgId: Int) : ChangePasswordState()
+    data class Error(val msgId: Int) : ChangePasswordState()
+}
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val preferencesRepository: UserPreferencesRepository,
     private val backupManager: BackupManager,
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    private val passwordRepository: PasswordRepository
 ) : ViewModel() {
 
     val settingsState: StateFlow<SettingsState> = preferencesRepository.settingsFlow
@@ -49,6 +58,38 @@ class SettingsViewModel @Inject constructor(
 
     private val _backupState = MutableStateFlow<BackupState>(BackupState.Idle)
     val backupState = _backupState.asStateFlow()
+
+    private val _changePasswordState = MutableStateFlow<ChangePasswordState>(ChangePasswordState.Idle)
+    val changePasswordState = _changePasswordState.asStateFlow()
+
+    suspend fun verifyCurrentPasswordAuth(password: String): Boolean {
+        return verifyMasterPassword(password)
+    }
+
+    fun changeMasterPassword(newPassword: String) {
+        viewModelScope.launch {
+            _changePasswordState.value = ChangePasswordState.Loading
+            try {
+                val success = passwordRepository.changeMasterPassword(newPassword)
+                if (success) {
+                    _changePasswordState.value = ChangePasswordState.Success(R.string.backup_msg_import_success) // Reusar un string o crear uno nuevo
+                } else {
+                    _changePasswordState.value = ChangePasswordState.Error(R.string.auth_error_generic)
+                }
+            } catch (e: Exception) {
+                _changePasswordState.value = ChangePasswordState.Error(R.string.auth_error_generic)
+            }
+        }
+    }
+
+    fun resetChangePasswordState() { _changePasswordState.value = ChangePasswordState.Idle }
+
+    fun validatePasswordPolicy(password: String): Int? {
+        if (password.length < 8) return R.string.auth_error_policy_length
+        if (!password.any { it.isDigit() }) return R.string.auth_error_policy_digit
+        if (!password.any { !it.isLetterOrDigit() }) return R.string.auth_error_policy_symbol
+        return null
+    }
 
     fun exportVault(uri: Uri, password: String) {
         viewModelScope.launch {
