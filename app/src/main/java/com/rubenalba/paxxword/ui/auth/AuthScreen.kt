@@ -55,6 +55,9 @@ import com.rubenalba.paxxword.ui.theme.PaxxwordTheme
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 
@@ -183,10 +186,8 @@ fun AuthContent(
                 trailingIcon = {
                     IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                         Icon(
-                            painter = painterResource(
-                                id = if (isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
-                            ),
-                            contentDescription = stringResource(R.string.content_desc_visibility)
+                            imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = "Mostrar/Ocultar contraseña"
                         )
                     }
                 },
@@ -228,10 +229,8 @@ fun AuthContent(
                     trailingIcon = {
                         IconButton(onClick = { isConfirmVisible = !isConfirmVisible }) {
                             Icon(
-                                painter = painterResource(
-                                    id = if (isConfirmVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
-                                ),
-                                contentDescription = stringResource(R.string.content_desc_visibility)
+                                imageVector = if (isConfirmVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = "Mostrar/Ocultar contraseña"
                             )
                         }
                     },
@@ -340,10 +339,8 @@ fun RestorePasswordDialog(
                     trailingIcon = {
                         IconButton(onClick = { isVisible = !isVisible }) {
                             Icon(
-                                painter = painterResource(
-                                    id = if (isVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
-                                ),
-                                contentDescription = null
+                                imageVector = if (isVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = "Mostrar/Ocultar contraseña"
                             )
                         }
                     }

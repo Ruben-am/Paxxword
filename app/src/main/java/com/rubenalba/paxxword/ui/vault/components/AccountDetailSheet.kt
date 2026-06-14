@@ -17,6 +17,9 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -205,15 +208,13 @@ fun AccountDetailContent(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             if (isEditing) {
                                 IconButton(onClick = { showGenerator = true }) {
-                                    Icon(Icons.Default.Build, contentDescription = "Generar contraseña segura")
+                                    Icon(Icons.Default.Password, contentDescription = "Generar contraseña segura")
                                 }
                             }
                             IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                                 Icon(
-                                    painter = painterResource(
-                                        id = if (isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
-                                    ),
-                                    contentDescription = stringResource(R.string.content_desc_visibility)
+                                    imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = "Mostrar/Ocultar contraseña"
                                 )
                             }
                         }

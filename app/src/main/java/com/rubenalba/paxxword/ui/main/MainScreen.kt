@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -25,7 +26,7 @@ import com.rubenalba.paxxword.ui.vault.VaultScreen
 
 sealed class BottomNavItem(val route: String, val title: String, val icon: ImageVector) {
     object Vault : BottomNavItem("vault_tab", "Bóveda", Icons.Default.Lock)
-    object Generator : BottomNavItem("generator_tab", "Generador", Icons.Default.Build)
+    object Generator : BottomNavItem("generator_tab", "Generador", Icons.Default.Password)
     object Settings : BottomNavItem("settings_tab", "Ajustes", Icons.Default.Settings)
 }
 
