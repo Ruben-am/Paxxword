@@ -1,35 +1,33 @@
 package com.rubenalba.paxxword.ui.settings
 
 import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.domain.model.AppLanguage
 import com.rubenalba.paxxword.domain.model.AppTheme
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import android.widget.Toast
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.window.DialogProperties
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.ui.window.Dialog
+import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import kotlinx.coroutines.launch
 
 enum class ChangePasswordStep { NONE, VERIFY_CURRENT, ENTER_NEW }
@@ -104,7 +102,7 @@ fun SettingsScreen(
                 ) {
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Re-encriptando bóveda...")
+                    Text("Re-encriptando bóveda...", style = MaterialTheme.typography.titleMedium)
                     Text(
                         text = "Por favor, no cierres la app.",
                         style = MaterialTheme.typography.bodySmall,
@@ -207,6 +205,7 @@ fun SettingsScreen(
 
             Divider(modifier = Modifier.padding(vertical = 24.dp))
 
+            // SECCIÓN DE SEGURIDAD
             Text(text = "Seguridad", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -282,19 +281,38 @@ fun PasswordConfirmDialog(
     onDismiss: () -> Unit
 ) {
     var password by remember { mutableStateOf("") }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(title) },
+        title = { Text(title, style = MaterialTheme.typography.titleLarge) },
         text = {
-            Column {
-                Text(message)
-                Spacer(modifier = Modifier.height(8.dp))
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(message, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    visualTransformation = PasswordVisualTransformation(),
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        fontFamily = JetBrainsMonoFontFamily,
+                        fontSize = 16.sp
+                    ),
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     singleLine = true,
-                    label = { Text(stringResource(R.string.settings_label_pass_simple)) }
+                    label = { Text(stringResource(R.string.settings_label_pass_simple)) },
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = "Mostrar/Ocultar contraseña"
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         },
@@ -303,7 +321,11 @@ fun PasswordConfirmDialog(
                 Text(stringResource(R.string.btn_confirm))
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.btn_cancel)) } }
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.btn_cancel))
+            }
+        }
     )
 }
 
@@ -315,7 +337,8 @@ fun NewMasterPasswordDialog(
 ) {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    var isVisible by remember { mutableStateOf(false) }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    var isConfirmVisible by remember { mutableStateOf(false) }
 
     val policyErrorId = if (password.isNotEmpty()) onValidatePolicy(password) else null
     val matchErrorId = if (confirmPassword.isNotEmpty() && password != confirmPassword) R.string.auth_error_password_mismatch else null
@@ -324,38 +347,77 @@ fun NewMasterPasswordDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Nueva Contraseña Maestra") },
+        title = { Text("Nueva Contraseña Maestra", style = MaterialTheme.typography.titleLarge) },
         text = {
-            Column {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        fontFamily = JetBrainsMonoFontFamily,
+                        fontSize = 16.sp
+                    ),
                     label = { Text("Nueva contraseña") },
                     singleLine = true,
                     isError = policyErrorId != null,
-                    visualTransformation = if (isVisible) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(onClick = { isVisible = !isVisible }) {
-                            Icon(imageVector = if (isVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = null)
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = "Mostrar/Ocultar contraseña"
+                            )
                         }
-                    }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 )
                 if (policyErrorId != null) {
-                    Text(stringResource(policyErrorId), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(policyErrorId),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        fontFamily = JetBrainsMonoFontFamily,
+                        fontSize = 16.sp
+                    ),
                     label = { Text("Confirmar contraseña") },
                     singleLine = true,
                     isError = matchErrorId != null,
-                    visualTransformation = if (isVisible) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (isConfirmVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { isConfirmVisible = !isConfirmVisible }) {
+                            Icon(
+                                imageVector = if (isConfirmVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = "Mostrar/Ocultar contraseña"
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 )
                 if (matchErrorId != null) {
-                    Text(stringResource(matchErrorId), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(matchErrorId),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         },
@@ -365,7 +427,9 @@ fun NewMasterPasswordDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
         }
     )
 }
