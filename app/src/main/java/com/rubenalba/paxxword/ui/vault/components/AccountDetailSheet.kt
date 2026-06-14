@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.data.local.entity.Folder
 import com.rubenalba.paxxword.domain.model.AccountModel
+import com.rubenalba.paxxword.ui.generator.PasswordGeneratorDialog
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import com.rubenalba.paxxword.ui.theme.ManropeFontFamily
 
@@ -101,6 +103,17 @@ fun AccountDetailContent(
     var notes by remember { mutableStateOf(account.notes) }
 
     var isPasswordVisible by remember { mutableStateOf(false) }
+    var showGenerator by remember { mutableStateOf(false) }
+
+    if (showGenerator) {
+        PasswordGeneratorDialog(
+            onDismiss = { showGenerator = false },
+            onApply = { generatedPass ->
+                password = generatedPass
+                showGenerator = false
+            }
+        )
+    }
 
     // reset form if account change
     LaunchedEffect(account) {
@@ -189,13 +202,20 @@ fun AccountDetailContent(
                 keyboardOptions = if (isSecret) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
                 trailingIcon = if (isSecret) {
                     {
-                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                            Icon(
-                                painter = painterResource(
-                                    id = if (isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
-                                ),
-                                contentDescription = stringResource(R.string.content_desc_visibility)
-                            )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (isEditing) {
+                                IconButton(onClick = { showGenerator = true }) {
+                                    Icon(Icons.Default.Build, contentDescription = "Generar contraseña segura")
+                                }
+                            }
+                            IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
+                                    ),
+                                    contentDescription = stringResource(R.string.content_desc_visibility)
+                                )
+                            }
                         }
                     }
                 } else null
