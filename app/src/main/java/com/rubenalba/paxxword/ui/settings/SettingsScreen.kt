@@ -30,7 +30,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.settingsState.collectAsState()
@@ -99,12 +98,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.settings_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
-                    }
-                }
+                title = { Text(stringResource(R.string.settings_title)) }
             )
         }
     ) { padding ->

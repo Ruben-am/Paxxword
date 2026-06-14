@@ -1,0 +1,90 @@
+package com.rubenalba.paxxword.ui.generator
+
+import androidx.lifecycle.ViewModel
+import com.rubenalba.paxxword.data.manager.SecureClipboardManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import javax.inject.Inject
+
+data class GeneratorState(
+    val length: Float = 16f,
+    val useLower: Boolean = true,
+    val useUpper: Boolean = true,
+    val useDigits: Boolean = true,
+    val useSymbols: Boolean = true,
+    val generatedPassword: String = ""
+)
+
+@HiltViewModel
+class GeneratorViewModel @Inject constructor(
+    private val secureClipboardManager: SecureClipboardManager
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(GeneratorState())
+    val state: StateFlow<GeneratorState> = _state.asStateFlow()
+
+    init {
+        generatePassword()
+    }
+
+    fun updateLength(newLength: Float) {
+        _state.update { it.copy(length = newLength) }
+        generatePassword()
+    }
+
+    fun toggleLower(checked: Boolean) = toggleOption(checked) { it.copy(useLower = checked) }
+    fun toggleUpper(checked: Boolean) = toggleOption(checked) { it.copy(useUpper = checked) }
+    fun toggleDigits(checked: Boolean) = toggleOption(checked) { it.copy(useDigits = checked) }
+    fun toggleSymbols(checked: Boolean) = toggleOption(checked) { it.copy(useSymbols = checked) }
+
+    // Lógica para evitar que el usuario desmarque todas las casillas
+    private fun toggleOption(checked: Boolean, updateBlock: (GeneratorState) -> GeneratorState) {
+        val currentState = _state.value
+        val activeCount = listOf(
+            currentState.useLower, currentState.useUpper,
+            currentState.useDigits, currentState.useSymbols
+        ).count { it }
+
+        if (!checked && activeCount <= 1) {
+            return
+        }
+
+        _state.update(updateBlock)
+        generatePassword()
+    }
+
+    // Lógica de generación
+    fun generatePassword() {
+        val currentState = _state.value
+        val lowerChars = "abcdefghijklmnopqrstuvwxyz"
+        val upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        val digitChars = "0123456789"
+        val symbolChars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+
+        var pool = ""
+        val forcedChars = mutableListOf<Char>()
+
+        if (currentState.useLower) { pool += lowerChars; forcedChars.add(lowerChars.random()) }
+        if (currentState.useUpper) { pool += upperChars; forcedChars.add(upperChars.random()) }
+        if (currentState.useDigits) { pool += digitChars; forcedChars.add(digitChars.random()) }
+        if (currentState.useSymbols) { pool += symbolChars; forcedChars.add(symbolChars.random()) }
+
+        if (pool.isEmpty()) return
+
+        val len = currentState.length.toInt()
+        val chars = forcedChars.toMutableList()
+
+        while (chars.size < len) { chars.add(pool.random()) }
+        chars.shuffle()
+
+        _state.update { it.copy(generatedPassword = chars.joinToString("")) }
+    }
+
+    // Acción de copiado
+    fun copyToClipboard(label: String = "Contraseña") {
+        secureClipboardManager.copySensitiveText(label, _state.value.generatedPassword)
+    }
+}
