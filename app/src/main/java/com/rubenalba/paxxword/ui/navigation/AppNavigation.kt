@@ -5,8 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.rubenalba.paxxword.ui.auth.AuthScreen
-import com.rubenalba.paxxword.ui.settings.SettingsScreen
-import com.rubenalba.paxxword.ui.vault.VaultScreen
+import com.rubenalba.paxxword.ui.main.MainScreen
 
 @Composable
 fun AppNavigation(
@@ -14,41 +13,29 @@ fun AppNavigation(
     startDestination: String
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
-
-        // Auth (Login/Sing up)
         composable("login") {
             AuthScreen(
                 isRegister = false,
                 onAuthSuccess = {
-                    navController.navigate("vault") {
+                    navController.navigate("main") {
                         popUpTo("login") { inclusive = true }
                     }
                 }
             )
         }
-
         composable("signup") {
             AuthScreen(
                 isRegister = true,
                 onAuthSuccess = {
-                    navController.navigate("vault") {
+                    navController.navigate("main") {
                         popUpTo("signup") { inclusive = true }
                     }
                 }
             )
         }
 
-        // Main
-        composable("vault") {
-            VaultScreen(
-                onNavigateToSettings = { navController.navigate("settings") }
-            )
-        }
-
-        composable("settings") {
-            SettingsScreen(
-                onBack = { navController.popBackStack() }
-            )
+        composable("main") {
+            MainScreen()
         }
     }
 }

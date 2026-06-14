@@ -42,7 +42,6 @@ import com.rubenalba.paxxword.ui.vault.components.VaultSearchBar
 @Composable
 fun VaultScreen(
     viewModel: VaultViewModel = hiltViewModel(),
-    onNavigateToSettings: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val selectedAccount by viewModel.selectedAccount.collectAsState()
@@ -77,11 +76,6 @@ fun VaultScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.vault_title)) },
-                actions = {
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
