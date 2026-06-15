@@ -20,4 +20,10 @@ interface PasswordRepository {
     suspend fun deleteFolder(folder: Folder)
 
     suspend fun changeMasterPassword(newPassword: String): Boolean
+
+    fun getTrashedAccounts(): Flow<List<AccountModel>>
+
+    suspend fun restoreAccount(id: Long)
+
+    suspend fun permanentlyDeleteAccount(id: Long)
 }

@@ -56,6 +56,36 @@ class PasswordRepositoryImpl @Inject constructor(
 
     override suspend fun deleteAccount(id: Long) {
         val entity = accountDao.getAccountById(id)
+        if (entity != null) {
+            accountDao.update(
+                entity.copy(
+                    isDeleted = true,
+                    lastModified = System.currentTimeMillis()
+                )
+            )
+        }
+    }
+
+    override fun getTrashedAccounts(): Flow<List<AccountModel>> {
+        return accountDao.getTrashedAccounts().map { encryptedList ->
+            encryptedList.map { entity -> decryptAccount(entity) }
+        }
+    }
+
+    override suspend fun restoreAccount(id: Long) {
+        val entity = accountDao.getAccountById(id)
+        if (entity != null) {
+            accountDao.update(
+                entity.copy(
+                    isDeleted = false,
+                    lastModified = System.currentTimeMillis()
+                )
+            )
+        }
+    }
+
+    override suspend fun permanentlyDeleteAccount(id: Long) {
+        val entity = accountDao.getAccountById(id)
         if (entity != null) accountDao.delete(entity)
     }
 
@@ -75,7 +105,8 @@ class PasswordRepositoryImpl @Inject constructor(
             val newKey = KeyDerivationUtil.deriveKey(newPassword.toCharArray(), newSalt)
             val newIvVerification = CryptoManager.generateIv()
             val newVerificationBytes = "PAXXWORD_VERIFIED_USER".toByteArray(Charsets.UTF_8)
-            val newEncryptedVerification = CryptoManager.encrypt(newVerificationBytes, newKey, newIvVerification)
+            val newEncryptedVerification =
+                CryptoManager.encrypt(newVerificationBytes, newKey, newIvVerification)
 
             val updatedUser = currentUser.copy(
                 userSalt = CryptoManager.bytesToBase64(newSalt),
@@ -110,19 +141,27 @@ class PasswordRepositoryImpl @Inject constructor(
             return CryptoManager.encrypt(text.toByteArray(Charsets.UTF_8), key, iv)
         }
 
-        val encUser = if (model.username.isNotEmpty()) encryptField(model.username, ivUser) else null
+        val encUser =
+            if (model.username.isNotEmpty()) encryptField(model.username, ivUser) else null
         val encEmail = if (model.email.isNotEmpty()) encryptField(model.email, ivEmail) else null
         val encPass = encryptField(model.password, ivPass)
         val encUrl = if (model.url.isNotEmpty()) encryptField(model.url, ivUrl) else null
         val encNotes = if (model.notes.isNotEmpty()) encryptField(model.notes, ivNotes) else null
 
         return Account(
-            id = model.id, folderId = model.folderId, serviceName = model.serviceName,
-            encryptedUsername = encUser, ivUsername = if (encUser != null) CryptoManager.bytesToBase64(ivUser) else null,
-            encryptedEmail = encEmail, ivEmail = if (encEmail != null) CryptoManager.bytesToBase64(ivEmail) else null,
-            encryptedPassword = encPass, ivPassword = CryptoManager.bytesToBase64(ivPass),
-            encryptedUrl = encUrl, ivUrl = if (encUrl != null) CryptoManager.bytesToBase64(ivUrl) else null,
-            encryptedNotes = encNotes, ivNotes = if (encNotes != null) CryptoManager.bytesToBase64(ivNotes) else null,
+            id = model.id,
+            folderId = model.folderId,
+            serviceName = model.serviceName,
+            encryptedUsername = encUser,
+            ivUsername = if (encUser != null) CryptoManager.bytesToBase64(ivUser) else null,
+            encryptedEmail = encEmail,
+            ivEmail = if (encEmail != null) CryptoManager.bytesToBase64(ivEmail) else null,
+            encryptedPassword = encPass,
+            ivPassword = CryptoManager.bytesToBase64(ivPass),
+            encryptedUrl = encUrl,
+            ivUrl = if (encUrl != null) CryptoManager.bytesToBase64(ivUrl) else null,
+            encryptedNotes = encNotes,
+            ivNotes = if (encNotes != null) CryptoManager.bytesToBase64(ivNotes) else null,
             lastModified = System.currentTimeMillis()
         )
     }
