@@ -1,5 +1,6 @@
 package com.rubenalba.paxxword.ui.vault
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,13 +36,19 @@ fun VaultScreen(
     val selectedFolderId by viewModel.selectedFolderId.collectAsState()
     var showAddFolderDialog by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+
     AccountDetailSheet(
         account = selectedAccount,
         allFolders = folders,
         isOpen = isSheetOpen,
         onDismiss = viewModel::onDismissSheet,
         onSave = viewModel::saveAccount,
-        onDelete = viewModel::deleteAccount
+        onDelete = viewModel::deleteAccount,
+        onCopy = { label, text, isSensitive ->
+            viewModel.copyToClipboard(label, text, isSensitive)
+            Toast.makeText(context, "$label copiado", Toast.LENGTH_SHORT).show()
+        }
     )
 
     if (showAddFolderDialog) {
