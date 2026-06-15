@@ -1,47 +1,29 @@
 package com.rubenalba.paxxword.ui.vault
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.R
-import com.rubenalba.paxxword.ui.vault.components.AccountDetailSheet
-import com.rubenalba.paxxword.ui.vault.components.AccountItem
-import com.rubenalba.paxxword.ui.vault.components.AddFolderDialog
-import com.rubenalba.paxxword.ui.vault.components.FolderFilterBar
-import com.rubenalba.paxxword.ui.vault.components.VaultSearchBar
+import com.rubenalba.paxxword.ui.vault.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VaultScreen(
     viewModel: VaultViewModel = hiltViewModel(),
+    onNavigateToTrash: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val selectedAccount by viewModel.selectedAccount.collectAsState()
@@ -71,11 +53,15 @@ fun VaultScreen(
         )
     }
 
-    // body
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.vault_title)) }
+                title = { Text(stringResource(R.string.vault_title)) },
+                actions = {
+                    IconButton(onClick = onNavigateToTrash) {
+                        Icon(Icons.Default.DeleteOutline, contentDescription = "Papelera")
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -110,29 +96,57 @@ fun VaultScreen(
                 contentAlignment = Alignment.Center
             ) {
                 when (val state = uiState) {
-                    is VaultUiState.Loading -> {
-                        CircularProgressIndicator()
-                    }
-
-                    is VaultUiState.Error -> {
-                        Text(
-                            text = state.message,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-
+                    is VaultUiState.Loading -> { CircularProgressIndicator() }
+                    is VaultUiState.Error -> { Text(text = state.message, color = MaterialTheme.colorScheme.error) }
                     is VaultUiState.Success -> {
                         if (state.accounts.isEmpty()) {
-                            Text(
-                                text = stringResource(R.string.vault_empty),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
+                            Text(text = stringResource(R.string.vault_empty), style = MaterialTheme.typography.bodyLarge)
                         } else {
                             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                                items(state.accounts) { account ->
-                                    AccountItem(
-                                        account = account,
-                                        onClick = { viewModel.onAccountClick(account) }
+                                items(state.accounts, key = { it.id }) { account ->
+
+                                    val dismissState = rememberSwipeToDismissBoxState(
+                                        confirmValueChange = { dismissValue ->
+                                            if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                                                viewModel.deleteAccount(account.id)
+                                                true
+                                            } else {
+                                                false
+                                            }
+                                        }
+                                    )
+
+                                    SwipeToDismissBox(
+                                        state = dismissState,
+                                        enableDismissFromStartToEnd = false,
+                                        backgroundContent = {
+                                            val color = if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                                                MaterialTheme.colorScheme.errorContainer
+                                            } else {
+                                                Color.Transparent
+                                            }
+
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                                    .background(color, MaterialTheme.shapes.medium),
+                                                contentAlignment = Alignment.CenterEnd
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Delete,
+                                                    contentDescription = "Mover a papelera",
+                                                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                                                    modifier = Modifier.padding(end = 16.dp)
+                                                )
+                                            }
+                                        },
+                                        content = {
+                                            AccountItem(
+                                                account = account,
+                                                onClick = { viewModel.onAccountClick(account) }
+                                            )
+                                        }
                                     )
                                 }
                             }
