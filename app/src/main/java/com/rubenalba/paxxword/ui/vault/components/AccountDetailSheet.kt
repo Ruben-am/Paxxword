@@ -13,7 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
@@ -44,7 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -158,7 +156,12 @@ fun AccountDetailContent(
             Text(
                 text = titleText,
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
             )
 
             // edit button/ cancel edition
@@ -214,13 +217,19 @@ fun AccountDetailContent(
 
                         if (value.isNotEmpty() && onCopyClick != null) {
                             IconButton(onClick = onCopyClick) {
-                                Icon(Icons.Default.ContentCopy, contentDescription = "Copiar $label")
+                                Icon(
+                                    Icons.Default.ContentCopy,
+                                    contentDescription = "Copiar $label"
+                                )
                             }
                         }
 
                         if (isSecret && isEditing) {
                             IconButton(onClick = { showGenerator = true }) {
-                                Icon(Icons.Default.Password, contentDescription = "Generar contraseña segura")
+                                Icon(
+                                    Icons.Default.Password,
+                                    contentDescription = "Generar contraseña segura"
+                                )
                             }
                         }
 
@@ -239,16 +248,33 @@ fun AccountDetailContent(
         }
 
         SheetTextField(serviceName, { serviceName = it }, stringResource(R.string.label_service))
-        SheetTextField(username, { username = it }, stringResource(R.string.label_username), onCopyClick = { onCopy("Usuario", username, false) })
-        SheetTextField(email, { email = it }, stringResource(R.string.label_email), onCopyClick = { onCopy("Email", email, false) })
+        SheetTextField(
+            username,
+            { username = it },
+            stringResource(R.string.label_username),
+            onCopyClick = { onCopy("Usuario", username, false) })
+        SheetTextField(
+            email,
+            { email = it },
+            stringResource(R.string.label_email),
+            onCopyClick = { onCopy("Email", email, false) })
 
-        SheetTextField(password, { password = it }, stringResource(R.string.label_password), isSecret = true, onCopyClick = { onCopy("Contraseña", password, true) })
+        SheetTextField(
+            password,
+            { password = it },
+            stringResource(R.string.label_password),
+            isSecret = true,
+            onCopyClick = { onCopy("Contraseña", password, true) })
 
         if (isEditing && password.isNotEmpty()) {
             PasswordStrengthBar(password = password, modifier = Modifier.padding(bottom = 8.dp))
         }
 
-        SheetTextField(url, { url = it }, stringResource(R.string.label_url), onCopyClick = { onCopy("URL", url, false) })
+        SheetTextField(
+            url,
+            { url = it },
+            stringResource(R.string.label_url),
+            onCopyClick = { onCopy("URL", url, false) })
         SheetTextField(notes, { notes = it }, stringResource(R.string.label_notes))
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -269,12 +295,15 @@ fun AccountDetailContent(
 
                 OutlinedTextField(
                     readOnly = true,
-                    value = allFolders.find { it.id == selectedFolderId }?.folderName ?: noFolderLabel,
+                    value = allFolders.find { it.id == selectedFolderId }?.folderName
+                        ?: noFolderLabel,
                     onValueChange = {},
                     label = { Text(stringResource(R.string.label_folder_dropdown)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
                 )
 
                 ExposedDropdownMenu(
