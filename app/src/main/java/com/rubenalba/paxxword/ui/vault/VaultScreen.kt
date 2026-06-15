@@ -100,15 +100,26 @@ fun VaultScreen(
             )
 
             Box(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 when (val state = uiState) {
-                    is VaultUiState.Loading -> { CircularProgressIndicator() }
-                    is VaultUiState.Error -> { Text(text = state.message, color = MaterialTheme.colorScheme.error) }
+                    is VaultUiState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+
+                    is VaultUiState.Error -> {
+                        Text(text = state.message, color = MaterialTheme.colorScheme.error)
+                    }
+
                     is VaultUiState.Success -> {
                         if (state.accounts.isEmpty()) {
-                            Text(text = stringResource(R.string.vault_empty), style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = stringResource(R.string.vault_empty),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         } else {
                             LazyColumn(modifier = Modifier.fillMaxSize()) {
                                 items(state.accounts, key = { it.id }) { account ->
@@ -128,11 +139,12 @@ fun VaultScreen(
                                         state = dismissState,
                                         enableDismissFromStartToEnd = false,
                                         backgroundContent = {
-                                            val color = if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                                                MaterialTheme.colorScheme.errorContainer
-                                            } else {
-                                                Color.Transparent
-                                            }
+                                            val color =
+                                                if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                                                    MaterialTheme.colorScheme.errorContainer
+                                                } else {
+                                                    Color.Transparent
+                                                }
 
                                             Box(
                                                 modifier = Modifier
@@ -150,8 +162,13 @@ fun VaultScreen(
                                             }
                                         },
                                         content = {
+                                            val folderName = if (selectedFolderId == null) {
+                                                folders.find { it.id == account.folderId }?.folderName
+                                            } else null
+
                                             AccountItem(
                                                 account = account,
+                                                folderName = folderName,
                                                 onClick = { viewModel.onAccountClick(account) }
                                             )
                                         }
