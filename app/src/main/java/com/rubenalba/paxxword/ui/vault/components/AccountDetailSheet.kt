@@ -13,8 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Password
@@ -43,7 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -54,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.data.local.entity.Folder
 import com.rubenalba.paxxword.domain.model.AccountModel
+import com.rubenalba.paxxword.ui.components.PasswordStrengthBar
 import com.rubenalba.paxxword.ui.generator.PasswordGeneratorDialog
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import com.rubenalba.paxxword.ui.theme.ManropeFontFamily
@@ -66,7 +66,8 @@ fun AccountDetailSheet(
     isOpen: Boolean,
     onDismiss: () -> Unit,
     onSave: (AccountModel) -> Unit,
-    onDelete: (Long) -> Unit
+    onDelete: (Long) -> Unit,
+    onCopy: (String, String, Boolean) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -80,7 +81,8 @@ fun AccountDetailSheet(
                 allFolders = allFolders,
                 onSave = onSave,
                 onDelete = onDelete,
-                onCancel = onDismiss
+                onCancel = onDismiss,
+                onCopy = onCopy
             )
         }
     }
@@ -93,7 +95,8 @@ fun AccountDetailContent(
     allFolders: List<Folder>,
     onSave: (AccountModel) -> Unit,
     onDelete: (Long) -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    onCopy: (String, String, Boolean) -> Unit
 ) {
     // state (id 0 -> new (edit mode), else reading)
     var isEditing by remember { mutableStateOf(account.id == 0L) }
@@ -153,7 +156,12 @@ fun AccountDetailContent(
             Text(
                 text = titleText,
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
             )
 
             // edit button/ cancel edition
@@ -175,7 +183,8 @@ fun AccountDetailContent(
             value: String,
             onValueChange: (String) -> Unit,
             label: String,
-            isSecret: Boolean = false
+            isSecret: Boolean = false,
+            onCopyClick: (() -> Unit)? = null
         ) {
             val isNotesField = label == stringResource(R.string.label_notes)
 
@@ -203,14 +212,28 @@ fun AccountDetailContent(
 
                 visualTransformation = if (isSecret && !isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
                 keyboardOptions = if (isSecret) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
-                trailingIcon = if (isSecret) {
-                    {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (isEditing) {
-                                IconButton(onClick = { showGenerator = true }) {
-                                    Icon(Icons.Default.Password, contentDescription = "Generar contraseña segura")
-                                }
+                trailingIcon = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+
+                        if (value.isNotEmpty() && onCopyClick != null) {
+                            IconButton(onClick = onCopyClick) {
+                                Icon(
+                                    Icons.Default.ContentCopy,
+                                    contentDescription = "Copiar $label"
+                                )
                             }
+                        }
+
+                        if (isSecret && isEditing) {
+                            IconButton(onClick = { showGenerator = true }) {
+                                Icon(
+                                    Icons.Default.Password,
+                                    contentDescription = "Generar contraseña segura"
+                                )
+                            }
+                        }
+
+                        if (isSecret) {
                             IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                                 Icon(
                                     imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
@@ -219,16 +242,39 @@ fun AccountDetailContent(
                             }
                         }
                     }
-                } else null
+                }
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
 
         SheetTextField(serviceName, { serviceName = it }, stringResource(R.string.label_service))
-        SheetTextField(username, { username = it }, stringResource(R.string.label_username))
-        SheetTextField(email, { email = it }, stringResource(R.string.label_email))
-        SheetTextField(password, { password = it }, stringResource(R.string.label_password), isSecret = true)
-        SheetTextField(url, { url = it }, stringResource(R.string.label_url))
+        SheetTextField(
+            username,
+            { username = it },
+            stringResource(R.string.label_username),
+            onCopyClick = { onCopy("Usuario", username, false) })
+        SheetTextField(
+            email,
+            { email = it },
+            stringResource(R.string.label_email),
+            onCopyClick = { onCopy("Email", email, false) })
+
+        SheetTextField(
+            password,
+            { password = it },
+            stringResource(R.string.label_password),
+            isSecret = true,
+            onCopyClick = { onCopy("Contraseña", password, true) })
+
+        if (isEditing && password.isNotEmpty()) {
+            PasswordStrengthBar(password = password, modifier = Modifier.padding(bottom = 8.dp))
+        }
+
+        SheetTextField(
+            url,
+            { url = it },
+            stringResource(R.string.label_url),
+            onCopyClick = { onCopy("URL", url, false) })
         SheetTextField(notes, { notes = it }, stringResource(R.string.label_notes))
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -249,12 +295,15 @@ fun AccountDetailContent(
 
                 OutlinedTextField(
                     readOnly = true,
-                    value = allFolders.find { it.id == selectedFolderId }?.folderName ?: noFolderLabel,
+                    value = allFolders.find { it.id == selectedFolderId }?.folderName
+                        ?: noFolderLabel,
                     onValueChange = {},
                     label = { Text(stringResource(R.string.label_folder_dropdown)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
                 )
 
                 ExposedDropdownMenu(

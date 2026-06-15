@@ -1,5 +1,6 @@
 package com.rubenalba.paxxword.ui.vault
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,13 +36,19 @@ fun VaultScreen(
     val selectedFolderId by viewModel.selectedFolderId.collectAsState()
     var showAddFolderDialog by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+
     AccountDetailSheet(
         account = selectedAccount,
         allFolders = folders,
         isOpen = isSheetOpen,
         onDismiss = viewModel::onDismissSheet,
         onSave = viewModel::saveAccount,
-        onDelete = viewModel::deleteAccount
+        onDelete = viewModel::deleteAccount,
+        onCopy = { label, text, isSensitive ->
+            viewModel.copyToClipboard(label, text, isSensitive)
+            Toast.makeText(context, "$label copiado", Toast.LENGTH_SHORT).show()
+        }
     )
 
     if (showAddFolderDialog) {
@@ -92,15 +100,26 @@ fun VaultScreen(
             )
 
             Box(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 when (val state = uiState) {
-                    is VaultUiState.Loading -> { CircularProgressIndicator() }
-                    is VaultUiState.Error -> { Text(text = state.message, color = MaterialTheme.colorScheme.error) }
+                    is VaultUiState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+
+                    is VaultUiState.Error -> {
+                        Text(text = state.message, color = MaterialTheme.colorScheme.error)
+                    }
+
                     is VaultUiState.Success -> {
                         if (state.accounts.isEmpty()) {
-                            Text(text = stringResource(R.string.vault_empty), style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = stringResource(R.string.vault_empty),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         } else {
                             LazyColumn(modifier = Modifier.fillMaxSize()) {
                                 items(state.accounts, key = { it.id }) { account ->
@@ -120,11 +139,12 @@ fun VaultScreen(
                                         state = dismissState,
                                         enableDismissFromStartToEnd = false,
                                         backgroundContent = {
-                                            val color = if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                                                MaterialTheme.colorScheme.errorContainer
-                                            } else {
-                                                Color.Transparent
-                                            }
+                                            val color =
+                                                if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                                                    MaterialTheme.colorScheme.errorContainer
+                                                } else {
+                                                    Color.Transparent
+                                                }
 
                                             Box(
                                                 modifier = Modifier
@@ -142,8 +162,13 @@ fun VaultScreen(
                                             }
                                         },
                                         content = {
+                                            val folderName = if (selectedFolderId == null) {
+                                                folders.find { it.id == account.folderId }?.folderName
+                                            } else null
+
                                             AccountItem(
                                                 account = account,
+                                                folderName = folderName,
                                                 onClick = { viewModel.onAccountClick(account) }
                                             )
                                         }
