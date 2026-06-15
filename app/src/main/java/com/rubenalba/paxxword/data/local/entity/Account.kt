@@ -57,5 +57,8 @@ data class Account(
     val ivNotes: String? = null,
 
     @ColumnInfo(name = "last_modified")
-    val lastModified: Long = System.currentTimeMillis()
+    val lastModified: Long = System.currentTimeMillis(),
+
+    @ColumnInfo(name = "is_deleted")
+    val isDeleted: Boolean = false
 )

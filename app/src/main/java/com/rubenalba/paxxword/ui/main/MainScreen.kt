@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.rubenalba.paxxword.ui.generator.GeneratorScreen
 import com.rubenalba.paxxword.ui.settings.SettingsScreen
 import com.rubenalba.paxxword.ui.vault.VaultScreen
+import com.rubenalba.paxxword.ui.trash.TrashScreen
 
 sealed class BottomNavItem(val route: String, val title: String, val icon: ImageVector) {
     object Vault : BottomNavItem("vault_tab", "Bóveda", Icons.Default.Lock)
@@ -69,13 +70,19 @@ fun MainScreen() {
             modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             composable(BottomNavItem.Vault.route) {
-                VaultScreen()
+                VaultScreen(onNavigateToTrash = {
+                    bottomNavController.navigate("trash")
+                })
             }
             composable(BottomNavItem.Generator.route) {
                 GeneratorScreen()
             }
             composable(BottomNavItem.Settings.route) {
                 SettingsScreen()
+            }
+
+            composable("trash") {
+                TrashScreen(onBack = { bottomNavController.popBackStack() })
             }
         }
     }
