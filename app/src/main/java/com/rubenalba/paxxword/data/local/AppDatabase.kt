@@ -10,8 +10,8 @@ import com.rubenalba.paxxword.data.local.entity.Folder
 import com.rubenalba.paxxword.data.local.entity.User
 
 @Database(
-    entities = [Account::class, Folder::class, User::class], // The tables
-    version = 1,
+    entities = [Account::class, Folder::class, User::class],
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
