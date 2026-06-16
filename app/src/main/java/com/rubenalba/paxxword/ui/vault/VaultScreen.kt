@@ -123,7 +123,10 @@ fun VaultScreen(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         } else {
-                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(bottom = 88.dp)
+                            ) {
                                 items(state.accounts, key = { it.id }) { account ->
 
                                     val dismissState = rememberSwipeToDismissBoxState(

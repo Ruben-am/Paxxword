@@ -136,7 +136,7 @@ fun AccountDetailContent(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
-            .padding(bottom = 48.dp)
+            .padding(bottom = 32.dp)
             .verticalScroll(rememberScrollState())
             .imePadding()
     ) {
