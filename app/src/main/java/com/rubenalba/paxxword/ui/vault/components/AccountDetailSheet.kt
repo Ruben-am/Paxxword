@@ -20,8 +20,11 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -177,6 +180,27 @@ fun AccountDetailContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        if (account.isDecryptionFailed) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+            ) {
+                Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.error_decryption_banner),
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        }
+
         // body
         @Composable
         fun SheetTextField(
@@ -187,6 +211,7 @@ fun AccountDetailContent(
             onCopyClick: (() -> Unit)? = null
         ) {
             val isNotesField = label == stringResource(R.string.label_notes)
+            val isFieldEnabled = isEditing && !account.isDecryptionFailed
 
             OutlinedTextField(
                 value = value,
@@ -197,7 +222,7 @@ fun AccountDetailContent(
                 ),
                 label = { Text(label) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = isEditing,
+                enabled = isFieldEnabled,
                 singleLine = !(!isSecret && isNotesField),
 
                 colors = OutlinedTextFieldDefaults.colors(
@@ -372,7 +397,7 @@ fun AccountDetailContent(
                     onSave(updatedAccount)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = serviceName.isNotBlank() && password.isNotBlank()
+                enabled = serviceName.isNotBlank() && password.isNotBlank() && !account.isDecryptionFailed
             ) {
                 Text(stringResource(R.string.btn_save))
             }
