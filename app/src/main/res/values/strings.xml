@@ -152,4 +152,7 @@
 
     <string name="content_desc_toggle_password">Show/Hide password</string>
     <string name="content_desc_trash">Trash</string>
+
+    <string name="error_decryption">Decryption error</string>
+    <string name="error_decryption_banner">Critical failure: Unable to decrypt content. The data may be corrupted or was restored with a different password.</string>
 </resources>

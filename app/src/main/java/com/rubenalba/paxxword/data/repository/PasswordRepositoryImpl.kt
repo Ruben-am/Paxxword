@@ -167,23 +167,35 @@ class PasswordRepositoryImpl @Inject constructor(
     }
 
     private fun decryptAccount(entity: Account, key: SecretKeySpec = getKey()): AccountModel {
+        val userRes = safeDecrypt(entity.encryptedUsername, entity.ivUsername, key)
+        val emailRes = safeDecrypt(entity.encryptedEmail, entity.ivEmail, key)
+        val passRes = safeDecrypt(entity.encryptedPassword, entity.ivPassword, key)
+        val urlRes = safeDecrypt(entity.encryptedUrl, entity.ivUrl, key)
+        val notesRes = safeDecrypt(entity.encryptedNotes, entity.ivNotes, key)
+
+        val isFailed = userRes.isFailure || emailRes.isFailure || passRes.isFailure || urlRes.isFailure || notesRes.isFailure
+
         return AccountModel(
-            id = entity.id, folderId = entity.folderId, serviceName = entity.serviceName,
-            username = safeDecrypt(entity.encryptedUsername, entity.ivUsername, key),
-            email = safeDecrypt(entity.encryptedEmail, entity.ivEmail, key),
-            password = safeDecrypt(entity.encryptedPassword, entity.ivPassword, key),
-            url = safeDecrypt(entity.encryptedUrl, entity.ivUrl, key),
-            notes = safeDecrypt(entity.encryptedNotes, entity.ivNotes, key)
+            id = entity.id,
+            folderId = entity.folderId,
+            serviceName = entity.serviceName,
+            username = userRes.getOrDefault(""),
+            email = emailRes.getOrDefault(""),
+            password = passRes.getOrDefault(""),
+            url = urlRes.getOrDefault(""),
+            notes = notesRes.getOrDefault(""),
+            isDeleted = entity.isDeleted,
+            isDecryptionFailed = isFailed
         )
     }
 
-    private fun safeDecrypt(encryptedData: String?, ivBase64: String?, key: SecretKeySpec): String {
-        if (encryptedData == null || ivBase64 == null) return ""
+    private fun safeDecrypt(encryptedData: String?, ivBase64: String?, key: SecretKeySpec): Result<String> {
+        if (encryptedData == null || ivBase64 == null) return Result.success("")
         return try {
             val ivBytes = CryptoManager.base64ToBytes(ivBase64)
-            CryptoManager.decrypt(encryptedData, key, ivBytes)
+            Result.success(CryptoManager.decrypt(encryptedData, key, ivBytes))
         } catch (e: Exception) {
-            "Error"
+            Result.failure(e)
         }
     }
 }
