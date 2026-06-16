@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -32,12 +32,13 @@ fun AccountItem(
     folderName: String? = null,
     onClick: () -> Unit
 ) {
-    Card(
+    ElevatedCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        shape = MaterialTheme.shapes.medium
     ) {
         Row(
             modifier = Modifier

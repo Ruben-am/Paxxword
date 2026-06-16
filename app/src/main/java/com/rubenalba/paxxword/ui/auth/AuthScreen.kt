@@ -187,7 +187,7 @@ fun AuthContent(
                     IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                         Icon(
                             imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            contentDescription = "Mostrar/Ocultar contraseña"
+                            contentDescription = stringResource(R.string.content_desc_toggle_password)
                         )
                     }
                 },
@@ -230,7 +230,7 @@ fun AuthContent(
                         IconButton(onClick = { isConfirmVisible = !isConfirmVisible }) {
                             Icon(
                                 imageVector = if (isConfirmVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = "Mostrar/Ocultar contraseña"
+                                contentDescription = stringResource(R.string.content_desc_toggle_password)
                             )
                         }
                     },
@@ -340,7 +340,7 @@ fun RestorePasswordDialog(
                         IconButton(onClick = { isVisible = !isVisible }) {
                             Icon(
                                 imageVector = if (isVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = "Mostrar/Ocultar contraseña"
+                                contentDescription = stringResource(R.string.content_desc_toggle_password)
                             )
                         }
                     }

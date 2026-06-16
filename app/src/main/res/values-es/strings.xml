@@ -88,4 +88,68 @@
     <string name="backup_error_import_pass">Contraseña del archivo incorrecta o archivo dañado.</string>
 
     <string name="folder_none_label">Sin carpeta</string>
+
+    <string name="tab_vault">Bóveda</string>
+    <string name="tab_generator">Generador</string>
+    <string name="tab_settings">Ajustes</string>
+
+    <string name="vault_desc_move_trash">Mover a papelera</string>
+
+    <string name="trash_title">Papelera</string>
+    <string name="trash_empty">La papelera está vacía</string>
+    <string name="trash_dialog_delete_title">¿Eliminar permanentemente?</string>
+    <string name="trash_dialog_delete_msg">Esta acción no se puede deshacer. La cuenta de %1$s se borrará para siempre.</string>
+    <string name="trash_btn_delete">Eliminar</string>
+    <string name="trash_btn_cancel">Cancelar</string>
+    <string name="trash_desc_restore">Restaurar</string>
+    <string name="trash_desc_delete_forever">Borrar permanentemente</string>
+
+    <string name="generator_title">Generador de Contraseñas</string>
+    <string name="generator_dialog_title">Generador Seguro</string>
+    <string name="generator_desc_regenerate">Regenerar</string>
+    <string name="generator_btn_use">Usar Contraseña</string>
+    <string name="generator_btn_close">Cerrar</string>
+    <string name="generator_btn_copy">Copiar</string>
+    <string name="generator_label_length">Longitud: %1$d</string>
+    <string name="generator_chk_lower">Minúsculas (a-z)</string>
+    <string name="generator_chk_upper">Mayúsculas (A-Z)</string>
+    <string name="generator_chk_digits">Números (0-9)</string>
+    <string name="generator_chk_symbols">Símbolos (!@#)</string>
+
+    <string name="settings_msg_pass_success">Contraseña actualizada con éxito</string>
+    <string name="settings_dialog_reencrypt_title">Re-encriptando bóveda...</string>
+    <string name="settings_dialog_reencrypt_msg">Por favor, no cierres la app.</string>
+    <string name="settings_dialog_verify_title">Verificar identidad</string>
+    <string name="settings_dialog_verify_msg">Introduce tu contraseña maestra actual para continuar.</string>
+    <string name="settings_msg_pass_incorrect">Contraseña incorrecta</string>
+    <string name="settings_section_security">Seguridad</string>
+    <string name="settings_btn_change_pass">Cambiar Contraseña Maestra</string>
+    <string name="settings_dialog_new_pass_title">Nueva Contraseña Maestra</string>
+    <string name="settings_label_new_pass">Nueva contraseña</string>
+    <string name="settings_label_confirm_pass">Confirmar contraseña</string>
+    <string name="settings_btn_update">Actualizar</string>
+
+    <string name="toast_copied">%1$s copiado/a</string>
+    <string name="toast_password_copied">Contraseña copiada (Se borrará en 45s)</string>
+    <string name="account_desc_copy">Copiar %1$s</string>
+    <string name="account_desc_generate">Generar contraseña segura</string>
+    <string name="strength_weak">Débil</string>
+    <string name="strength_fair">Aceptable</string>
+    <string name="strength_strong">Fuerte</string>
+    <string name="placeholder_user_local">usuario_local</string>
+    <string name="placeholder_user_restored">usuario_restaurado</string>
+
+    <string name="generator_secure_title">Generador Seguro</string>
+    <string name="content_desc_regenerate">Regenerar</string>
+    <string name="toast_password_copied_temp">Contraseña copiada (Se borrará en 45s)</string>
+    <string name="content_desc_copy">Copiar</string>
+    <string name="generator_length">Longitud: %1$d</string>
+    <string name="generator_chk_lowercase">Minúsculas (a-z)</string>
+    <string name="generator_chk_uppercase">Mayúsculas (A-Z)</string>
+    <string name="generator_chk_numbers">Números (0-9)</string>
+    <string name="generator_btn_use_password">Usar Contraseña</string>
+    <string name="btn_close">Cerrar</string>
+
+    <string name="content_desc_toggle_password">Mostrar/Ocultar contraseña</string>
+    <string name="content_desc_trash">Papelera</string>
 </resources>

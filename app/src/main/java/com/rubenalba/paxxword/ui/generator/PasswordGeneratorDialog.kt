@@ -12,11 +12,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
+import com.rubenalba.paxxword.R
 
 @Composable
 fun PasswordGeneratorDialog(
@@ -30,7 +32,7 @@ fun PasswordGeneratorDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Generador Seguro", style = MaterialTheme.typography.titleLarge) },
+        title = { Text(stringResource(R.string.generator_secure_title), style = MaterialTheme.typography.titleLarge) },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
@@ -46,15 +48,15 @@ fun PasswordGeneratorDialog(
                     trailingIcon = {
                         Row {
                             IconButton(onClick = { viewModel.generatePassword() }) {
-                                Icon(Icons.Default.Refresh, contentDescription = "Regenerar")
+                                Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.content_desc_regenerate))
                             }
                             IconButton(onClick = {
                                 viewModel.copyToClipboard()
-                                Toast.makeText(context, "Contraseña copiada (Se borrará en 45s)", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, R.string.toast_password_copied_temp, Toast.LENGTH_SHORT).show()
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.ContentCopy,
-                                    contentDescription = "Copiar",
+                                    contentDescription = stringResource(R.string.content_desc_copy),
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -64,7 +66,7 @@ fun PasswordGeneratorDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text("Longitud: ${state.length.toInt()}", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.generator_length, state.length.toInt()), fontWeight = FontWeight.Bold)
                 Slider(
                     value = state.length,
                     onValueChange = { viewModel.updateLength(it) },
@@ -76,30 +78,30 @@ fun PasswordGeneratorDialog(
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = state.useLower, onCheckedChange = { viewModel.toggleLower(it) })
-                    Text("Minúsculas (a-z)")
+                    Text(stringResource(R.string.generator_chk_lowercase))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = state.useUpper, onCheckedChange = { viewModel.toggleUpper(it) })
-                    Text("Mayúsculas (A-Z)")
+                    Text(stringResource(R.string.generator_chk_uppercase))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = state.useDigits, onCheckedChange = { viewModel.toggleDigits(it) })
-                    Text("Números (0-9)")
+                    Text(stringResource(R.string.generator_chk_numbers))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = state.useSymbols, onCheckedChange = { viewModel.toggleSymbols(it) })
-                    Text("Símbolos (!@#)")
+                    Text(stringResource(R.string.generator_chk_symbols))
                 }
             }
         },
         confirmButton = {
             Button(onClick = { onApply(state.generatedPassword) }) {
-                Text("Usar Contraseña")
+                Text(stringResource(R.string.generator_btn_use_password))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cerrar")
+                Text(stringResource(R.string.btn_close))
             }
         }
     )

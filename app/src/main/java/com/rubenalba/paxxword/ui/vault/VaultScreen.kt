@@ -37,6 +37,7 @@ fun VaultScreen(
     var showAddFolderDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val toastFormatMsg = stringResource(R.string.toast_copied)
 
     AccountDetailSheet(
         account = selectedAccount,
@@ -47,7 +48,8 @@ fun VaultScreen(
         onDelete = viewModel::deleteAccount,
         onCopy = { label, text, isSensitive ->
             viewModel.copyToClipboard(label, text, isSensitive)
-            Toast.makeText(context, "$label copiado", Toast.LENGTH_SHORT).show()
+            val finalMsg = String.format(toastFormatMsg, label)
+            Toast.makeText(context, finalMsg, Toast.LENGTH_SHORT).show()
         }
     )
 
@@ -67,7 +69,7 @@ fun VaultScreen(
                 title = { Text(stringResource(R.string.vault_title)) },
                 actions = {
                     IconButton(onClick = onNavigateToTrash) {
-                        Icon(Icons.Default.DeleteOutline, contentDescription = "Papelera")
+                        Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.content_desc_trash))
                     }
                 }
             )
@@ -121,7 +123,10 @@ fun VaultScreen(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         } else {
-                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(bottom = 88.dp)
+                            ) {
                                 items(state.accounts, key = { it.id }) { account ->
 
                                     val dismissState = rememberSwipeToDismissBoxState(
@@ -155,7 +160,7 @@ fun VaultScreen(
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Default.Delete,
-                                                    contentDescription = "Mover a papelera",
+                                                    contentDescription = stringResource(R.string.vault_desc_move_trash),
                                                     tint = MaterialTheme.colorScheme.onErrorContainer,
                                                     modifier = Modifier.padding(end = 16.dp)
                                                 )

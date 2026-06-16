@@ -48,44 +48,51 @@ fun SettingsScreen(
     var tempUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var changePassStep by remember { mutableStateOf(ChangePasswordStep.NONE) }
 
-    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        if (uri != null) {
-            tempUri = uri
-            showPasswordDialog = BackupOperation.EXPORT
+    val exportLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+            if (uri != null) {
+                tempUri = uri
+                showPasswordDialog = BackupOperation.EXPORT
+            }
         }
-    }
 
-    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) {
-            tempUri = uri
-            showPasswordDialog = BackupOperation.IMPORT
+    val importLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) {
+                tempUri = uri
+                showPasswordDialog = BackupOperation.IMPORT
+            }
         }
-    }
 
     LaunchedEffect(backupState) {
-        when(val s = backupState) {
+        when (val s = backupState) {
             is BackupState.Success -> {
-                Toast.makeText(context, context.resources.getString(s.msgId), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, s.msgId, Toast.LENGTH_SHORT).show()
                 viewModel.resetBackupState()
             }
+
             is BackupState.Error -> {
-                Toast.makeText(context, context.resources.getString(s.msgId), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, s.msgId, Toast.LENGTH_LONG).show()
                 viewModel.resetBackupState()
             }
+
             else -> {}
         }
     }
 
     LaunchedEffect(changePassState) {
-        when(val s = changePassState) {
+        when (val s = changePassState) {
             is ChangePasswordState.Success -> {
-                Toast.makeText(context, "Contraseña actualizada con éxito", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.settings_msg_pass_success, Toast.LENGTH_SHORT)
+                    .show()
                 viewModel.resetChangePasswordState()
             }
+
             is ChangePasswordState.Error -> {
-                Toast.makeText(context, context.resources.getString(s.msgId), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, s.msgId, Toast.LENGTH_LONG).show()
                 viewModel.resetChangePasswordState()
             }
+
             else -> {}
         }
     }
@@ -95,16 +102,19 @@ fun SettingsScreen(
             onDismissRequest = { /* Bloqueado */ },
             properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
         ) {
-            Card(modifier = Modifier.padding(16.dp)) {
+            Card(modifier = Modifier.padding(16.dp), shape = MaterialTheme.shapes.large) {
                 Column(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Re-encriptando bóveda...", style = MaterialTheme.typography.titleMedium)
                     Text(
-                        text = "Por favor, no cierres la app.",
+                        stringResource(R.string.settings_dialog_reencrypt_title),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_dialog_reencrypt_msg),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -113,18 +123,21 @@ fun SettingsScreen(
         }
     }
 
-    // Flujo 1: Verificar contraseña actual
     if (changePassStep == ChangePasswordStep.VERIFY_CURRENT) {
         PasswordConfirmDialog(
-            title = "Verificar identidad",
-            message = "Introduce tu contraseña maestra actual para continuar.",
+            title = stringResource(R.string.settings_dialog_verify_title),
+            message = stringResource(R.string.settings_dialog_verify_msg),
             onConfirm = { pass ->
                 scope.launch {
                     val isValid = viewModel.verifyCurrentPasswordAuth(pass)
                     if (isValid) {
                         changePassStep = ChangePasswordStep.ENTER_NEW
                     } else {
-                        Toast.makeText(context, "Contraseña incorrecta", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            R.string.settings_msg_pass_incorrect,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             },
@@ -132,7 +145,6 @@ fun SettingsScreen(
         )
     }
 
-    // Flujo 2: Introducir nueva contraseña
     if (changePassStep == ChangePasswordStep.ENTER_NEW) {
         NewMasterPasswordDialog(
             onConfirm = { newPass ->
@@ -182,16 +194,22 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
                 .fillMaxSize()
         ) {
-            Text(text = stringResource(R.string.settings_theme_label), style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = stringResource(R.string.settings_theme_label),
+                style = MaterialTheme.typography.titleMedium
+            )
             Spacer(modifier = Modifier.height(8.dp))
             ThemeSelector(currentTheme = state.theme, onThemeSelected = viewModel::updateTheme)
 
-            Divider(modifier = Modifier.padding(vertical = 24.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
 
-            Text(text = stringResource(R.string.settings_language_label), style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = stringResource(R.string.settings_language_label),
+                style = MaterialTheme.typography.titleMedium
+            )
             Spacer(modifier = Modifier.height(8.dp))
             LanguageSelector(
                 currentLanguage = state.language,
@@ -203,22 +221,27 @@ fun SettingsScreen(
                 }
             )
 
-            Divider(modifier = Modifier.padding(vertical = 24.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
 
-            // SECCIÓN DE SEGURIDAD
-            Text(text = "Seguridad", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = stringResource(R.string.settings_section_security),
+                style = MaterialTheme.typography.titleMedium
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = { changePassStep = ChangePasswordStep.VERIFY_CURRENT },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cambiar Contraseña Maestra")
+                Text(stringResource(R.string.settings_btn_change_pass))
             }
 
-            Divider(modifier = Modifier.padding(vertical = 24.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
 
-            Text(text = "Gestión de Datos", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = stringResource(R.string.settings_section_data),
+                style = MaterialTheme.typography.titleMedium
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedButton(
@@ -304,7 +327,7 @@ fun PasswordConfirmDialog(
                         IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                             Icon(
                                 imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = "Mostrar/Ocultar contraseña"
+                                contentDescription = stringResource(R.string.content_desc_visibility)
                             )
                         }
                     },
@@ -341,13 +364,20 @@ fun NewMasterPasswordDialog(
     var isConfirmVisible by remember { mutableStateOf(false) }
 
     val policyErrorId = if (password.isNotEmpty()) onValidatePolicy(password) else null
-    val matchErrorId = if (confirmPassword.isNotEmpty() && password != confirmPassword) R.string.auth_error_password_mismatch else null
+    val matchErrorId =
+        if (confirmPassword.isNotEmpty() && password != confirmPassword) R.string.auth_error_password_mismatch else null
 
-    val isEnabled = password.isNotEmpty() && confirmPassword.isNotEmpty() && policyErrorId == null && matchErrorId == null
+    val isEnabled =
+        password.isNotEmpty() && confirmPassword.isNotEmpty() && policyErrorId == null && matchErrorId == null
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Nueva Contraseña Maestra", style = MaterialTheme.typography.titleLarge) },
+        title = {
+            Text(
+                stringResource(R.string.settings_dialog_new_pass_title),
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
@@ -357,7 +387,7 @@ fun NewMasterPasswordDialog(
                         fontFamily = JetBrainsMonoFontFamily,
                         fontSize = 16.sp
                     ),
-                    label = { Text("Nueva contraseña") },
+                    label = { Text(stringResource(R.string.settings_label_new_pass)) },
                     singleLine = true,
                     isError = policyErrorId != null,
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -365,7 +395,7 @@ fun NewMasterPasswordDialog(
                         IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                             Icon(
                                 imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = "Mostrar/Ocultar contraseña"
+                                contentDescription = stringResource(R.string.content_desc_visibility)
                             )
                         }
                     },
@@ -393,7 +423,7 @@ fun NewMasterPasswordDialog(
                         fontFamily = JetBrainsMonoFontFamily,
                         fontSize = 16.sp
                     ),
-                    label = { Text("Confirmar contraseña") },
+                    label = { Text(stringResource(R.string.settings_label_confirm_pass)) },
                     singleLine = true,
                     isError = matchErrorId != null,
                     visualTransformation = if (isConfirmVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -401,7 +431,7 @@ fun NewMasterPasswordDialog(
                         IconButton(onClick = { isConfirmVisible = !isConfirmVisible }) {
                             Icon(
                                 imageVector = if (isConfirmVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = "Mostrar/Ocultar contraseña"
+                                contentDescription = stringResource(R.string.content_desc_visibility)
                             )
                         }
                     },
@@ -423,12 +453,12 @@ fun NewMasterPasswordDialog(
         },
         confirmButton = {
             Button(onClick = { onConfirm(password) }, enabled = isEnabled) {
-                Text("Actualizar")
+                Text(stringResource(R.string.settings_btn_update))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.btn_cancel))
             }
         }
     )

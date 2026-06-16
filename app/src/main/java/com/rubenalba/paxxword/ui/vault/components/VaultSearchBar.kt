@@ -2,7 +2,7 @@ package com.rubenalba.paxxword.ui.vault.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -14,6 +14,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rubenalba.paxxword.R
@@ -27,10 +28,10 @@ fun VaultSearchBar(
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
-        shape = RoundedCornerShape(12.dp),
+        shape = CircleShape,
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 0.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         placeholder = { Text(stringResource(R.string.search_placeholder)) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
         trailingIcon = {
@@ -42,10 +43,12 @@ fun VaultSearchBar(
         },
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            disabledContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = Color.Transparent,
+            disabledBorderColor = Color.Transparent
         )
     )
 }
