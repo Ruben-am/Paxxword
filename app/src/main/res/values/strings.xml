@@ -88,4 +88,68 @@
     <string name="backup_error_import_pass">Incorrect file password or corrupted file.</string>
 
     <string name="folder_none_label">No folder</string>
+
+    <string name="tab_vault">Vault</string>
+    <string name="tab_generator">Generator</string>
+    <string name="tab_settings">Settings</string>
+
+    <string name="vault_desc_move_trash">Move to trash</string>
+
+    <string name="trash_title">Trash</string>
+    <string name="trash_empty">Trash is empty</string>
+    <string name="trash_dialog_delete_title">Delete permanently?</string>
+    <string name="trash_dialog_delete_msg">This action cannot be undone. The account for %1$s will be deleted forever.</string>
+    <string name="trash_btn_delete">Delete</string>
+    <string name="trash_btn_cancel">Cancel</string>
+    <string name="trash_desc_restore">Restore</string>
+    <string name="trash_desc_delete_forever">Delete forever</string>
+
+    <string name="generator_title">Password Generator</string>
+    <string name="generator_dialog_title">Secure Generator</string>
+    <string name="generator_desc_regenerate">Regenerate</string>
+    <string name="generator_btn_use">Use Password</string>
+    <string name="generator_btn_close">Close</string>
+    <string name="generator_btn_copy">Copy</string>
+    <string name="generator_label_length">Length: %1$d</string>
+    <string name="generator_chk_lower">Lowercase (a-z)</string>
+    <string name="generator_chk_upper">Uppercase (A-Z)</string>
+    <string name="generator_chk_digits">Digits (0-9)</string>
+    <string name="generator_chk_symbols">Symbols (!@#)</string>
+
+    <string name="settings_msg_pass_success">Password updated successfully</string>
+    <string name="settings_dialog_reencrypt_title">Re-encrypting vault...</string>
+    <string name="settings_dialog_reencrypt_msg">Please, do not close the app.</string>
+    <string name="settings_dialog_verify_title">Verify identity</string>
+    <string name="settings_dialog_verify_msg">Enter your current master password to continue.</string>
+    <string name="settings_msg_pass_incorrect">Incorrect password</string>
+    <string name="settings_section_security">Security</string>
+    <string name="settings_btn_change_pass">Change Master Password</string>
+    <string name="settings_dialog_new_pass_title">New Master Password</string>
+    <string name="settings_label_new_pass">New password</string>
+    <string name="settings_label_confirm_pass">Confirm password</string>
+    <string name="settings_btn_update">Update</string>
+
+    <string name="toast_copied">%1$s copied</string>
+    <string name="toast_password_copied">Password copied (Will be cleared in 45s)</string>
+    <string name="account_desc_copy">Copy %1$s</string>
+    <string name="account_desc_generate">Generate secure password</string>
+    <string name="strength_weak">Weak</string>
+    <string name="strength_fair">Fair</string>
+    <string name="strength_strong">Strong</string>
+    <string name="placeholder_user_local">local_user</string>
+    <string name="placeholder_user_restored">restored_user</string>
+
+    <string name="generator_secure_title">Secure Generator</string>
+    <string name="content_desc_regenerate">Regenerate</string>
+    <string name="toast_password_copied_temp">Password copied (Will be cleared in 45s)</string>
+    <string name="content_desc_copy">Copy</string>
+    <string name="generator_length">Length: %1$d</string>
+    <string name="generator_chk_lowercase">Lowercase (a-z)</string>
+    <string name="generator_chk_uppercase">Uppercase (A-Z)</string>
+    <string name="generator_chk_numbers">Numbers (0-9)</string>
+    <string name="generator_btn_use_password">Use Password</string>
+    <string name="btn_close">Close</string>
+
+    <string name="content_desc_toggle_password">Show/Hide password</string>
+    <string name="content_desc_trash">Trash</string>
 </resources>

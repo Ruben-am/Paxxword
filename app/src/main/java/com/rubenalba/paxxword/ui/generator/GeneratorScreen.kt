@@ -11,11 +11,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,7 +29,7 @@ fun GeneratorScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Generador de Contraseñas") })
+            TopAppBar(title = { Text(stringResource(R.string.generator_title)) })
         }
     ) { padding ->
         Column(
@@ -50,7 +51,10 @@ fun GeneratorScreen(
                 ),
                 trailingIcon = {
                     IconButton(onClick = { viewModel.generatePassword() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Regenerar")
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = stringResource(R.string.generator_desc_regenerate)
+                        )
                     }
                 }
             )
@@ -60,17 +64,22 @@ fun GeneratorScreen(
             Button(
                 onClick = {
                     viewModel.copyToClipboard()
-                    Toast.makeText(context, "Contraseña copiada (Se borrará en 45s)", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.toast_password_copied, Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp)
             ) {
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Copiar")
+                Text(stringResource(R.string.generator_btn_copy))
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Text("Longitud: ${state.length.toInt()}", fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
+            Text(
+                text = stringResource(R.string.generator_label_length, state.length.toInt()),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Start)
+            )
+
             Slider(
                 value = state.length,
                 onValueChange = { viewModel.updateLength(it) },
@@ -82,19 +91,19 @@ fun GeneratorScreen(
 
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Checkbox(checked = state.useLower, onCheckedChange = { viewModel.toggleLower(it) })
-                Text("Minúsculas (a-z)", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.generator_chk_lower), style = MaterialTheme.typography.bodyLarge)
             }
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Checkbox(checked = state.useUpper, onCheckedChange = { viewModel.toggleUpper(it) })
-                Text("Mayúsculas (A-Z)", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.generator_chk_upper), style = MaterialTheme.typography.bodyLarge)
             }
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Checkbox(checked = state.useDigits, onCheckedChange = { viewModel.toggleDigits(it) })
-                Text("Números (0-9)", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.generator_chk_digits), style = MaterialTheme.typography.bodyLarge)
             }
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Checkbox(checked = state.useSymbols, onCheckedChange = { viewModel.toggleSymbols(it) })
-                Text("Símbolos (!@#)", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.generator_chk_symbols), style = MaterialTheme.typography.bodyLarge)
             }
         }
     }

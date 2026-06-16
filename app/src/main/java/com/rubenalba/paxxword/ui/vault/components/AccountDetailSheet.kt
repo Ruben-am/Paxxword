@@ -219,7 +219,7 @@ fun AccountDetailContent(
                             IconButton(onClick = onCopyClick) {
                                 Icon(
                                     Icons.Default.ContentCopy,
-                                    contentDescription = "Copiar $label"
+                                    contentDescription = stringResource(R.string.account_desc_copy, label)
                                 )
                             }
                         }
@@ -228,7 +228,7 @@ fun AccountDetailContent(
                             IconButton(onClick = { showGenerator = true }) {
                                 Icon(
                                     Icons.Default.Password,
-                                    contentDescription = "Generar contraseña segura"
+                                    contentDescription = stringResource(R.string.account_desc_generate)
                                 )
                             }
                         }
@@ -237,7 +237,7 @@ fun AccountDetailContent(
                             IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                                 Icon(
                                     imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                    contentDescription = "Mostrar/Ocultar contraseña"
+                                    contentDescription = stringResource(R.string.content_desc_toggle_password)
                                 )
                             }
                         }
@@ -247,24 +247,40 @@ fun AccountDetailContent(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        SheetTextField(serviceName, { serviceName = it }, stringResource(R.string.label_service))
+        val serviceLabel = stringResource(R.string.label_service)
+        val usernameLabel = stringResource(R.string.label_username)
+        val emailLabel = stringResource(R.string.label_email)
+        val passwordLabel = stringResource(R.string.label_password)
+        val urlLabel = stringResource(R.string.label_url)
+        val notesLabel = stringResource(R.string.label_notes)
+
+        SheetTextField(
+            serviceName,
+            { serviceName = it },
+            serviceLabel
+        )
+
         SheetTextField(
             username,
             { username = it },
-            stringResource(R.string.label_username),
-            onCopyClick = { onCopy("Usuario", username, false) })
+            usernameLabel,
+            onCopyClick = { onCopy(usernameLabel, username, false) }
+        )
+
         SheetTextField(
             email,
             { email = it },
-            stringResource(R.string.label_email),
-            onCopyClick = { onCopy("Email", email, false) })
+            emailLabel,
+            onCopyClick = { onCopy(emailLabel, email, false) }
+        )
 
         SheetTextField(
             password,
             { password = it },
-            stringResource(R.string.label_password),
+            passwordLabel,
             isSecret = true,
-            onCopyClick = { onCopy("Contraseña", password, true) })
+            onCopyClick = { onCopy(passwordLabel, password, true) }
+        )
 
         if (isEditing && password.isNotEmpty()) {
             PasswordStrengthBar(password = password, modifier = Modifier.padding(bottom = 8.dp))
@@ -273,9 +289,15 @@ fun AccountDetailContent(
         SheetTextField(
             url,
             { url = it },
-            stringResource(R.string.label_url),
-            onCopyClick = { onCopy("URL", url, false) })
-        SheetTextField(notes, { notes = it }, stringResource(R.string.label_notes))
+            urlLabel,
+            onCopyClick = { onCopy(urlLabel, url, false) }
+        )
+
+        SheetTextField(
+            notes,
+            { notes = it },
+            notesLabel
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 

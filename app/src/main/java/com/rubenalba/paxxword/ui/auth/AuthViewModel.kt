@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 sealed class AuthState {
     data object Idle : AuthState() // waiting user input
@@ -26,6 +28,7 @@ sealed class AuthState {
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val userDao: UserDao,
     private val sessionManager: SessionManager,
     private val backupManager: BackupManager,
@@ -59,7 +62,7 @@ class AuthViewModel @Inject constructor(
 
                 // save in db (salt and VERIFICATION_PHRASE no key or password)
                 val user = User(
-                    userEmail = "usuario_local", //place holder
+                    userEmail = context.getString(R.string.placeholder_user_local), //place holder
                     userSalt = CryptoManager.bytesToBase64(salt),
                     encryptedVerificationValue = encryptedVerification,
                     ivVerificationValue = CryptoManager.bytesToBase64(iv)
@@ -153,7 +156,7 @@ class AuthViewModel @Inject constructor(
                     val encryptedVerification = CryptoManager.encrypt(verificationBytes, key, iv)
 
                     val user = User(
-                        userEmail = "usuario_restaurado",
+                        userEmail = context.getString(R.string.placeholder_user_restored),
                         userSalt = CryptoManager.bytesToBase64(salt),
                         encryptedVerificationValue = encryptedVerification,
                         ivVerificationValue = CryptoManager.bytesToBase64(iv)

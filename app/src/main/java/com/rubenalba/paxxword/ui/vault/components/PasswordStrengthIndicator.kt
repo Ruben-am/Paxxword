@@ -1,5 +1,6 @@
 package com.rubenalba.paxxword.ui.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -9,12 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.rubenalba.paxxword.R
 
-enum class PasswordStrength(val color: Color, val fraction: Float, val label: String) {
-    NONE(Color.Transparent, 0f, ""),
-    WEAK(Color(0xFFEF5350), 0.33f, "Débil"),
-    FAIR(Color(0xFFFFA726), 0.66f, "Aceptable"),
-    STRONG(Color(0xFF66BB6A), 1f, "Fuerte")
+enum class PasswordStrength(val color: Color, val fraction: Float, @StringRes val labelRes: Int?) {
+    NONE(Color.Transparent, 0f, null),
+    WEAK(Color(0xFFEF5350), 0.33f, R.string.strength_weak),
+    FAIR(Color(0xFFFFA726), 0.66f, R.string.strength_fair),
+    STRONG(Color(0xFF66BB6A), 1f, R.string.strength_strong)
 }
 
 fun calculatePasswordStrength(password: String): PasswordStrength {
@@ -51,11 +54,13 @@ fun PasswordStrengthBar(password: String, modifier: Modifier = Modifier) {
                 color = strength.color,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
-            Text(
-                text = strength.label,
-                style = MaterialTheme.typography.labelSmall,
-                color = strength.color
-            )
+            strength.labelRes?.let { labelId ->
+                Text(
+                    text = stringResource(id = labelId),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = strength.color
+                )
+            }
         }
     }
 }

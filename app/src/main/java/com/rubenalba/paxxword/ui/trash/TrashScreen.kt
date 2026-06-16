@@ -28,10 +28,10 @@ fun TrashScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Papelera") },
+                title = { Text(stringResource(R.string.trash_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.content_desc_back))
                     }
                 }
             )
@@ -39,7 +39,7 @@ fun TrashScreen(
     ) { padding ->
         if (trashedAccounts.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Text("La papelera está vacía", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.trash_empty), style = MaterialTheme.typography.bodyLarge)
             }
         } else {
             LazyColumn(
@@ -69,15 +69,15 @@ fun TrashedAccountItem(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("¿Eliminar permanentemente?") },
-            text = { Text("Esta acción no se puede deshacer. La cuenta de ${account.serviceName} se borrará para siempre.") },
+            title = { Text(stringResource(R.string.trash_dialog_delete_title)) },
+            text = { Text(stringResource(R.string.trash_dialog_delete_msg, account.serviceName)) },
             confirmButton = {
                 Button(onClick = { onDeleteForever(); showDeleteDialog = false }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
-                    Text("Eliminar")
+                    Text(stringResource(R.string.trash_btn_delete))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancelar") }
+                Text(stringResource(R.string.trash_btn_cancel))
             }
         )
     }
@@ -97,10 +97,10 @@ fun TrashedAccountItem(
             }
             Row {
                 IconButton(onClick = onRestore) {
-                    Icon(Icons.Default.Restore, contentDescription = "Restaurar", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Default.Restore, contentDescription = stringResource(R.string.trash_desc_restore), tint = MaterialTheme.colorScheme.primary)
                 }
                 IconButton(onClick = { showDeleteDialog = true }) {
-                    Icon(Icons.Default.DeleteForever, contentDescription = "Borrar", tint = MaterialTheme.colorScheme.error)
+                    Icon(Icons.Default.DeleteForever, contentDescription = stringResource(R.string.trash_desc_delete_forever), tint = MaterialTheme.colorScheme.error)
                 }
             }
         }
