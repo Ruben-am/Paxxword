@@ -38,9 +38,6 @@ class AuthViewModel @Inject constructor(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState = _authState.asStateFlow()
 
-    // Secret phrase if we are able to decrypt it we can enter
-    private val VERIFICATION_PHRASE = "PAXXWORD_VERIFIED_USER"
-
     // sing up create master password
     fun register(password: String) {
         if (password.isBlank()) return
@@ -57,13 +54,15 @@ class AuthViewModel @Inject constructor(
                 // encrypt VERIFICATION_PHRASE with key
                 val iv = CryptoManager.generateIv()
 
-                val verificationBytes = VERIFICATION_PHRASE.toByteArray(Charsets.UTF_8)
+                val uniqueToken = java.util.UUID.randomUUID().toString()
+                val verificationBytes = uniqueToken.toByteArray(Charsets.UTF_8)
                 val encryptedVerification = CryptoManager.encrypt(verificationBytes, key, iv)
 
                 // save in db (salt and VERIFICATION_PHRASE no key or password)
                 val user = User(
-                    userEmail = context.getString(R.string.placeholder_user_local), //place holder
+                    userEmail = context.getString(R.string.placeholder_user_local),
                     userSalt = CryptoManager.bytesToBase64(salt),
+                    verificationToken = uniqueToken,
                     encryptedVerificationValue = encryptedVerification,
                     ivVerificationValue = CryptoManager.bytesToBase64(iv)
                 )
@@ -108,8 +107,7 @@ class AuthViewModel @Inject constructor(
                     iv
                 )
 
-                // check it
-                if (decryptedPhrase == VERIFICATION_PHRASE) {
+                if (decryptedPhrase == user.verificationToken) {
                     sessionManager.setKey(keyCandidate)
                     _authState.value = AuthState.Success
                 } else {
@@ -151,13 +149,15 @@ class AuthViewModel @Inject constructor(
 
                 if (success) {
                     // create user
+                    val uniqueToken = java.util.UUID.randomUUID().toString()
                     val iv = CryptoManager.generateIv()
-                    val verificationBytes = "PAXXWORD_VERIFIED_USER".toByteArray(Charsets.UTF_8)
+                    val verificationBytes = uniqueToken.toByteArray(Charsets.UTF_8)
                     val encryptedVerification = CryptoManager.encrypt(verificationBytes, key, iv)
 
                     val user = User(
                         userEmail = context.getString(R.string.placeholder_user_restored),
                         userSalt = CryptoManager.bytesToBase64(salt),
+                        verificationToken = uniqueToken,
                         encryptedVerificationValue = encryptedVerification,
                         ivVerificationValue = CryptoManager.bytesToBase64(iv)
                     )

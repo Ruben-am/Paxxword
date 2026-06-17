@@ -13,9 +13,11 @@ data class User(
     val userEmail: String,
 
     @ColumnInfo(name = "user_salt")
-    val userSalt: String, // save salt in Base64
+    val userSalt: String,
 
-    // it is used to check if the master password is correct without save it
+    @ColumnInfo(name = "verification_token")
+    val verificationToken: String,
+
     @ColumnInfo(name = "encrypted_verification_value")
     val encryptedVerificationValue: String,
 

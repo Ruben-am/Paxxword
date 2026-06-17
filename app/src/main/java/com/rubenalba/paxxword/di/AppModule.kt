@@ -24,15 +24,21 @@ object AppModule {
         }
     }
 
+    private val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE app_user ADD COLUMN verification_token TEXT NOT NULL DEFAULT 'PAXXWORD_VERIFIED_USER'")
+        }
+    }
+
     @Provides
     @Singleton
     fun provideDatabase(app: Application): AppDatabase {
         return Room.databaseBuilder(
             app,
             AppDatabase::class.java,
-            "paxxword_db" // name of .bd in mobile storage
+            "paxxword_db"
         )
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
     }
 
