@@ -104,7 +104,7 @@ class PasswordRepositoryImpl @Inject constructor(
             val newSalt = KeyDerivationUtil.generateSalt()
             val newKey = KeyDerivationUtil.deriveKey(newPassword.toCharArray(), newSalt)
             val newIvVerification = CryptoManager.generateIv()
-            val newVerificationBytes = "PAXXWORD_VERIFIED_USER".toByteArray(Charsets.UTF_8)
+            val newVerificationBytes = currentUser.verificationToken.toByteArray(Charsets.UTF_8)
             val newEncryptedVerification =
                 CryptoManager.encrypt(newVerificationBytes, newKey, newIvVerification)
 

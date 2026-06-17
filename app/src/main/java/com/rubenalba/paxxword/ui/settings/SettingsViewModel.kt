@@ -136,7 +136,7 @@ class SettingsViewModel @Inject constructor(
                 keyCandidate,
                 iv
             )
-            decryptedPhrase == "PAXXWORD_VERIFIED_USER"
+            decryptedPhrase == user.verificationToken
         } catch (e: Exception) {
             false
         }
