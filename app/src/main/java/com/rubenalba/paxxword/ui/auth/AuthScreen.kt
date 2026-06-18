@@ -79,11 +79,13 @@ fun AuthScreen(
         isRegister = isRegister,
         state = state,
         onAuthAction = { password ->
-            if (isRegister) viewModel.register(password) else viewModel.login(password)
+            if (isRegister) viewModel.register(password.toCharArray()) else viewModel.login(password.toCharArray())
         },
-        onValidatePassword = viewModel::validatePasswordPolicy,
+        onValidatePassword = { password ->
+            viewModel.validatePasswordPolicy(password.toCharArray())
+        },
         onRestoreBackup = { uri, password ->
-            viewModel.restoreFromBackup(uri, password)
+            viewModel.restoreFromBackup(uri, password.toCharArray())
         }
     )
 }

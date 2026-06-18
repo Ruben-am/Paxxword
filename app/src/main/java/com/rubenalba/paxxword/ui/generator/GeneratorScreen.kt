@@ -40,7 +40,7 @@ fun GeneratorScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedTextField(
-                value = state.generatedPassword,
+                value = String(state.generatedPassword),
                 onValueChange = {},
                 readOnly = true,
                 modifier = Modifier.fillMaxWidth(),
