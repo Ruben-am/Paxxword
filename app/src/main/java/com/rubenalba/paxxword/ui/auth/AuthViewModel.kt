@@ -1,23 +1,23 @@
 package com.rubenalba.paxxword.ui.auth
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rubenalba.paxxword.R
-import com.rubenalba.paxxword.data.manager.SessionManager
-import com.rubenalba.paxxword.data.manager.BackupManager
 import com.rubenalba.paxxword.data.local.dao.UserDao
 import com.rubenalba.paxxword.data.local.entity.User
+import com.rubenalba.paxxword.data.manager.BackupManager
 import com.rubenalba.paxxword.data.manager.CryptoManager
 import com.rubenalba.paxxword.data.manager.KeyDerivationUtil
+import com.rubenalba.paxxword.data.manager.SessionManager
 import com.rubenalba.paxxword.domain.repository.PasswordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 sealed class AuthState {
     data object Idle : AuthState() // waiting user input
@@ -39,8 +39,8 @@ class AuthViewModel @Inject constructor(
     val authState = _authState.asStateFlow()
 
     // sing up create master password
-    fun register(password: String) {
-        if (password.isBlank()) return
+    fun register(password: CharArray) {
+        if (password.isEmpty()) return
 
         viewModelScope.launch {
             _authState.value = AuthState.Loading
@@ -49,7 +49,7 @@ class AuthViewModel @Inject constructor(
                 val salt = KeyDerivationUtil.generateSalt()
 
                 // generate key (Password + Salt -> Key)
-                val key = KeyDerivationUtil.deriveKey(password.toCharArray(), salt)
+                val key = KeyDerivationUtil.deriveKey(password, salt)
 
                 // encrypt VERIFICATION_PHRASE with key
                 val iv = CryptoManager.generateIv()
@@ -76,13 +76,15 @@ class AuthViewModel @Inject constructor(
 
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(R.string.auth_error_generic)
+            } finally {
+                password.fill('\u0000')
             }
         }
     }
 
     // login
-    fun login(password: String) {
-        if (password.isBlank()) return
+     fun login(password: CharArray) {
+        if (password.isEmpty()) return
 
         viewModelScope.launch {
             _authState.value = AuthState.Loading
@@ -91,13 +93,14 @@ class AuthViewModel @Inject constructor(
             val user = userDao.getAppUser()
             if (user == null) {
                 _authState.value = AuthState.Error(R.string.auth_error_no_user)
+                password.fill('\u0000')
                 return@launch
             }
 
             try {
                 val salt = CryptoManager.base64ToBytes(user.userSalt)
 
-                val keyCandidate = KeyDerivationUtil.deriveKey(password.toCharArray(), salt)
+                val keyCandidate = KeyDerivationUtil.deriveKey(password, salt)
 
                 val iv = CryptoManager.base64ToBytes(user.ivVerificationValue)
 
@@ -115,12 +118,14 @@ class AuthViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(R.string.auth_error_incorrect)
+            } finally {
+                password.fill('\u0000')
             }
         }
     }
 
-    fun validatePasswordPolicy(password: String): Int? {
-        if (password.length < 8) {
+    fun validatePasswordPolicy(password: CharArray): Int? {
+        if (password.size < 8) {
             return R.string.auth_error_policy_length
         }
         if (!password.any { it.isDigit() }) {
@@ -132,20 +137,20 @@ class AuthViewModel @Inject constructor(
         return null
     }
 
-    fun restoreFromBackup(uri: Uri, password: String) {
+    fun restoreFromBackup(uri: Uri, password: CharArray) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
 
             try {
                 // generate salt, derivate key (one time)
                 val salt = KeyDerivationUtil.generateSalt()
-                val key = KeyDerivationUtil.deriveKey(password.toCharArray(), salt)
+                val key = KeyDerivationUtil.deriveKey(password, salt)
 
                 // establish temporary session with that key
                 sessionManager.setKey(key)
 
                 // import data
-                val success = backupManager.importBackup(uri, password)
+                val success = backupManager.importBackup(uri, String(password))
 
                 if (success) {
                     // create user
@@ -174,6 +179,8 @@ class AuthViewModel @Inject constructor(
                 sessionManager.clearSession()
                 userDao.deleteAllUsers()
                 _authState.value = AuthState.Error(R.string.auth_error_generic)
+            } finally {
+                password.fill('\u0000')
             }
         }
     }

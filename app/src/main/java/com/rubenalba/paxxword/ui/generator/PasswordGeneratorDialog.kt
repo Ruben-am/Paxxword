@@ -36,7 +36,7 @@ fun PasswordGeneratorDialog(
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = state.generatedPassword,
+                    value = String(state.generatedPassword),
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -95,7 +95,7 @@ fun PasswordGeneratorDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onApply(state.generatedPassword) }) {
+            Button(onClick = { onApply(String(state.generatedPassword)) }) {
                 Text(stringResource(R.string.generator_btn_use_password))
             }
         },
