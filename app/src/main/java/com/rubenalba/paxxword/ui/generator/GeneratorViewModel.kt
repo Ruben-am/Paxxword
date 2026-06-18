@@ -1,3 +1,5 @@
+// paxxword/ui/generator/GeneratorViewModel.kt
+
 package com.rubenalba.paxxword.ui.generator
 
 import androidx.lifecycle.ViewModel
@@ -15,8 +17,27 @@ data class GeneratorState(
     val useUpper: Boolean = true,
     val useDigits: Boolean = true,
     val useSymbols: Boolean = true,
-    val generatedPassword: String = ""
-)
+    val generatedPassword: CharArray = CharArray(0)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is GeneratorState) return false
+        if (length != other.length || useLower != other.useLower ||
+            useUpper != other.useUpper || useDigits != other.useDigits ||
+            useSymbols != other.useSymbols) return false
+        return generatedPassword.contentEquals(other.generatedPassword)
+    }
+
+    override fun hashCode(): Int {
+        var result = length.hashCode()
+        result = 31 * result + useLower.hashCode()
+        result = 31 * result + useUpper.hashCode()
+        result = 31 * result + useDigits.hashCode()
+        result = 31 * result + useSymbols.hashCode()
+        result = 31 * result + generatedPassword.contentHashCode()
+        return result
+    }
+}
 
 @HiltViewModel
 class GeneratorViewModel @Inject constructor(
@@ -80,11 +101,22 @@ class GeneratorViewModel @Inject constructor(
         while (chars.size < len) { chars.add(pool.random()) }
         chars.shuffle()
 
-        _state.update { it.copy(generatedPassword = chars.joinToString("")) }
+        val oldPassword = _state.value.generatedPassword
+        val newPassword = chars.toCharArray()
+
+        _state.update { it.copy(generatedPassword = newPassword) }
+
+        oldPassword.fill('\u0000')
     }
 
     // Acción de copiado
     fun copyToClipboard(label: String = "Contraseña") {
-        secureClipboardManager.copySensitiveText(label, _state.value.generatedPassword)
+        val passStr = String(_state.value.generatedPassword)
+        secureClipboardManager.copySensitiveText(label, passStr)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        _state.value.generatedPassword.fill('\u0000')
     }
 }
