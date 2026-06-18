@@ -48,6 +48,17 @@ class SessionManager @Inject constructor() {
 
     fun clearSession() {
         timeoutJob?.cancel()
+
+        encryptionKey?.let { key ->
+            try {
+                if (!key.isDestroyed) {
+                    key.destroy()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
         encryptionKey = null
         _sessionActive.value = false
     }
