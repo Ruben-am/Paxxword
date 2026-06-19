@@ -27,11 +27,12 @@ import com.rubenalba.paxxword.ui.generator.GeneratorScreen
 import com.rubenalba.paxxword.ui.settings.SettingsScreen
 import com.rubenalba.paxxword.ui.vault.VaultScreen
 import com.rubenalba.paxxword.ui.trash.TrashScreen
+import com.rubenalba.paxxword.ui.navigation.Screen
 
 sealed class BottomNavItem(val route: String, val titleResId: Int, val icon: ImageVector) {
-    object Vault : BottomNavItem("vault_tab", R.string.tab_vault, Icons.Default.Lock)
-    object Generator : BottomNavItem("generator_tab", R.string.tab_generator, Icons.Default.Password)
-    object Settings : BottomNavItem("settings_tab", R.string.tab_settings, Icons.Default.Settings)
+    object Vault : BottomNavItem(Screen.VaultTab.route, R.string.tab_vault, Icons.Default.Lock)
+    object Generator : BottomNavItem(Screen.GeneratorTab.route, R.string.tab_generator, Icons.Default.Password)
+    object Settings : BottomNavItem(Screen.SettingsTab.route, R.string.tab_settings, Icons.Default.Settings)
 }
 
 @Composable
@@ -74,7 +75,7 @@ fun MainScreen() {
         ) {
             composable(BottomNavItem.Vault.route) {
                 VaultScreen(onNavigateToTrash = {
-                    bottomNavController.navigate("trash")
+                    bottomNavController.navigate(Screen.Trash.route)
                 })
             }
             composable(BottomNavItem.Generator.route) {
@@ -84,7 +85,7 @@ fun MainScreen() {
                 SettingsScreen()
             }
 
-            composable("trash") {
+            composable(Screen.Trash.route) {
                 TrashScreen(onBack = { bottomNavController.popBackStack() })
             }
         }

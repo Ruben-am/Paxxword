@@ -8,6 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.rubenalba.paxxword.ui.navigation.Screen
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,9 +29,9 @@ class SplashViewModel @Inject constructor(
             val user = userDao.getAppUser()
 
             if (user != null) {
-                _startDestination.value = "login"
+                _startDestination.value = Screen.Login.route
             } else {
-                _startDestination.value = "signup"
+                _startDestination.value = Screen.SignUp.route
             }
 
             delay(500)

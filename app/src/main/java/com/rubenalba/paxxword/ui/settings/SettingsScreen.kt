@@ -29,6 +29,7 @@ import com.rubenalba.paxxword.domain.model.AppLanguage
 import com.rubenalba.paxxword.domain.model.AppTheme
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import kotlinx.coroutines.launch
+import com.rubenalba.paxxword.util.Constants
 
 enum class ChangePasswordStep { NONE, VERIFY_CURRENT, ENTER_NEW }
 
@@ -49,7 +50,7 @@ fun SettingsScreen(
     var changePassStep by remember { mutableStateOf(ChangePasswordStep.NONE) }
 
     val exportLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(Constants.MIME_TYPE_JSON)) { uri ->
             if (uri != null) {
                 tempUri = uri
                 showPasswordDialog = BackupOperation.EXPORT
@@ -242,7 +243,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedButton(
-                onClick = { exportLauncher.launch("paxxword_backup.paxx") },
+                onClick = { exportLauncher.launch(Constants.DEFAULT_BACKUP_FILE_NAME) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.settings_btn_export))
@@ -251,7 +252,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = { importLauncher.launch(arrayOf("*/*")) },
+                onClick = { importLauncher.launch(arrayOf(Constants.MIME_TYPE_ANY)) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.settings_btn_import))
@@ -269,10 +270,15 @@ fun SettingsScreen(
 fun ThemeSelector(currentTheme: AppTheme, onThemeSelected: (AppTheme) -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         AppTheme.values().forEach { theme ->
+            val labelRes = when (theme) {
+                AppTheme.SYSTEM -> R.string.theme_system
+                AppTheme.LIGHT -> R.string.theme_light
+                AppTheme.DARK -> R.string.theme_dark
+            }
             FilterChip(
                 selected = currentTheme == theme,
                 onClick = { onThemeSelected(theme) },
-                label = { Text(theme.name) }
+                label = { Text(stringResource(labelRes)) }
             )
         }
     }
@@ -282,10 +288,15 @@ fun ThemeSelector(currentTheme: AppTheme, onThemeSelected: (AppTheme) -> Unit) {
 fun LanguageSelector(currentLanguage: AppLanguage, onLanguageSelected: (AppLanguage) -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         AppLanguage.values().forEach { lang ->
+            val labelRes = when (lang) {
+                AppLanguage.SYSTEM -> R.string.language_system
+                AppLanguage.ENGLISH -> R.string.language_english
+                AppLanguage.SPANISH -> R.string.language_spanish
+            }
             FilterChip(
                 selected = currentLanguage == lang,
                 onClick = { onLanguageSelected(lang) },
-                label = { Text(lang.name) }
+                label = { Text(stringResource(labelRes)) }
             )
         }
     }

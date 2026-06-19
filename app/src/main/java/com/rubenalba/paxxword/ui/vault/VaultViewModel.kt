@@ -11,12 +11,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
+import com.rubenalba.paxxword.R
 import javax.inject.Inject
 
 sealed interface VaultUiState {
     data object Loading : VaultUiState
     data class Success(val accounts: List<AccountModel>) : VaultUiState
-    data class Error(val message: String) : VaultUiState
+    data class Error(val fallbackMessageResId: Int, val exceptionMessage: String? = null) : VaultUiState
 }
 
 @HiltViewModel
@@ -54,7 +55,7 @@ class VaultViewModel @Inject constructor(
                 VaultUiState.Success(filtered)
             } as VaultUiState
         }
-        .catch { e -> emit(VaultUiState.Error(e.message ?: "Error desconocido")) }
+        .catch { e -> emit(VaultUiState.Error(fallbackMessageResId = R.string.error_unknown, exceptionMessage = e.message)) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), VaultUiState.Loading)
 
     private val _selectedAccount = MutableStateFlow<AccountModel?>(null)

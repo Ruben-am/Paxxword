@@ -155,4 +155,13 @@
 
     <string name="error_decryption">Decryption error</string>
     <string name="error_decryption_banner">Critical failure: Unable to decrypt content. The data may be corrupted or was restored with a different password.</string>
+
+    <string name="clipboard_label_password">Password</string>
+
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="language_system">System</string>
+    <string name="language_english">English</string>
+    <string name="language_spanish">Spanish</string>
 </resources>

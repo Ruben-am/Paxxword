@@ -13,6 +13,7 @@ import com.rubenalba.paxxword.domain.model.SettingsState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import com.rubenalba.paxxword.util.Constants
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,8 +24,8 @@ class UserPreferencesRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private object Keys {
-        val THEME = stringPreferencesKey("app_theme")
-        val LANGUAGE = stringPreferencesKey("app_language")
+        val THEME = stringPreferencesKey(Constants.PREF_THEME_KEY)
+        val LANGUAGE = stringPreferencesKey(Constants.PREF_LANGUAGE_KEY)
     }
 
     val settingsFlow: Flow<SettingsState> = context.dataStore.data.map { preferences ->

@@ -61,6 +61,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.rubenalba.paxxword.util.Constants
 
 @Composable
 fun AuthScreen(
@@ -280,7 +281,7 @@ fun AuthContent(
 
             if (isRegister && state !is AuthState.Loading) {
                 Spacer(modifier = Modifier.height(16.dp))
-                TextButton(onClick = { restoreLauncher.launch(arrayOf("*/*")) }) {
+                TextButton(onClick = { restoreLauncher.launch(arrayOf(Constants.MIME_TYPE_ANY)) }) {
                     Text(stringResource(R.string.auth_restore_link))
                 }
             }
