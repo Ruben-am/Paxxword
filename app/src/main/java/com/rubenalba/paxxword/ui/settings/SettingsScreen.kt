@@ -215,9 +215,6 @@ fun SettingsScreen(
                 currentLanguage = state.language,
                 onLanguageSelected = { lang ->
                     viewModel.updateLanguage(lang)
-                    if (context is Activity) {
-                        context.recreate()
-                    }
                 }
             )
 
