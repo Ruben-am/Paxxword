@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 import javax.inject.Inject
 
 sealed class AuthState {
@@ -38,6 +39,7 @@ class AuthViewModel @Inject constructor(
                 registerUseCase(password, defaultEmailLabel)
                 _authState.value = AuthState.Success
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 _authState.value = AuthState.Error(R.string.auth_error_generic)
             } finally {
                 password.fill('\u0000')
@@ -58,6 +60,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.Error(R.string.auth_error_incorrect)
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 _authState.value = AuthState.Error(R.string.auth_error_incorrect)
             } finally {
                 password.fill('\u0000')
@@ -83,6 +86,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.Error(R.string.auth_error_incorrect)
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 _authState.value = AuthState.Error(R.string.auth_error_generic)
             } finally {
                 password.fill('\u0000')
