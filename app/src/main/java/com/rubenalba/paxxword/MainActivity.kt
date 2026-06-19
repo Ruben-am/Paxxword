@@ -26,6 +26,7 @@ import com.rubenalba.paxxword.ui.navigation.AppNavigation
 import com.rubenalba.paxxword.ui.settings.SettingsViewModel
 import com.rubenalba.paxxword.ui.splash.SplashViewModel
 import com.rubenalba.paxxword.ui.theme.PaxxwordTheme
+import com.rubenalba.paxxword.ui.navigation.Screen
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 import javax.inject.Inject
@@ -70,8 +71,8 @@ class MainActivity : ComponentActivity() {
                         LaunchedEffect(isSessionActive) {
                             if (!isSessionActive && startDest != null) {
                                 val currentRoute = navController.currentDestination?.route
-                                if (currentRoute != "login" && currentRoute != "signup") {
-                                    navController.navigate("login") {
+                                if (currentRoute != Screen.Login.route && currentRoute != Screen.SignUp.route) {
+                                    navController.navigate(Screen.Login.route) {
                                         popUpTo(0) { inclusive = true }
                                     }
                                 }

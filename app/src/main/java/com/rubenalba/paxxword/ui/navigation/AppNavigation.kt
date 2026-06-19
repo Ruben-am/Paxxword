@@ -13,28 +13,28 @@ fun AppNavigation(
     startDestination: String
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
-        composable("login") {
+        composable(Screen.Login.route) {
             AuthScreen(
                 isRegister = false,
                 onAuthSuccess = {
-                    navController.navigate("main") {
-                        popUpTo("login") { inclusive = true }
+                    navController.navigate(Screen.Main.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }
             )
         }
-        composable("signup") {
+        composable(Screen.SignUp.route) {
             AuthScreen(
                 isRegister = true,
                 onAuthSuccess = {
-                    navController.navigate("main") {
-                        popUpTo("signup") { inclusive = true }
+                    navController.navigate(Screen.Main.route) {
+                        popUpTo(Screen.SignUp.route) { inclusive = true }
                     }
                 }
             )
         }
 
-        composable("main") {
+        composable(Screen.Main.route) {
             MainScreen()
         }
     }
