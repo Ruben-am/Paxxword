@@ -61,6 +61,7 @@ import com.rubenalba.paxxword.ui.generator.PasswordGeneratorDialog
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import com.rubenalba.paxxword.ui.theme.ManropeFontFamily
 import com.rubenalba.paxxword.domain.model.FolderModel
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,18 +103,17 @@ fun AccountDetailContent(
     onCancel: () -> Unit,
     onCopy: (String, String, Boolean) -> Unit
 ) {
-    // state (id 0 -> new (edit mode), else reading)
-    var isEditing by remember { mutableStateOf(account.id == 0L) }
+    var isEditing by rememberSaveable { mutableStateOf(account.id == 0L) }
 
-    var serviceName by remember { mutableStateOf(account.serviceName) }
-    var username by remember { mutableStateOf(account.username) }
-    var email by remember { mutableStateOf(account.email) }
-    var password by remember { mutableStateOf(account.password) }
-    var url by remember { mutableStateOf(account.url) }
-    var notes by remember { mutableStateOf(account.notes) }
+    var serviceName by rememberSaveable { mutableStateOf(account.serviceName) }
+    var username by rememberSaveable { mutableStateOf(account.username) }
+    var email by rememberSaveable { mutableStateOf(account.email) }
+    var password by rememberSaveable { mutableStateOf(account.password) }
+    var url by rememberSaveable { mutableStateOf(account.url) }
+    var notes by rememberSaveable { mutableStateOf(account.notes) }
 
-    var isPasswordVisible by remember { mutableStateOf(false) }
-    var showGenerator by remember { mutableStateOf(false) }
+    var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    var showGenerator by rememberSaveable { mutableStateOf(false) }
 
     if (showGenerator) {
         PasswordGeneratorDialog(
@@ -327,8 +327,8 @@ fun AccountDetailContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        var expanded by remember { mutableStateOf(false) }
-        var selectedFolderId by remember { mutableStateOf(account.folderId) }
+        var expanded by rememberSaveable { mutableStateOf(false) }
+        var selectedFolderId by rememberSaveable { mutableStateOf(account.folderId) }
 
         val folderLabel = allFolders.find { it.id == selectedFolderId }?.name
             ?: stringResource(R.string.folder_none_label)
