@@ -9,26 +9,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.rubenalba.paxxword.data.local.entity.Folder
 import com.rubenalba.paxxword.R
+import com.rubenalba.paxxword.domain.model.FolderModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FolderFilterBar(
-    folders: List<Folder>,
+    folders: List<FolderModel>,
     selectedFolderId: Long?,
     onFolderSelected: (Long?) -> Unit,
     onAddFolderClick: () -> Unit,
-    onDeleteFolder: (Folder) -> Unit
+    onDeleteFolder: (FolderModel) -> Unit
 ) {
     LazyRow(
         contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
@@ -52,7 +50,7 @@ fun FolderFilterBar(
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = false },
                     title = { Text(stringResource(R.string.folder_dialog_delete_title)) },
-                    text = { Text(stringResource(R.string.folder_dialog_delete_message, folder.folderName)) },
+                    text = { Text(stringResource(R.string.folder_dialog_delete_message, folder.name)) },
                     confirmButton = {
                         TextButton(onClick = { onDeleteFolder(folder); showDeleteDialog = false }) {
                             Text(stringResource(R.string.btn_delete), color = MaterialTheme.colorScheme.error)
@@ -71,7 +69,7 @@ fun FolderFilterBar(
                 FilterChip(
                     selected = selectedFolderId == folder.id,
                     onClick = { /* managed by upper box */ },
-                    label = { Text(folder.folderName) },
+                    label = { Text(folder.name) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Folder,

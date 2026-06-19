@@ -168,7 +168,7 @@ fun VaultScreen(
                                         },
                                         content = {
                                             val folderName = if (selectedFolderId == null) {
-                                                folders.find { it.id == account.folderId }?.folderName
+                                                folders.find { it.id == account.folderId }?.name
                                             } else null
 
                                             AccountItem(

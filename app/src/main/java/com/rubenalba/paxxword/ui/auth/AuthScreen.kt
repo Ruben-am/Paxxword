@@ -75,17 +75,21 @@ fun AuthScreen(
         }
     }
 
+    val userLabelLocal = stringResource(R.string.placeholder_user_local)
+    val userLabelRestored = stringResource(R.string.placeholder_user_restored)
+
     AuthContent(
         isRegister = isRegister,
         state = state,
         onAuthAction = { password ->
-            if (isRegister) viewModel.register(password.toCharArray()) else viewModel.login(password.toCharArray())
+            if (isRegister) viewModel.register(password.toCharArray(), userLabelLocal)
+            else viewModel.login(password.toCharArray())
         },
         onValidatePassword = { password ->
             viewModel.validatePasswordPolicy(password.toCharArray())
         },
         onRestoreBackup = { uri, password ->
-            viewModel.restoreFromBackup(uri, password.toCharArray())
+            viewModel.restoreFromBackup(uri.toString(), password.toCharArray(), userLabelRestored)
         }
     )
 }
