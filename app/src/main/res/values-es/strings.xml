@@ -155,4 +155,6 @@
 
     <string name="error_decryption">Error de descifrado</string>
     <string name="error_decryption_banner">Fallo crítico: No se pudo descifrar el contenido. Los datos pueden estar corruptos o fueron restaurados con una contraseña distinta.</string>
+
+    <string name="clipboard_label_password">Contraseña</string>
 </resources>

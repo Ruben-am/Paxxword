@@ -26,6 +26,7 @@ fun GeneratorScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val clipboardLabel = stringResource(R.string.clipboard_label_password)
 
     Scaffold(
         topBar = {
@@ -63,7 +64,7 @@ fun GeneratorScreen(
 
             Button(
                 onClick = {
-                    viewModel.copyToClipboard()
+                    viewModel.copyToClipboard(clipboardLabel)
                     Toast.makeText(context, R.string.toast_password_copied, Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp)

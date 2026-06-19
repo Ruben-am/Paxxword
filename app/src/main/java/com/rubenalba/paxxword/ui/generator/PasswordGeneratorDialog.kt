@@ -30,6 +30,8 @@ fun PasswordGeneratorDialog(
 
     val context = LocalContext.current
 
+    val clipboardLabel = stringResource(R.string.clipboard_label_password)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.generator_secure_title), style = MaterialTheme.typography.titleLarge) },
@@ -51,7 +53,7 @@ fun PasswordGeneratorDialog(
                                 Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.content_desc_regenerate))
                             }
                             IconButton(onClick = {
-                                viewModel.copyToClipboard()
+                                viewModel.copyToClipboard(clipboardLabel)
                                 Toast.makeText(context, R.string.toast_password_copied_temp, Toast.LENGTH_SHORT).show()
                             }) {
                                 Icon(

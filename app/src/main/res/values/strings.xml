@@ -155,4 +155,6 @@
 
     <string name="error_decryption">Decryption error</string>
     <string name="error_decryption_banner">Critical failure: Unable to decrypt content. The data may be corrupted or was restored with a different password.</string>
+
+    <string name="clipboard_label_password">Password</string>
 </resources>

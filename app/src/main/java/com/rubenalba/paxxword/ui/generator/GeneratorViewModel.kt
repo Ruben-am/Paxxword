@@ -39,10 +39,16 @@ data class GeneratorState(
     }
 }
 
-@HiltViewModel
 class GeneratorViewModel @Inject constructor(
     private val secureClipboardManager: SecureClipboardManager
 ) : ViewModel() {
+
+    companion object {
+        private const val LOWER_CHARS = "abcdefghijklmnopqrstuvwxyz"
+        private const val UPPER_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        private const val DIGIT_CHARS = "0123456789"
+        private const val SYMBOL_CHARS = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+    }
 
     private val _state = MutableStateFlow(GeneratorState())
     val state: StateFlow<GeneratorState> = _state.asStateFlow()
@@ -80,18 +86,14 @@ class GeneratorViewModel @Inject constructor(
     // Lógica de generación
     fun generatePassword() {
         val currentState = _state.value
-        val lowerChars = "abcdefghijklmnopqrstuvwxyz"
-        val upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        val digitChars = "0123456789"
-        val symbolChars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
 
         var pool = ""
         val forcedChars = mutableListOf<Char>()
 
-        if (currentState.useLower) { pool += lowerChars; forcedChars.add(lowerChars.random()) }
-        if (currentState.useUpper) { pool += upperChars; forcedChars.add(upperChars.random()) }
-        if (currentState.useDigits) { pool += digitChars; forcedChars.add(digitChars.random()) }
-        if (currentState.useSymbols) { pool += symbolChars; forcedChars.add(symbolChars.random()) }
+        if (currentState.useLower) { pool += LOWER_CHARS; forcedChars.add(LOWER_CHARS.random()) }
+        if (currentState.useUpper) { pool += UPPER_CHARS; forcedChars.add(UPPER_CHARS.random()) }
+        if (currentState.useDigits) { pool += DIGIT_CHARS; forcedChars.add(DIGIT_CHARS.random()) }
+        if (currentState.useSymbols) { pool += SYMBOL_CHARS; forcedChars.add(SYMBOL_CHARS.random()) }
 
         if (pool.isEmpty()) return
 
@@ -110,7 +112,7 @@ class GeneratorViewModel @Inject constructor(
     }
 
     // Acción de copiado
-    fun copyToClipboard(label: String = "Contraseña") {
+    fun copyToClipboard(label: String) {
         val passStr = String(_state.value.generatedPassword)
         secureClipboardManager.copySensitiveText(label, passStr)
     }
