@@ -67,11 +67,15 @@ class SettingsViewModel @Inject constructor(
     private val _changePasswordState = MutableStateFlow<ChangePasswordState>(ChangePasswordState.Idle)
     val changePasswordState = _changePasswordState.asStateFlow()
 
-    suspend fun verifyCurrentPasswordAuth(password: String): Boolean {
-        return verifyMasterPasswordUseCase(password.toCharArray())
+    suspend fun verifyCurrentPasswordAuth(password: CharArray): Boolean {
+        return try {
+            verifyMasterPasswordUseCase(password)
+        } finally {
+            password.fill('\u0000')
+        }
     }
 
-    fun changeMasterPassword(newPassword: String) {
+    fun changeMasterPassword(newPassword: CharArray) {
         viewModelScope.launch {
             _changePasswordState.value = ChangePasswordState.Loading
             try {
@@ -83,48 +87,58 @@ class SettingsViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 _changePasswordState.value = ChangePasswordState.Error(R.string.auth_error_generic)
+            } finally {
+                newPassword.fill('\u0000')
             }
         }
     }
 
     fun resetChangePasswordState() { _changePasswordState.value = ChangePasswordState.Idle }
 
-    fun validatePasswordPolicy(password: String): Int? {
-        if (password.length < 8) return R.string.auth_error_policy_length
+    fun validatePasswordPolicy(password: CharArray): Int? {
+        if (password.size < 8) return R.string.auth_error_policy_length
         if (!password.any { it.isDigit() }) return R.string.auth_error_policy_digit
         if (!password.any { !it.isLetterOrDigit() }) return R.string.auth_error_policy_symbol
         return null
     }
 
-    fun exportVault(uri: Uri, password: String) {
+    fun exportVault(uri: Uri, password: CharArray) {
         viewModelScope.launch {
             _backupState.value = BackupState.Loading
 
-            val isValid = verifyMasterPasswordUseCase(password.toCharArray())
+            try {
+                val isValid = verifyMasterPasswordUseCase(password)
 
-            if (isValid) {
-                try {
-                    backupManager.exportBackup(uri, password)
-                    _backupState.value = BackupState.Success(R.string.backup_msg_export_success)
-                } catch (e: Exception) {
+                if (isValid) {
+                    try {
+                        backupManager.exportBackup(uri, password)
+                        _backupState.value = BackupState.Success(R.string.backup_msg_export_success)
+                    } catch (e: Exception) {
+                        backupManager.deleteBackupFile(uri)
+                        _backupState.value = BackupState.Error(R.string.backup_error_write)
+                    }
+                } else {
                     backupManager.deleteBackupFile(uri)
-                    _backupState.value = BackupState.Error(R.string.backup_error_write)
+                    _backupState.value = BackupState.Error(R.string.backup_error_pass_incorrect)
                 }
-            } else {
-                backupManager.deleteBackupFile(uri)
-                _backupState.value = BackupState.Error(R.string.backup_error_pass_incorrect)
+            } finally {
+                password.fill('\u0000')
             }
         }
     }
 
-    fun importVault(uri: Uri, password: String) {
+    fun importVault(uri: Uri, password: CharArray) {
         viewModelScope.launch {
             _backupState.value = BackupState.Loading
-            val result = backupManager.importBackup(uri, password)
-            if (result) {
-                _backupState.value = BackupState.Success(R.string.backup_msg_import_success)
-            } else {
-                _backupState.value = BackupState.Error(R.string.backup_error_import_pass)
+            try {
+                val result = backupManager.importBackup(uri, password)
+                if (result) {
+                    _backupState.value = BackupState.Success(R.string.backup_msg_import_success)
+                } else {
+                    _backupState.value = BackupState.Error(R.string.backup_error_import_pass)
+                }
+            } finally {
+                password.fill('\u0000')
             }
         }
     }
