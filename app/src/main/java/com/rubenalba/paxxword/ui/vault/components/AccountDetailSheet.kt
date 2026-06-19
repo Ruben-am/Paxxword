@@ -60,12 +60,13 @@ import com.rubenalba.paxxword.ui.components.PasswordStrengthBar
 import com.rubenalba.paxxword.ui.generator.PasswordGeneratorDialog
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import com.rubenalba.paxxword.ui.theme.ManropeFontFamily
+import com.rubenalba.paxxword.domain.model.FolderModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountDetailSheet(
     account: AccountModel?, // id 0 -> new account, id -> edit
-    allFolders: List<Folder>,
+    allFolders: List<FolderModel>,
     isOpen: Boolean,
     onDismiss: () -> Unit,
     onSave: (AccountModel) -> Unit,
@@ -95,7 +96,7 @@ fun AccountDetailSheet(
 @Composable
 fun AccountDetailContent(
     account: AccountModel,
-    allFolders: List<Folder>,
+    allFolders: List<FolderModel>,
     onSave: (AccountModel) -> Unit,
     onDelete: (Long) -> Unit,
     onCancel: () -> Unit,
@@ -329,7 +330,7 @@ fun AccountDetailContent(
         var expanded by remember { mutableStateOf(false) }
         var selectedFolderId by remember { mutableStateOf(account.folderId) }
 
-        val folderLabel = allFolders.find { it.id == selectedFolderId }?.folderName
+        val folderLabel = allFolders.find { it.id == selectedFolderId }?.name
             ?: stringResource(R.string.folder_none_label)
 
         if (isEditing) {
@@ -342,7 +343,7 @@ fun AccountDetailContent(
 
                 OutlinedTextField(
                     readOnly = true,
-                    value = allFolders.find { it.id == selectedFolderId }?.folderName
+                    value = allFolders.find { it.id == selectedFolderId }?.name
                         ?: noFolderLabel,
                     onValueChange = {},
                     label = { Text(stringResource(R.string.label_folder_dropdown)) },
@@ -368,7 +369,7 @@ fun AccountDetailContent(
 
                     allFolders.forEach { folder ->
                         DropdownMenuItem(
-                            text = { Text(folder.folderName) },
+                            text = { Text(folder.name) },
                             onClick = {
                                 selectedFolderId = folder.id
                                 expanded = false

@@ -4,20 +4,20 @@ import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
 import com.google.gson.Gson
-import com.rubenalba.paxxword.data.local.entity.Folder
 import com.rubenalba.paxxword.domain.model.AccountModel
 import com.rubenalba.paxxword.domain.model.BackupAccount
 import com.rubenalba.paxxword.domain.model.BackupData
 import com.rubenalba.paxxword.domain.model.BackupFolder
+import com.rubenalba.paxxword.domain.model.FolderModel
 import com.rubenalba.paxxword.domain.model.PaxxBackupFile
+import com.rubenalba.paxxword.domain.repository.AccountRepository
+import com.rubenalba.paxxword.domain.repository.FolderRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.rubenalba.paxxword.domain.repository.AccountRepository
-import com.rubenalba.paxxword.domain.repository.FolderRepository
 
 @Singleton
 class BackupManager @Inject constructor(
@@ -36,9 +36,10 @@ class BackupManager @Inject constructor(
         // map to back up model
         val backupData = BackupData(
             timestamp = System.currentTimeMillis(),
-            folders = folders.map { BackupFolder(it.id, it.folderName) },
+            folders = folders.map { BackupFolder(it.id, it.name) },
             accounts = accounts.map { acc ->
-                val folderName = folders.find { it.id == acc.folderId }?.folderName
+                // MODIFICADO: Cambiado ?.folderName a ?.name porque ahora estamos usando FolderModel
+                val folderName = folders.find { it.id == acc.folderId }?.name
                 BackupAccount(
                     serviceName = acc.serviceName,
                     username = acc.username,
@@ -132,12 +133,12 @@ class BackupManager @Inject constructor(
         // restore folders
         data.folders.forEach { bFolder ->
             val cleanName = bFolder.name.trim()
-            val existing = currentFolders.find { it.folderName.trim() == cleanName }
+            val existing = currentFolders.find { it.name.trim() == cleanName }
 
             if (existing != null) {
                 folderMap[cleanName] = existing.id
             } else {
-                val newFolder = Folder(folderName = cleanName)
+                val newFolder = FolderModel(name = cleanName)
                 val newId = folderRepository.insertFolder(newFolder)
                 if (newId > 0) {
                     folderMap[cleanName] = newId

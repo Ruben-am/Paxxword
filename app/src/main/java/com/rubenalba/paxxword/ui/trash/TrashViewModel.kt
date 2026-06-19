@@ -9,25 +9,25 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.rubenalba.paxxword.domain.repository.AccountRepository
+import com.rubenalba.paxxword.domain.usecase.GetTrashedAccountsUseCase
+import com.rubenalba.paxxword.domain.usecase.PermanentlyDeleteAccountUseCase
+import com.rubenalba.paxxword.domain.usecase.RestoreAccountUseCase
 
 @HiltViewModel
 class TrashViewModel @Inject constructor(
-    private val accountRepository: AccountRepository
+    private val getTrashedAccountsUseCase: GetTrashedAccountsUseCase,
+    private val restoreAccountUseCase: RestoreAccountUseCase,
+    private val permanentlyDeleteAccountUseCase: PermanentlyDeleteAccountUseCase
 ) : ViewModel() {
 
-    val trashedAccounts: StateFlow<List<AccountModel>> = accountRepository.getTrashedAccounts()
+    val trashedAccounts: StateFlow<List<AccountModel>> = getTrashedAccountsUseCase()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun restoreAccount(id: Long) {
-        viewModelScope.launch {
-            accountRepository.restoreAccount(id)
-        }
+        viewModelScope.launch { restoreAccountUseCase(id) }
     }
 
     fun permanentlyDeleteAccount(id: Long) {
-        viewModelScope.launch {
-            accountRepository.permanentlyDeleteAccount(id)
-        }
+        viewModelScope.launch { permanentlyDeleteAccountUseCase(id) }
     }
 }

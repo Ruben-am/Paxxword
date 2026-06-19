@@ -4,14 +4,13 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rubenalba.paxxword.R
-import com.rubenalba.paxxword.data.local.dao.UserDao
 import com.rubenalba.paxxword.data.manager.BackupManager
-import com.rubenalba.paxxword.data.manager.CryptoManager
-import com.rubenalba.paxxword.data.manager.KeyDerivationUtil
 import com.rubenalba.paxxword.data.repository.UserPreferencesRepository
 import com.rubenalba.paxxword.domain.model.AppLanguage
 import com.rubenalba.paxxword.domain.model.AppTheme
 import com.rubenalba.paxxword.domain.model.SettingsState
+import com.rubenalba.paxxword.domain.usecase.ChangeMasterPasswordUseCase
+import com.rubenalba.paxxword.domain.usecase.VerifyMasterPasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.rubenalba.paxxword.domain.repository.AuthRepository
 
 sealed class ChangePasswordState {
     object Idle : ChangePasswordState()
@@ -29,12 +27,19 @@ sealed class ChangePasswordState {
     data class Error(val msgId: Int) : ChangePasswordState()
 }
 
+sealed class BackupState {
+    object Idle : BackupState()
+    object Loading : BackupState()
+    data class Success(val msgId: Int) : BackupState()
+    data class Error(val msgId: Int) : BackupState()
+}
+
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val preferencesRepository: UserPreferencesRepository,
     private val backupManager: BackupManager,
-    private val userDao: UserDao,
-    private val authRepository: AuthRepository
+    private val changeMasterPasswordUseCase: ChangeMasterPasswordUseCase,
+    private val verifyMasterPasswordUseCase: VerifyMasterPasswordUseCase
 ) : ViewModel() {
 
     val settingsState: StateFlow<SettingsState> = preferencesRepository.settingsFlow
@@ -63,16 +68,16 @@ class SettingsViewModel @Inject constructor(
     val changePasswordState = _changePasswordState.asStateFlow()
 
     suspend fun verifyCurrentPasswordAuth(password: String): Boolean {
-        return verifyMasterPassword(password)
+        return verifyMasterPasswordUseCase(password.toCharArray())
     }
 
     fun changeMasterPassword(newPassword: String) {
         viewModelScope.launch {
             _changePasswordState.value = ChangePasswordState.Loading
             try {
-                val success = authRepository.changeMasterPassword(newPassword)
+                val success = changeMasterPasswordUseCase(newPassword)
                 if (success) {
-                    _changePasswordState.value = ChangePasswordState.Success(R.string.backup_msg_import_success) // Reusar un string o crear uno nuevo
+                    _changePasswordState.value = ChangePasswordState.Success(R.string.backup_msg_import_success)
                 } else {
                     _changePasswordState.value = ChangePasswordState.Error(R.string.auth_error_generic)
                 }
@@ -95,7 +100,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _backupState.value = BackupState.Loading
 
-            val isValid = verifyMasterPassword(password)
+            val isValid = verifyMasterPasswordUseCase(password.toCharArray())
 
             if (isValid) {
                 try {
@@ -124,30 +129,5 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun verifyMasterPassword(password: String): Boolean {
-        val user = userDao.getAppUser() ?: return false
-        return try {
-            val salt = CryptoManager.base64ToBytes(user.userSalt)
-            val keyCandidate = KeyDerivationUtil.deriveKey(password.toCharArray(), salt)
-            val iv = CryptoManager.base64ToBytes(user.ivVerificationValue)
-
-            val decryptedPhrase = CryptoManager.decrypt(
-                user.encryptedVerificationValue,
-                keyCandidate,
-                iv
-            )
-            decryptedPhrase == user.verificationToken
-        } catch (e: Exception) {
-            false
-        }
-    }
-
     fun resetBackupState() { _backupState.value = BackupState.Idle }
-}
-
-sealed class BackupState {
-    object Idle : BackupState()
-    object Loading : BackupState()
-    data class Success(val msgId: Int) : BackupState()
-    data class Error(val msgId: Int) : BackupState()
 }

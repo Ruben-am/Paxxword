@@ -2,23 +2,15 @@ package com.rubenalba.paxxword.ui.vault
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rubenalba.paxxword.data.local.entity.Folder
 import com.rubenalba.paxxword.data.manager.SecureClipboardManager
 import com.rubenalba.paxxword.domain.model.AccountModel
+import com.rubenalba.paxxword.domain.model.FolderModel
+import com.rubenalba.paxxword.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.rubenalba.paxxword.domain.repository.AccountRepository
-import com.rubenalba.paxxword.domain.repository.FolderRepository
 
 sealed interface VaultUiState {
     data object Loading : VaultUiState
@@ -28,12 +20,16 @@ sealed interface VaultUiState {
 
 @HiltViewModel
 class VaultViewModel @Inject constructor(
-    private val accountRepository: AccountRepository,
-    private val folderRepository: FolderRepository,
+    private val getFoldersUseCase: GetFoldersUseCase,
+    private val addFolderUseCase: AddFolderUseCase,
+    private val deleteFolderUseCase: DeleteFolderUseCase,
+    private val getAccountsUseCase: GetAccountsUseCase,
+    private val saveAccountUseCase: SaveAccountUseCase,
+    private val deleteAccountUseCase: DeleteAccountUseCase,
     private val secureClipboardManager: SecureClipboardManager
 ) : ViewModel() {
 
-    val folders: StateFlow<List<Folder>> = folderRepository.getAllFolders()
+    val folders: StateFlow<List<FolderModel>> = getFoldersUseCase()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _selectedFolderId = MutableStateFlow<Long?>(null)
@@ -44,9 +40,7 @@ class VaultViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<VaultUiState> = _selectedFolderId
-        .flatMapLatest { folderId ->
-            accountRepository.getAccounts(folderId)
-        }
+        .flatMapLatest { folderId -> getAccountsUseCase(folderId) }
         .combine(_searchQuery) { accounts, query ->
             if (query.isBlank()) {
                 VaultUiState.Success(accounts)
@@ -60,48 +54,32 @@ class VaultViewModel @Inject constructor(
             } as VaultUiState
         }
         .catch { e -> emit(VaultUiState.Error(e.message ?: "Error desconocido")) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = VaultUiState.Loading
-        )
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), VaultUiState.Loading)
 
-    // bottom sheet state
-    // null -> close, account model -> open
-    // id 0 -> new account, id -> edit
     private val _selectedAccount = MutableStateFlow<AccountModel?>(null)
     val selectedAccount = _selectedAccount.asStateFlow()
 
     private val _isSheetOpen = MutableStateFlow(false)
     val isSheetOpen = _isSheetOpen.asStateFlow()
 
-    fun onSearchQueryChange(newQuery: String) {
-        _searchQuery.value = newQuery
-    }
-    fun onFolderSelect(id: Long?) {
-        _selectedFolderId.value = id
-    }
+    fun onSearchQueryChange(newQuery: String) { _searchQuery.value = newQuery }
+    fun onFolderSelect(id: Long?) { _selectedFolderId.value = id }
 
     fun onCreateFolder(name: String) {
         viewModelScope.launch {
-            folderRepository.insertFolder(Folder(folderName = name))
+            addFolderUseCase(FolderModel(name = name))
         }
     }
 
-    fun onDeleteFolder(folder: Folder) {
+    fun onDeleteFolder(folder: FolderModel) {
         viewModelScope.launch {
-            if (_selectedFolderId.value == folder.id) {
-                _selectedFolderId.value = null
-            }
-            folderRepository.deleteFolder(folder)
+            if (_selectedFolderId.value == folder.id) { _selectedFolderId.value = null }
+            deleteFolderUseCase(folder)
         }
     }
 
     fun onAddClick() {
-        _selectedAccount.value = AccountModel(
-            serviceName = "",
-            folderId = _selectedFolderId.value
-        )
+        _selectedAccount.value = AccountModel(serviceName = "", folderId = _selectedFolderId.value)
         _isSheetOpen.value = true
     }
 
@@ -118,32 +96,23 @@ class VaultViewModel @Inject constructor(
     fun saveAccount(account: AccountModel) {
         viewModelScope.launch {
             try {
-                accountRepository.saveAccount(account)
+                saveAccountUseCase(account)
                 onDismissSheet()
-            } catch (e: IllegalStateException) {
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            } catch (e: Exception) { e.printStackTrace() }
         }
     }
 
     fun deleteAccount(id: Long) {
         viewModelScope.launch {
             try {
-                accountRepository.deleteAccount(id)
+                deleteAccountUseCase(id)
                 onDismissSheet()
-            } catch (e: IllegalStateException) {
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            } catch (e: Exception) { e.printStackTrace() }
         }
     }
 
     fun copyToClipboard(label: String, text: String, isSensitive: Boolean) {
-        if (isSensitive) {
-            secureClipboardManager.copySensitiveText(label, text)
-        } else {
-            secureClipboardManager.copyStandardText(label, text)
-        }
+        if (isSensitive) { secureClipboardManager.copySensitiveText(label, text) }
+        else { secureClipboardManager.copyStandardText(label, text) }
     }
 }
