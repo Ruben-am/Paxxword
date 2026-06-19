@@ -10,27 +10,28 @@ import com.rubenalba.paxxword.domain.model.BackupAccount
 import com.rubenalba.paxxword.domain.model.BackupData
 import com.rubenalba.paxxword.domain.model.BackupFolder
 import com.rubenalba.paxxword.domain.model.PaxxBackupFile
-import com.rubenalba.paxxword.domain.repository.PasswordRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.rubenalba.paxxword.domain.repository.AccountRepository
+import com.rubenalba.paxxword.domain.repository.FolderRepository
 
 @Singleton
 class BackupManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val repository: PasswordRepository
+    private val accountRepository: AccountRepository,
+    private val folderRepository: FolderRepository
 ) {
     private val gson = Gson()
 
     // export
     suspend fun exportBackup(uri: Uri, masterPassword: String) = withContext(Dispatchers.IO) {
         // get decrypted data (actual session)
-        val folders = repository.getAllFolders().first()
-        val accounts = repository.getAccounts(null).first()
+        val folders = folderRepository.getAllFolders().first()
+        val accounts = accountRepository.getAccounts(null).first()
 
         // map to back up model
         val backupData = BackupData(
@@ -125,7 +126,7 @@ class BackupManager @Inject constructor(
 
     private suspend fun restoreDataToRepository(data: BackupData) {
         // obtain folders (no duplicates)
-        val currentFolders = repository.getAllFolders().first()
+        val currentFolders = folderRepository.getAllFolders().first()
         val folderMap = mutableMapOf<String, Long>()
 
         // restore folders
@@ -137,7 +138,7 @@ class BackupManager @Inject constructor(
                 folderMap[cleanName] = existing.id
             } else {
                 val newFolder = Folder(folderName = cleanName)
-                val newId = repository.insertFolder(newFolder)
+                val newId = folderRepository.insertFolder(newFolder)
                 if (newId > 0) {
                     folderMap[cleanName] = newId
                 }
@@ -159,7 +160,7 @@ class BackupManager @Inject constructor(
                 notes = bAccount.notes,
                 folderId = targetFolderId
             )
-            repository.saveAccount(newAccount)
+            accountRepository.saveAccount(newAccount)
         }
     }
 }

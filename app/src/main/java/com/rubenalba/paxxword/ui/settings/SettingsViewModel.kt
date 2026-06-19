@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.rubenalba.paxxword.domain.repository.PasswordRepository
+import com.rubenalba.paxxword.domain.repository.AuthRepository
 
 sealed class ChangePasswordState {
     object Idle : ChangePasswordState()
@@ -34,7 +34,7 @@ class SettingsViewModel @Inject constructor(
     private val preferencesRepository: UserPreferencesRepository,
     private val backupManager: BackupManager,
     private val userDao: UserDao,
-    private val passwordRepository: PasswordRepository
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     val settingsState: StateFlow<SettingsState> = preferencesRepository.settingsFlow
@@ -70,7 +70,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _changePasswordState.value = ChangePasswordState.Loading
             try {
-                val success = passwordRepository.changeMasterPassword(newPassword)
+                val success = authRepository.changeMasterPassword(newPassword)
                 if (success) {
                     _changePasswordState.value = ChangePasswordState.Success(R.string.backup_msg_import_success) // Reusar un string o crear uno nuevo
                 } else {
