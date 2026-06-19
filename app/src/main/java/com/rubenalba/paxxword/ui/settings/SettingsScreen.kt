@@ -30,6 +30,7 @@ import com.rubenalba.paxxword.domain.model.AppTheme
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import kotlinx.coroutines.launch
 import com.rubenalba.paxxword.util.Constants
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 enum class ChangePasswordStep { NONE, VERIFY_CURRENT, ENTER_NEW }
 
@@ -38,9 +39,9 @@ enum class ChangePasswordStep { NONE, VERIFY_CURRENT, ENTER_NEW }
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val state by viewModel.settingsState.collectAsState()
-    val backupState by viewModel.backupState.collectAsState()
-    val changePassState by viewModel.changePasswordState.collectAsState()
+    val state by viewModel.settingsState.collectAsStateWithLifecycle()
+    val backupState by viewModel.backupState.collectAsStateWithLifecycle()
+    val changePassState by viewModel.changePasswordState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -308,10 +309,10 @@ enum class BackupOperation { EXPORT, IMPORT }
 fun PasswordConfirmDialog(
     title: String,
     message: String,
-    onConfirm: (String) -> Unit,
+    onConfirm: (CharArray) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var password by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf(CharArray(0)) }
     var isPasswordVisible by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -322,8 +323,8 @@ fun PasswordConfirmDialog(
                 Text(message, style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = String(password),
+                    onValueChange = { password = it.toCharArray() },
                     textStyle = androidx.compose.ui.text.TextStyle(
                         fontFamily = JetBrainsMonoFontFamily,
                         fontSize = 16.sp
@@ -362,18 +363,18 @@ fun PasswordConfirmDialog(
 
 @Composable
 fun NewMasterPasswordDialog(
-    onConfirm: (String) -> Unit,
+    onConfirm: (CharArray) -> Unit,
     onDismiss: () -> Unit,
-    onValidatePolicy: (String) -> Int?
+    onValidatePolicy: (CharArray) -> Int?
 ) {
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf(CharArray(0)) }
+    var confirmPassword by remember { mutableStateOf(CharArray(0)) }
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isConfirmVisible by remember { mutableStateOf(false) }
 
     val policyErrorId = if (password.isNotEmpty()) onValidatePolicy(password) else null
     val matchErrorId =
-        if (confirmPassword.isNotEmpty() && password != confirmPassword) R.string.auth_error_password_mismatch else null
+        if (confirmPassword.isNotEmpty() && !password.contentEquals(confirmPassword)) R.string.auth_error_password_mismatch else null
 
     val isEnabled =
         password.isNotEmpty() && confirmPassword.isNotEmpty() && policyErrorId == null && matchErrorId == null
@@ -389,8 +390,8 @@ fun NewMasterPasswordDialog(
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = String(password),
+                    onValueChange = { password = it.toCharArray() },
                     textStyle = androidx.compose.ui.text.TextStyle(
                         fontFamily = JetBrainsMonoFontFamily,
                         fontSize = 16.sp
@@ -425,8 +426,8 @@ fun NewMasterPasswordDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
+                    value = String(confirmPassword), // MODIFICADO
+                    onValueChange = { confirmPassword = it.toCharArray() },
                     textStyle = androidx.compose.ui.text.TextStyle(
                         fontFamily = JetBrainsMonoFontFamily,
                         fontSize = 16.sp

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import com.rubenalba.paxxword.R
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun PasswordGeneratorDialog(
@@ -26,7 +27,7 @@ fun PasswordGeneratorDialog(
     onApply: (String) -> Unit,
     viewModel: GeneratorViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 

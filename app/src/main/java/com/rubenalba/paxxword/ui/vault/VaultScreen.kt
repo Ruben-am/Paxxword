@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.ui.vault.components.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,13 +28,13 @@ fun VaultScreen(
     viewModel: VaultViewModel = hiltViewModel(),
     onNavigateToTrash: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val selectedAccount by viewModel.selectedAccount.collectAsState()
-    val isSheetOpen by viewModel.isSheetOpen.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val selectedAccount by viewModel.selectedAccount.collectAsStateWithLifecycle()
+    val isSheetOpen by viewModel.isSheetOpen.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
 
-    val folders by viewModel.folders.collectAsState()
-    val selectedFolderId by viewModel.selectedFolderId.collectAsState()
+    val folders by viewModel.folders.collectAsStateWithLifecycle()
+    val selectedFolderId by viewModel.selectedFolderId.collectAsStateWithLifecycle()
     var showAddFolderDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
