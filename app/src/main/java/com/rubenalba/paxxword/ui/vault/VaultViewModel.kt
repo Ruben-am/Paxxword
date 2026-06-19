@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 import javax.inject.Inject
 
 sealed interface VaultUiState {
@@ -98,7 +99,10 @@ class VaultViewModel @Inject constructor(
             try {
                 saveAccountUseCase(account)
                 onDismissSheet()
-            } catch (e: Exception) { e.printStackTrace() }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                e.printStackTrace()
+            }
         }
     }
 
@@ -107,7 +111,10 @@ class VaultViewModel @Inject constructor(
             try {
                 deleteAccountUseCase(id)
                 onDismissSheet()
-            } catch (e: Exception) { e.printStackTrace() }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                e.printStackTrace()
+            }
         }
     }
 
