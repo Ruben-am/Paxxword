@@ -60,6 +60,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @Composable
 fun AuthScreen(
@@ -102,18 +103,19 @@ fun AuthContent(
     onValidatePassword: (String) -> Int?,
     onRestoreBackup: (Uri, String) -> Unit
 ) {
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var confirmPassword by rememberSaveable { mutableStateOf("") }
 
-    var isPasswordVisible by remember { mutableStateOf(false) }
-    var isConfirmVisible by remember { mutableStateOf(false) }
+    var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    var isConfirmVisible by rememberSaveable { mutableStateOf(false) }
 
-    var showRestoreDialog by remember { mutableStateOf(false) }
-    var restoreUri by remember { mutableStateOf<Uri?>(null) }
+    var showRestoreDialog by rememberSaveable { mutableStateOf(false) }
+    var restoreUriString by rememberSaveable { mutableStateOf<String?>(null) }
+    val restoreUri = restoreUriString?.let { Uri.parse(it) }
 
     val restoreLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
-            restoreUri = uri
+            restoreUriString = uri.toString()
             showRestoreDialog = true
         }
     }
@@ -326,8 +328,8 @@ fun RestorePasswordDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var password by remember { mutableStateOf("") }
-    var isVisible by remember { mutableStateOf(false) }
+    var password by rememberSaveable { mutableStateOf("") }
+    var isVisible by rememberSaveable { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
