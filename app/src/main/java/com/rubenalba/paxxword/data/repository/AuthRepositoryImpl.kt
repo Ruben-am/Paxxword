@@ -27,9 +27,6 @@ class AuthRepositoryImpl @Inject constructor(
         val currentUser = userDao.getAppUser() ?: return false
 
         return try {
-            val currentEncryptedAccounts = accountDao.getAllAccounts().first()
-            val decryptedAccounts = currentEncryptedAccounts.map { AccountMapper.toDomain(it, currentKey) }
-
             val newSalt = KeyDerivationUtil.generateSalt()
             val newKey = KeyDerivationUtil.deriveKey(newPassword.toCharArray(), newSalt)
             val newIvVerification = CryptoManager.generateIv()
@@ -42,11 +39,21 @@ class AuthRepositoryImpl @Inject constructor(
                 ivVerificationValue = CryptoManager.bytesToBase64(newIvVerification)
             )
 
-            val newlyEncryptedAccounts = decryptedAccounts.map { AccountMapper.toEntity(it, newKey) }
-
             db.withTransaction {
                 userDao.insertUser(updatedUser)
-                accountDao.updateAll(newlyEncryptedAccounts)
+
+                val batchSize = 50
+                var offset = 0
+                while (true) {
+                    val batch = accountDao.getAccountsBatch(batchSize, offset)
+                    if (batch.isEmpty()) break
+
+                    val decryptedAccounts = batch.map { AccountMapper.toDomain(it, currentKey) }
+                    val newlyEncryptedAccounts = decryptedAccounts.map { AccountMapper.toEntity(it, newKey) }
+
+                    accountDao.updateAll(newlyEncryptedAccounts)
+                    offset += batchSize
+                }
             }
 
             sessionManager.setKey(newKey)
