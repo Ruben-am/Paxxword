@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.rubenalba.paxxword.domain.repository.AccountRepository
+import com.rubenalba.paxxword.domain.repository.FolderRepository
 
 sealed interface VaultUiState {
     data object Loading : VaultUiState
@@ -28,11 +30,12 @@ sealed interface VaultUiState {
 
 @HiltViewModel
 class VaultViewModel @Inject constructor(
-    private val repository: PasswordRepository,
+    private val accountRepository: AccountRepository,
+    private val folderRepository: FolderRepository,
     private val secureClipboardManager: SecureClipboardManager
 ) : ViewModel() {
 
-    val folders: StateFlow<List<Folder>> = repository.getAllFolders()
+    val folders: StateFlow<List<Folder>> = folderRepository.getAllFolders()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _selectedFolderId = MutableStateFlow<Long?>(null)
@@ -44,7 +47,7 @@ class VaultViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<VaultUiState> = _selectedFolderId
         .flatMapLatest { folderId ->
-            repository.getAccounts(folderId)
+            accountRepository.getAccounts(folderId)
         }
         .combine(_searchQuery) { accounts, query ->
             if (query.isBlank()) {
@@ -83,7 +86,7 @@ class VaultViewModel @Inject constructor(
 
     fun onCreateFolder(name: String) {
         viewModelScope.launch {
-            repository.insertFolder(Folder(folderName = name))
+            folderRepository.insertFolder(Folder(folderName = name))
         }
     }
 
@@ -92,7 +95,7 @@ class VaultViewModel @Inject constructor(
             if (_selectedFolderId.value == folder.id) {
                 _selectedFolderId.value = null
             }
-            repository.deleteFolder(folder)
+            folderRepository.deleteFolder(folder)
         }
     }
 
@@ -117,7 +120,7 @@ class VaultViewModel @Inject constructor(
     fun saveAccount(account: AccountModel) {
         viewModelScope.launch {
             try {
-                repository.saveAccount(account)
+                accountRepository.saveAccount(account)
                 onDismissSheet()
             } catch (e: IllegalStateException) {
             } catch (e: Exception) {
@@ -129,7 +132,7 @@ class VaultViewModel @Inject constructor(
     fun deleteAccount(id: Long) {
         viewModelScope.launch {
             try {
-                repository.deleteAccount(id)
+                accountRepository.deleteAccount(id)
                 onDismissSheet()
             } catch (e: IllegalStateException) {
             } catch (e: Exception) {

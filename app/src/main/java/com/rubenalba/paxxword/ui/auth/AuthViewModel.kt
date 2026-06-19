@@ -32,7 +32,6 @@ class AuthViewModel @Inject constructor(
     private val userDao: UserDao,
     private val sessionManager: SessionManager,
     private val backupManager: BackupManager,
-    private val repository: PasswordRepository
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
