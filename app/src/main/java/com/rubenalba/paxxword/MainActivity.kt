@@ -3,6 +3,7 @@ package com.rubenalba.paxxword
 import android.content.ContextWrapper
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,6 +38,11 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var sessionManager: SessionManager
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        sessionManager.resetTimer()
+        return super.dispatchTouchEvent(ev)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
