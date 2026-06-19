@@ -5,7 +5,9 @@ import com.rubenalba.paxxword.data.manager.SessionManager
 import com.rubenalba.paxxword.data.mapper.AccountMapper
 import com.rubenalba.paxxword.domain.model.AccountModel
 import com.rubenalba.paxxword.domain.repository.AccountRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject
@@ -25,7 +27,7 @@ class AccountRepositoryImpl @Inject constructor(
         return sourceFlow.map { encryptedList ->
             val key = getKey()
             encryptedList.map { entity -> AccountMapper.toDomain(entity, key) }
-        }
+        }.flowOn(Dispatchers.Default)
     }
 
     override suspend fun getAccountById(id: Long): AccountModel? {
@@ -53,7 +55,7 @@ class AccountRepositoryImpl @Inject constructor(
         return accountDao.getTrashedAccounts().map { encryptedList ->
             val key = getKey()
             encryptedList.map { entity -> AccountMapper.toDomain(entity, key) }
-        }
+        }.flowOn(Dispatchers.Default)
     }
 
     override suspend fun restoreAccount(id: Long) {

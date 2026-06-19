@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AccountDao {
-    // REPLACE: If you save an account with an existing ID, overwrite it. (useful for editing accounts)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(account: Account): Long
 
@@ -39,4 +38,7 @@ interface AccountDao {
 
     @Query("SELECT * FROM accounts WHERE is_deleted = 1 ORDER BY last_modified DESC")
     fun getTrashedAccounts(): Flow<List<Account>>
+
+    @Query("SELECT * FROM accounts ORDER BY id ASC LIMIT :limit OFFSET :offset")
+    suspend fun getAccountsBatch(limit: Int, offset: Int): List<Account>
 }

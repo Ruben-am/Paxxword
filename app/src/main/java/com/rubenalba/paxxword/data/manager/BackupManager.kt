@@ -84,12 +84,11 @@ class BackupManager @Inject constructor(
     // import
     suspend fun importBackup(uri: Uri, masterPassword: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            // read file
-            val jsonContent = context.contentResolver.openInputStream(uri)?.use { input ->
-                input.bufferedReader().use { it.readText() }
+            val paxxFile = context.contentResolver.openInputStream(uri)?.use { input ->
+                com.google.gson.stream.JsonReader(input.bufferedReader()).use { reader ->
+                    gson.fromJson<PaxxBackupFile>(reader, PaxxBackupFile::class.java)
+                }
             } ?: return@withContext false
-
-            val paxxFile = gson.fromJson(jsonContent, PaxxBackupFile::class.java)
 
             // derive the key with the Salt of the file and the pass provided
             val salt = CryptoManager.base64ToBytes(paxxFile.saltBase64)
@@ -104,8 +103,11 @@ class BackupManager @Inject constructor(
                 return@withContext false
             }
 
-            // 4. Deserialize
-            val backupData = gson.fromJson(decryptedJson, BackupData::class.java)
+            val backupData = java.io.StringReader(decryptedJson).use { stringReader ->
+                com.google.gson.stream.JsonReader(stringReader).use { jsonReader ->
+                    gson.fromJson<BackupData>(jsonReader, BackupData::class.java)
+                }
+            }
 
             // insert in db
             restoreDataToRepository(backupData)
