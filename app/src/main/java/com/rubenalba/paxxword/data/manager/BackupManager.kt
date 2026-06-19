@@ -29,7 +29,7 @@ class BackupManager @Inject constructor(
     private val gson = Gson()
 
     // export
-    suspend fun exportBackup(uri: Uri, masterPassword: String) = withContext(Dispatchers.IO) {
+    suspend fun exportBackup(uri: Uri, masterPassword: CharArray) = withContext(Dispatchers.IO) {
         // get decrypted data (actual session)
         val folders = folderRepository.getAllFolders().first()
         val accounts = accountRepository.getAccounts(null).first()
@@ -59,7 +59,7 @@ class BackupManager @Inject constructor(
         // prepare encryption for the file
         val salt = KeyDerivationUtil.generateSalt()
         val iv = CryptoManager.generateIv()
-        val key = KeyDerivationUtil.deriveKey(masterPassword.toCharArray(), salt)
+        val key = KeyDerivationUtil.deriveKey(masterPassword, salt)
 
         // encrypt the JSON
         val encryptedPayload = CryptoManager.encrypt(
@@ -83,7 +83,7 @@ class BackupManager @Inject constructor(
     }
 
     // import
-    suspend fun importBackup(uri: Uri, masterPassword: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun importBackup(uri: Uri, masterPassword: CharArray): Boolean = withContext(Dispatchers.IO) {
         try {
             // Uso de stream JsonReader en lugar de leer el contenido como un único String grande
             val paxxFile = context.contentResolver.openInputStream(uri)?.use { input ->
@@ -95,7 +95,7 @@ class BackupManager @Inject constructor(
             // derive the key with the Salt of the file and the pass provided
             val salt = CryptoManager.base64ToBytes(paxxFile.saltBase64)
             val iv = CryptoManager.base64ToBytes(paxxFile.ivBase64)
-            val key = KeyDerivationUtil.deriveKey(masterPassword.toCharArray(), salt)
+            val key = KeyDerivationUtil.deriveKey(masterPassword, salt)
 
             // decrypt
             val decryptedJson = try {

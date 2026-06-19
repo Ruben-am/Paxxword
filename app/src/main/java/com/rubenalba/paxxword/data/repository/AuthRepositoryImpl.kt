@@ -22,13 +22,13 @@ class AuthRepositoryImpl @Inject constructor(
     private val accountDao = db.accountDao()
     private val userDao = db.userDao()
 
-    override suspend fun changeMasterPassword(newPassword: String): Boolean {
+    override suspend fun changeMasterPassword(newPassword: CharArray): Boolean {
         val currentKey = sessionManager.getKey() ?: return false
         val currentUser = userDao.getAppUser() ?: return false
 
         return try {
             val newSalt = KeyDerivationUtil.generateSalt()
-            val newKey = KeyDerivationUtil.deriveKey(newPassword.toCharArray(), newSalt)
+            val newKey = KeyDerivationUtil.deriveKey(newPassword, newSalt)
             val newIvVerification = CryptoManager.generateIv()
             val newVerificationBytes = currentUser.verificationToken.toByteArray(Charsets.UTF_8)
             val newEncryptedVerification = CryptoManager.encrypt(newVerificationBytes, newKey, newIvVerification)
@@ -105,7 +105,7 @@ class AuthRepositoryImpl @Inject constructor(
         sessionManager.setKey(key)
 
         val uri = Uri.parse(uriString)
-        val success = backupManager.importBackup(uri, String(password))
+        val success = backupManager.importBackup(uri, password)
 
         if (success) {
             val uniqueToken = java.util.UUID.randomUUID().toString()
