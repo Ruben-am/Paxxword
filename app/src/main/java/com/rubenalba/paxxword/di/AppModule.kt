@@ -13,6 +13,7 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.rubenalba.paxxword.util.Constants
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -26,7 +27,7 @@ object AppModule {
 
     private val MIGRATION_2_3 = object : Migration(2, 3) {
         override fun migrate(db: SupportSQLiteDatabase) {
-            db.execSQL("ALTER TABLE app_user ADD COLUMN verification_token TEXT NOT NULL DEFAULT 'PAXXWORD_VERIFIED_USER'")
+            db.execSQL("ALTER TABLE app_user ADD COLUMN verification_token TEXT NOT NULL DEFAULT '${Constants.VERIFICATION_TOKEN_DEFAULT}'")
         }
     }
 

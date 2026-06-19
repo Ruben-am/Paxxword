@@ -29,6 +29,7 @@ import com.rubenalba.paxxword.domain.model.AppLanguage
 import com.rubenalba.paxxword.domain.model.AppTheme
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import kotlinx.coroutines.launch
+import com.rubenalba.paxxword.util.Constants
 
 enum class ChangePasswordStep { NONE, VERIFY_CURRENT, ENTER_NEW }
 
@@ -49,7 +50,7 @@ fun SettingsScreen(
     var changePassStep by remember { mutableStateOf(ChangePasswordStep.NONE) }
 
     val exportLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(Constants.MIME_TYPE_JSON)) { uri ->
             if (uri != null) {
                 tempUri = uri
                 showPasswordDialog = BackupOperation.EXPORT
