@@ -113,7 +113,8 @@ fun VaultScreen(
                     }
 
                     is VaultUiState.Error -> {
-                        Text(text = state.message, color = MaterialTheme.colorScheme.error)
+                        val errorText = state.exceptionMessage ?: stringResource(id = state.fallbackMessageResId)
+                        Text(text = errorText, color = MaterialTheme.colorScheme.error)
                     }
 
                     is VaultUiState.Success -> {
