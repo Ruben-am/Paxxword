@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.rubenalba.paxxword.data.local.entity.Folder
 import com.rubenalba.paxxword.data.manager.SecureClipboardManager
 import com.rubenalba.paxxword.domain.model.AccountModel
-import com.rubenalba.paxxword.domain.repository.PasswordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject

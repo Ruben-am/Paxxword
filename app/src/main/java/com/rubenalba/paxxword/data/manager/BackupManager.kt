@@ -10,12 +10,10 @@ import com.rubenalba.paxxword.domain.model.BackupAccount
 import com.rubenalba.paxxword.domain.model.BackupData
 import com.rubenalba.paxxword.domain.model.BackupFolder
 import com.rubenalba.paxxword.domain.model.PaxxBackupFile
-import com.rubenalba.paxxword.domain.repository.PasswordRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.rubenalba.paxxword.domain.repository.AccountRepository

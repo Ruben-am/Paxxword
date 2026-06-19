@@ -3,7 +3,6 @@ package com.rubenalba.paxxword.ui.trash
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rubenalba.paxxword.domain.model.AccountModel
-import com.rubenalba.paxxword.domain.repository.PasswordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
