@@ -38,7 +38,7 @@ class SessionManager @Inject constructor() {
         return encryptionKey
     }
 
-    private fun resetTimer() {
+    fun resetTimer() {
         timeoutJob?.cancel()
         timeoutJob = scope.launch {
             delay(SESSION_TIMEOUT_MS)
