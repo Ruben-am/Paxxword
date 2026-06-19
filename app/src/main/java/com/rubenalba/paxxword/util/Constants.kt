@@ -10,4 +10,7 @@ object Constants {
 
     // Tipos de archivo MIME
     const val MIME_TYPE_JSON = "application/json"
+
+    const val MIME_TYPE_ANY = "*/*"
+    const val DEFAULT_BACKUP_FILE_NAME = "paxxword_backup.paxx"
 }

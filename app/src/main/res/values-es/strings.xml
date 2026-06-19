@@ -157,4 +157,11 @@
     <string name="error_decryption_banner">Fallo crítico: No se pudo descifrar el contenido. Los datos pueden estar corruptos o fueron restaurados con una contraseña distinta.</string>
 
     <string name="clipboard_label_password">Contraseña</string>
+
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+    <string name="language_system">Sistema</string>
+    <string name="language_english">Inglés</string>
+    <string name="language_spanish">Español</string>
 </resources>
