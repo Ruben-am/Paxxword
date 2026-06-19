@@ -16,6 +16,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -84,6 +85,7 @@ class BackupManager @Inject constructor(
     // import
     suspend fun importBackup(uri: Uri, masterPassword: String): Boolean = withContext(Dispatchers.IO) {
         try {
+            // Uso de stream JsonReader en lugar de leer el contenido como un único String grande
             val paxxFile = context.contentResolver.openInputStream(uri)?.use { input ->
                 com.google.gson.stream.JsonReader(input.bufferedReader()).use { reader ->
                     gson.fromJson<PaxxBackupFile>(reader, PaxxBackupFile::class.java)
@@ -99,10 +101,12 @@ class BackupManager @Inject constructor(
             val decryptedJson = try {
                 CryptoManager.decrypt(paxxFile.encryptedData, key, iv)
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 // incorrect password or corrupt file
                 return@withContext false
             }
 
+            // Uso de JsonReader también para la deserialización de la data desencriptada
             val backupData = java.io.StringReader(decryptedJson).use { stringReader ->
                 com.google.gson.stream.JsonReader(stringReader).use { jsonReader ->
                     gson.fromJson<BackupData>(jsonReader, BackupData::class.java)
@@ -114,6 +118,7 @@ class BackupManager @Inject constructor(
 
             return@withContext true
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             e.printStackTrace()
             return@withContext false
         }
