@@ -62,6 +62,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.rubenalba.paxxword.util.Constants
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun AuthScreen(
@@ -69,7 +70,7 @@ fun AuthScreen(
     onAuthSuccess: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
-    val state by viewModel.authState.collectAsState()
+    val state by viewModel.authState.collectAsStateWithLifecycle()
 
     LaunchedEffect(state) {
         if (state is AuthState.Success) {

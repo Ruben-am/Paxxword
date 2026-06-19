@@ -18,13 +18,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GeneratorScreen(
     viewModel: GeneratorViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val clipboardLabel = stringResource(R.string.clipboard_label_password)
 

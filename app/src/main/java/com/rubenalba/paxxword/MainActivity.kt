@@ -30,6 +30,7 @@ import com.rubenalba.paxxword.ui.navigation.Screen
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 import javax.inject.Inject
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -59,14 +60,14 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            val settingsState by settingsViewModel.settingsState.collectAsState()
+            val settingsState by settingsViewModel.settingsState.collectAsStateWithLifecycle()
 
             ApplyLanguage(language = settingsState.language) {
                 PaxxwordTheme(appTheme = settingsState.theme) {
                     Surface(color = MaterialTheme.colorScheme.background) {
                         val navController = rememberNavController()
-                        val startDest by splashViewModel.startDestination.collectAsState()
-                        val isSessionActive by sessionManager.sessionActive.collectAsState()
+                        val startDest by splashViewModel.startDestination.collectAsStateWithLifecycle()
+                        val isSessionActive by sessionManager.sessionActive.collectAsStateWithLifecycle()
 
                         LaunchedEffect(isSessionActive) {
                             if (!isSessionActive && startDest != null) {

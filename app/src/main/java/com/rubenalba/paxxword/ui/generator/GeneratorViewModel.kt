@@ -1,5 +1,3 @@
-// paxxword/ui/generator/GeneratorViewModel.kt
-
 package com.rubenalba.paxxword.ui.generator
 
 import androidx.lifecycle.ViewModel
@@ -39,6 +37,7 @@ data class GeneratorState(
     }
 }
 
+@HiltViewModel
 class GeneratorViewModel @Inject constructor(
     private val secureClipboardManager: SecureClipboardManager
 ) : ViewModel() {

@@ -13,7 +13,7 @@ class RestoreBackupUseCase @Inject constructor(private val repo: AuthRepository)
     suspend operator fun invoke(uriString: String, password: CharArray, defaultEmailLabel: String) = repo.restoreFromBackup(uriString, password, defaultEmailLabel)
 }
 class ChangeMasterPasswordUseCase @Inject constructor(private val repo: AuthRepository) {
-    suspend operator fun invoke(newPassword: String) = repo.changeMasterPassword(newPassword)
+    suspend operator fun invoke(newPassword: CharArray) = repo.changeMasterPassword(newPassword)
 }
 class VerifyMasterPasswordUseCase @Inject constructor(private val repo: AuthRepository) {
     suspend operator fun invoke(password: CharArray) = repo.verifyMasterPassword(password)

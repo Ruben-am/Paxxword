@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.domain.model.AccountModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,7 +24,7 @@ fun TrashScreen(
     onBack: () -> Unit,
     viewModel: TrashViewModel = hiltViewModel()
 ) {
-    val trashedAccounts by viewModel.trashedAccounts.collectAsState()
+    val trashedAccounts by viewModel.trashedAccounts.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
