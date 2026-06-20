@@ -10,5 +10,6 @@ enum class AppLanguage {
 
 data class SettingsState(
     val theme: AppTheme = AppTheme.SYSTEM,
-    val language: AppLanguage = AppLanguage.SYSTEM
+    val language: AppLanguage = AppLanguage.SYSTEM,
+    val useDynamicColor: Boolean = true
 )
