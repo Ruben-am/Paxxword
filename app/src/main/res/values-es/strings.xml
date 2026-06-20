@@ -20,6 +20,7 @@
     <string name="vault_title">Bóveda</string>
     <string name="vault_empty">Aún no hay cuentas. ¡Añade una!</string>
     <string name="content_desc_add_account">Añadir Cuenta</string>
+    <string name="empty_vault_guideline">Toca el botón + para guardar tu primera contraseña</string>
 
     <string name="add_account_title">Nueva Contraseña</string>
     <string name="edit_account_default_title">Detalles</string>
