@@ -61,6 +61,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun updateDynamicColor(useDynamic: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.saveDynamicColor(useDynamic)
+        }
+    }
+
     private val _backupState = MutableStateFlow<BackupState>(BackupState.Idle)
     val backupState = _backupState.asStateFlow()
 
