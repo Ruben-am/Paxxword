@@ -1,107 +1,125 @@
 package com.rubenalba.paxxword.ui.vault.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.domain.model.FolderModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun FolderFilterBar(
+fun VaultDrawerSheet(
     folders: List<FolderModel>,
     selectedFolderId: Long?,
     onFolderSelected: (Long?) -> Unit,
     onAddFolderClick: () -> Unit,
     onDeleteFolder: (FolderModel) -> Unit
 ) {
-    LazyRow(
-        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+    ModalDrawerSheet(
+        modifier = Modifier
+            .width(320.dp)
+            .fillMaxHeight(),
+        drawerShape = RectangleShape
     ) {
-        item {
-            FilterChip(
-                selected = selectedFolderId == null,
-                onClick = { onFolderSelected(null) },
-                label = { Text(stringResource(R.string.folder_filter_all)) }
-            )
-        }
+        Spacer(modifier = Modifier.statusBarsPadding())
+        Spacer(modifier = Modifier.height(16.dp))
 
-        items(folders) { folder ->
-            var showDeleteDialog by remember { mutableStateOf(false) }
+        Image(
+            painter = painterResource(id = R.drawable.ic_paxxword_name),
+            contentDescription = stringResource(R.string.content_desc_logo),
+            modifier = Modifier
+                .height(32.dp)
+                .padding(horizontal = 28.dp),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+            alignment = Alignment.CenterStart
+        )
 
-            val chipShape = RoundedCornerShape(8.dp)
+        Spacer(Modifier.height(16.dp))
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+        Spacer(Modifier.height(8.dp))
 
-            if (showDeleteDialog) {
-                AlertDialog(
-                    onDismissRequest = { showDeleteDialog = false },
-                    title = { Text(stringResource(R.string.folder_dialog_delete_title)) },
-                    text = { Text(stringResource(R.string.folder_dialog_delete_message, folder.name)) },
-                    confirmButton = {
-                        TextButton(onClick = { onDeleteFolder(folder); showDeleteDialog = false }) {
-                            Text(stringResource(R.string.btn_delete), color = MaterialTheme.colorScheme.error)
+        NavigationDrawerItem(
+            icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
+            label = { Text(stringResource(R.string.folder_filter_all)) },
+            selected = selectedFolderId == null,
+            onClick = { onFolderSelected(null) },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            items(folders) { folder ->
+                var showDeleteDialog by remember { mutableStateOf(false) }
+
+                if (showDeleteDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteDialog = false },
+                        title = { Text(stringResource(R.string.folder_dialog_delete_title)) },
+                        text = { Text(stringResource(R.string.folder_dialog_delete_message, folder.name)) },
+                        confirmButton = {
+                            TextButton(onClick = { onDeleteFolder(folder); showDeleteDialog = false }) {
+                                Text(stringResource(R.string.btn_delete), color = MaterialTheme.colorScheme.error)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDeleteDialog = false }) {
+                                Text(stringResource(R.string.btn_cancel))
+                            }
                         }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showDeleteDialog = false }) {
-                            Text(stringResource(R.string.btn_cancel))
+                    )
+                }
+
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Folder, contentDescription = null) },
+                    label = { Text(folder.name) },
+                    selected = selectedFolderId == folder.id,
+                    onClick = { onFolderSelected(folder.id) },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                    badge = {
+                        IconButton(
+                            onClick = { showDeleteDialog = true },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.DeleteOutline,
+                                contentDescription = "Eliminar carpeta",
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 )
             }
-
-            Box(contentAlignment = Alignment.Center) {
-
-                FilterChip(
-                    selected = selectedFolderId == folder.id,
-                    onClick = { /* managed by upper box */ },
-                    label = { Text(folder.name) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Folder,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    },
-                    shape = chipShape,
-                    modifier = Modifier.height(32.dp),
-                    border = FilterChipDefaults.filterChipBorder(
-                        enabled = true,
-                        selected = selectedFolderId == folder.id
-                    )
-                )
-
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .clip(chipShape)
-                        .combinedClickable(
-                            onClick = { onFolderSelected(folder.id) },
-                            onLongClick = { showDeleteDialog = true }
-                        )
-                )
-            }
         }
 
-        item {
-            IconButton(onClick = onAddFolderClick) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.folder_dialog_new_title))
-            }
-        }
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+        Spacer(Modifier.height(8.dp))
+
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.Add, contentDescription = null) },
+            label = { Text(stringResource(R.string.folder_dialog_new_title)) },
+            selected = false,
+            onClick = onAddFolderClick,
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.navigationBarsPadding())
     }
 }
 

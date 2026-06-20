@@ -21,6 +21,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.ui.vault.components.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.Image
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +50,9 @@ fun VaultScreen(
 
     val context = LocalContext.current
     val toastFormatMsg = stringResource(R.string.toast_copied)
+
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     AccountDetailSheet(
         account = selectedAccount,
@@ -64,122 +78,142 @@ fun VaultScreen(
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.vault_title)) },
-                actions = {
-                    IconButton(onClick = onNavigateToTrash) {
-                        Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.content_desc_trash))
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = viewModel::onAddClick) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = stringResource(R.string.content_desc_add_account)
-                )
-            }
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-            VaultSearchBar(
-                query = searchQuery,
-                onQueryChange = viewModel::onSearchQueryChange
-            )
-
-            FolderFilterBar(
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            VaultDrawerSheet(
                 folders = folders,
                 selectedFolderId = selectedFolderId,
-                onFolderSelected = viewModel::onFolderSelect,
-                onAddFolderClick = { showAddFolderDialog = true },
+                onFolderSelected = { id ->
+                    viewModel.onFolderSelect(id)
+                    scope.launch { drawerState.close() }
+                },
+                onAddFolderClick = {
+                    showAddFolderDialog = true
+                    scope.launch { drawerState.close() }
+                },
                 onDeleteFolder = viewModel::onDeleteFolder
             )
-
-            Box(
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_paxxword_name),
+                            contentDescription = stringResource(R.string.content_desc_logo),
+                            modifier = Modifier.height(28.dp),
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = onNavigateToTrash) {
+                            Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.content_desc_trash))
+                        }
+                    }
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = viewModel::onAddClick) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = stringResource(R.string.content_desc_add_account)
+                    )
+                }
+            }
+        ) { paddingValues ->
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                    .padding(paddingValues)
+                    .fillMaxSize()
             ) {
-                when (val state = uiState) {
-                    is VaultUiState.Loading -> {
-                        CircularProgressIndicator()
-                    }
+                VaultSearchBar(
+                    query = searchQuery,
+                    onQueryChange = viewModel::onSearchQueryChange
+                )
 
-                    is VaultUiState.Error -> {
-                        val errorText = state.exceptionMessage ?: stringResource(id = state.fallbackMessageResId)
-                        Text(text = errorText, color = MaterialTheme.colorScheme.error)
-                    }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    when (val state = uiState) {
+                        is VaultUiState.Loading -> {
+                            CircularProgressIndicator()
+                        }
 
-                    is VaultUiState.Success -> {
-                        if (state.accounts.isEmpty()) {
-                            Text(
-                                text = stringResource(R.string.vault_empty),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        } else {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(bottom = 88.dp)
-                            ) {
-                                items(state.accounts, key = { it.id }) { account ->
+                        is VaultUiState.Error -> {
+                            val errorText = state.exceptionMessage ?: stringResource(id = state.fallbackMessageResId)
+                            Text(text = errorText, color = MaterialTheme.colorScheme.error)
+                        }
 
-                                    val dismissState = rememberSwipeToDismissBoxState(
-                                        confirmValueChange = { dismissValue ->
-                                            if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                                                viewModel.deleteAccount(account.id)
-                                                true
-                                            } else {
-                                                false
-                                            }
-                                        }
-                                    )
+                        is VaultUiState.Success -> {
+                            if (state.accounts.isEmpty()) {
+                                VaultEmptyState()
+                            } else {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentPadding = PaddingValues(bottom = 88.dp)
+                                ) {
+                                    items(state.accounts, key = { it.id }) { account ->
 
-                                    SwipeToDismissBox(
-                                        state = dismissState,
-                                        enableDismissFromStartToEnd = false,
-                                        backgroundContent = {
-                                            val color =
-                                                if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                                                    MaterialTheme.colorScheme.errorContainer
+                                        val dismissState = rememberSwipeToDismissBoxState(
+                                            confirmValueChange = { dismissValue ->
+                                                if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                                                    viewModel.deleteAccount(account.id)
+                                                    true
                                                 } else {
-                                                    Color.Transparent
+                                                    false
                                                 }
+                                            }
+                                        )
 
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                                                    .background(color, MaterialTheme.shapes.medium),
-                                                contentAlignment = Alignment.CenterEnd
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Delete,
-                                                    contentDescription = stringResource(R.string.vault_desc_move_trash),
-                                                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                                                    modifier = Modifier.padding(end = 16.dp)
+                                        SwipeToDismissBox(
+                                            state = dismissState,
+                                            enableDismissFromStartToEnd = false,
+                                            backgroundContent = {
+                                                val color =
+                                                    if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                                                        MaterialTheme.colorScheme.errorContainer
+                                                    } else {
+                                                        Color.Transparent
+                                                    }
+
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                                                        .background(color, MaterialTheme.shapes.medium),
+                                                    contentAlignment = Alignment.CenterEnd
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Delete,
+                                                        contentDescription = stringResource(R.string.vault_desc_move_trash),
+                                                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                                                        modifier = Modifier.padding(end = 16.dp)
+                                                    )
+                                                }
+                                            },
+                                            content = {
+                                                val folderName = if (selectedFolderId == null) {
+                                                    folders.find { it.id == account.folderId }?.name
+                                                } else null
+
+                                                AccountItem(
+                                                    account = account,
+                                                    folderName = folderName,
+                                                    onClick = { viewModel.onAccountClick(account) }
                                                 )
                                             }
-                                        },
-                                        content = {
-                                            val folderName = if (selectedFolderId == null) {
-                                                folders.find { it.id == account.folderId }?.name
-                                            } else null
-
-                                            AccountItem(
-                                                account = account,
-                                                folderName = folderName,
-                                                onClick = { viewModel.onAccountClick(account) }
-                                            )
-                                        }
-                                    )
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -187,5 +221,37 @@ fun VaultScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun VaultEmptyState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Lock,
+            contentDescription = null,
+            modifier = Modifier.size(120.dp),
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = stringResource(R.string.vault_empty),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = stringResource(R.string.empty_vault_guideline),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
     }
 }

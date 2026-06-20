@@ -20,6 +20,7 @@
     <string name="vault_title">Vault</string>
     <string name="vault_empty">No accounts yet. Add one!</string>
     <string name="content_desc_add_account">Add Account</string>
+    <string name="empty_vault_guideline">Tap the + button to save your first password</string>
 
     <string name="add_account_title">New Password</string>
     <string name="edit_account_default_title">Details</string>
