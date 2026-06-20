@@ -164,4 +164,7 @@
     <string name="language_system">Sistema</string>
     <string name="language_english">Inglés</string>
     <string name="language_spanish">Español</string>
+
+    <string name="system_colors">Colores del sistema</string>
+    <string name="system_colors_material_you">Adapta los colores de la app a tu fondo de pantalla (Material You)</string>
 </resources>

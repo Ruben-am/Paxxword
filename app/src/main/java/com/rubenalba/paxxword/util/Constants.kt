@@ -8,6 +8,8 @@ object Constants {
     const val PREF_THEME_KEY = "app_theme"
     const val PREF_LANGUAGE_KEY = "app_language"
 
+    const val PREF_DYNAMIC_COLOR_KEY = "app_dynamic_color"
+
     // Tipos de archivo MIME
     const val MIME_TYPE_JSON = "application/json"
 

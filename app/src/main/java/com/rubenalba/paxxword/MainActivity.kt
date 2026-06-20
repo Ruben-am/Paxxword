@@ -63,7 +63,10 @@ class MainActivity : ComponentActivity() {
             val settingsState by settingsViewModel.settingsState.collectAsStateWithLifecycle()
 
             ApplyLanguage(language = settingsState.language) {
-                PaxxwordTheme(appTheme = settingsState.theme) {
+                PaxxwordTheme(
+                    appTheme = settingsState.theme,
+                    dynamicColor = settingsState.useDynamicColor
+                ) {
                     Surface(color = MaterialTheme.colorScheme.background) {
                         val navController = rememberNavController()
                         val startDest by splashViewModel.startDestination.collectAsStateWithLifecycle()

@@ -206,6 +206,31 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
             ThemeSelector(currentTheme = state.theme, onThemeSelected = viewModel::updateTheme)
 
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.system_colors),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = stringResource(R.string.system_colors_material_you),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = state.useDynamicColor,
+                        onCheckedChange = viewModel::updateDynamicColor
+                    )
+                }
+            }
+
             HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
 
             Text(
