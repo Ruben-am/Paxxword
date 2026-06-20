@@ -32,7 +32,7 @@ class UserPreferencesRepository @Inject constructor(
     val settingsFlow: Flow<SettingsState> = context.dataStore.data.map { preferences ->
         val themeName = preferences[Keys.THEME] ?: AppTheme.SYSTEM.name
         val langName = preferences[Keys.LANGUAGE] ?: AppLanguage.SYSTEM.name
-        val dynamicColor = preferences[Keys.DYNAMIC_COLOR] ?: true
+        val dynamicColor = preferences[Keys.DYNAMIC_COLOR] ?: false
 
         SettingsState(
             theme = AppTheme.valueOf(themeName),
