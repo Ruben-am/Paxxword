@@ -168,4 +168,8 @@
 
     <string name="system_colors">System colors</string>
     <string name="system_colors_material_you">Adapt the colors of the app to your wallpaper (Material You)</string>
+
+    <string name="trash_dialog_empty_title">Empty Trash</string>
+    <string name="trash_dialog_empty_msg">Are you sure you want to permanently delete all items in the trash? This action cannot be undone.</string>
+    <string name="trash_desc_empty">Empty trash</string>
 </resources>

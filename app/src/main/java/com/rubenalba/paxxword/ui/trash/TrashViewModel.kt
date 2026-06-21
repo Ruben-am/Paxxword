@@ -30,4 +30,12 @@ class TrashViewModel @Inject constructor(
     fun permanentlyDeleteAccount(id: Long) {
         viewModelScope.launch { permanentlyDeleteAccountUseCase(id) }
     }
+
+    fun emptyTrash() {
+        viewModelScope.launch {
+            trashedAccounts.value.forEach { account ->
+                permanentlyDeleteAccountUseCase(account.id)
+            }
+        }
+    }
 }
