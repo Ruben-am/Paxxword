@@ -1,16 +1,21 @@
 package com.rubenalba.paxxword.ui.components
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.rubenalba.paxxword.R
 
 enum class PasswordStrength(val color: Color, val fraction: Float, @StringRes val labelRes: Int?) {
@@ -41,24 +46,55 @@ fun PasswordStrengthBar(password: String, modifier: Modifier = Modifier) {
     val strength = calculatePasswordStrength(password)
 
     if (strength != PasswordStrength.NONE) {
+
+        val animatedProgress by animateFloatAsState(
+            targetValue = strength.fraction,
+            label = "strength_progress"
+        )
+
+        val animatedColor by animateColorAsState(
+            targetValue = strength.color,
+            label = "strength_color"
+        )
+
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(horizontal = 16.dp, vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            LinearProgressIndicator(
-                progress = { strength.fraction },
-                modifier = Modifier.weight(1f).height(4.dp),
-                color = strength.color,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+
+            val trackColor = MaterialTheme.colorScheme.surfaceVariant
+
+            Canvas(modifier = Modifier.weight(1f).height(4.dp)) {
+                drawLine(
+                    color = trackColor,
+                    start = Offset(0f, size.height / 2),
+                    end = Offset(size.width, size.height / 2),
+                    strokeWidth = size.height,
+                    cap = StrokeCap.Round
+                )
+
+                if (animatedProgress > 0f) {
+                    drawLine(
+                        color = animatedColor,
+                        start = Offset(0f, size.height / 2),
+                        end = Offset(size.width * animatedProgress, size.height / 2),
+                        strokeWidth = size.height,
+                        cap = StrokeCap.Round
+                    )
+                }
+            }
+
             strength.labelRes?.let { labelId ->
+                val rawText = stringResource(id = labelId)
+                val cleanText = rawText.dropWhile { !it.isLetter() }.trim()
+
                 Text(
-                    text = stringResource(id = labelId),
+                    text = cleanText,
                     style = MaterialTheme.typography.labelSmall,
-                    color = strength.color
+                    color = animatedColor
                 )
             }
         }

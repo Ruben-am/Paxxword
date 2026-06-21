@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rubenalba.paxxword.domain.model.AccountModel
 import com.rubenalba.paxxword.R
+import kotlin.math.abs
 
 @Composable
 fun AccountItem(
@@ -52,11 +53,11 @@ fun AccountItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             val initial = account.serviceName.firstOrNull()?.uppercase() ?: "?"
+
             val color = remember(account.serviceName) {
                 val hash = account.serviceName.hashCode()
-                Color(hash).copy(alpha = 1f).let {
-                    Color(it.red, it.green, it.blue, 1f)
-                }
+                val hue = abs(hash % 360).toFloat()
+                Color.hsv(hue = hue, saturation = 0.7f, value = 0.7f)
             }
 
             Box(
