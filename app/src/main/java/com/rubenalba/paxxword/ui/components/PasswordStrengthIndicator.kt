@@ -6,6 +6,9 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +44,17 @@ fun PasswordStrengthBar(password: String, modifier: Modifier = Modifier) {
     val strength = calculatePasswordStrength(password)
 
     if (strength != PasswordStrength.NONE) {
+
+        val animatedProgress by animateFloatAsState(
+            targetValue = strength.fraction,
+            label = "strength_progress"
+        )
+
+        val animatedColor by animateColorAsState(
+            targetValue = strength.color,
+            label = "strength_color"
+        )
+
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -49,16 +63,16 @@ fun PasswordStrengthBar(password: String, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             LinearProgressIndicator(
-                progress = { strength.fraction },
+                progress = { animatedProgress },
                 modifier = Modifier.weight(1f).height(4.dp),
-                color = strength.color,
+                color = animatedColor,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
             strength.labelRes?.let { labelId ->
                 Text(
                     text = stringResource(id = labelId),
                     style = MaterialTheme.typography.labelSmall,
-                    color = strength.color
+                    color = animatedColor
                 )
             }
         }
