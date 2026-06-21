@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,35 +33,58 @@ fun TrashScreen(
 ) {
     val trashedAccounts by viewModel.trashedAccounts.collectAsStateWithLifecycle()
 
+    var showEmptyTrashDialog by remember { mutableStateOf(false) }
+
+    if (showEmptyTrashDialog) {
+        AlertDialog(
+            onDismissRequest = { showEmptyTrashDialog = false },
+            title = { Text(stringResource(R.string.trash_dialog_empty_title)) },
+            text = { Text(stringResource(R.string.trash_dialog_empty_msg)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.emptyTrash()
+                        showEmptyTrashDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text(stringResource(R.string.trash_btn_delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEmptyTrashDialog = false }) {
+                    Text(stringResource(R.string.trash_btn_cancel))
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.trash_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.content_desc_back)
-                        )
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.content_desc_back))
+                    }
+                },
+                actions = {
+                    if (trashedAccounts.isNotEmpty()) {
+                        IconButton(onClick = { showEmptyTrashDialog = true }) {
+                            Icon(Icons.Default.DeleteSweep, contentDescription = stringResource(R.string.trash_desc_empty))
+                        }
                     }
                 }
             )
         }
     ) { padding ->
         if (trashedAccounts.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 TrashEmptyState()
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
+                modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 items(trashedAccounts, key = { it.id }) { account ->
@@ -89,10 +113,7 @@ fun TrashedAccountItem(
             title = { Text(stringResource(R.string.trash_dialog_delete_title)) },
             text = { Text(stringResource(R.string.trash_dialog_delete_msg, account.serviceName)) },
             confirmButton = {
-                Button(
-                    onClick = { onDeleteForever(); showDeleteDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
+                Button(onClick = { onDeleteForever(); showDeleteDialog = false }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
                     Text(stringResource(R.string.trash_btn_delete))
                 }
             },
@@ -105,15 +126,11 @@ fun TrashedAccountItem(
     }
 
     OutlinedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent)
     ) {
         Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.padding(16.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -125,7 +142,6 @@ fun TrashedAccountItem(
                     fontStyle = FontStyle.Italic,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
-
                 Text(
                     text = account.username.ifEmpty { account.email },
                     style = MaterialTheme.typography.bodySmall,
@@ -134,18 +150,10 @@ fun TrashedAccountItem(
             }
             Row {
                 IconButton(onClick = onRestore) {
-                    Icon(
-                        Icons.Default.Restore,
-                        contentDescription = stringResource(R.string.trash_desc_restore),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    Icon(Icons.Default.Restore, contentDescription = stringResource(R.string.trash_desc_restore), tint = MaterialTheme.colorScheme.primary)
                 }
                 IconButton(onClick = { showDeleteDialog = true }) {
-                    Icon(
-                        Icons.Default.DeleteForever,
-                        contentDescription = stringResource(R.string.trash_desc_delete_forever),
-                        tint = MaterialTheme.colorScheme.error
-                    )
+                    Icon(Icons.Default.DeleteForever, contentDescription = stringResource(R.string.trash_desc_delete_forever), tint = MaterialTheme.colorScheme.error)
                 }
             }
         }

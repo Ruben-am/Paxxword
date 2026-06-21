@@ -168,4 +168,8 @@
 
     <string name="system_colors">Colores del sistema</string>
     <string name="system_colors_material_you">Adapta los colores de la app a tu fondo de pantalla (Material You)</string>
+
+    <string name="trash_dialog_empty_title">Vaciar papelera</string>
+    <string name="trash_dialog_empty_msg">¿Estás seguro de que deseas eliminar permanentemente todos los elementos de la papelera? Esta acción no se puede deshacer.</string>
+    <string name="trash_desc_empty">Vaciar papelera</string>
 </resources>
