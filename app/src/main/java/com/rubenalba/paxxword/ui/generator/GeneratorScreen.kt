@@ -151,6 +151,7 @@ fun GeneratorScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Cabecera del Slider
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
@@ -196,59 +197,94 @@ fun GeneratorScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            val chipColors = FilterChipDefaults.filterChipColors(
-                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    FilterChip(
+                    ElevatedFilterChip(
                         selected = state.useLower,
                         onClick = { viewModel.toggleLower(!state.useLower) },
-                        label = { Text(stringResource(R.string.generator_chk_lower)) },
-                        leadingIcon = if (state.useLower) { { Icon(Icons.Default.Check, contentDescription = null) } } else null,
-                        modifier = Modifier.weight(1f),
-                        colors = chipColors,
+                        label = {
+                            Text(
+                                text = stringResource(R.string.generator_chk_lower),
+                                textAlign = TextAlign.Center,
+                                maxLines = 3,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        },
+                        leadingIcon = if (state.useLower) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) } } else null,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .defaultMinSize(minHeight = 48.dp),
                         shape = MaterialTheme.shapes.medium
                     )
-                    FilterChip(
+                    ElevatedFilterChip(
                         selected = state.useUpper,
                         onClick = { viewModel.toggleUpper(!state.useUpper) },
-                        label = { Text(stringResource(R.string.generator_chk_upper)) },
-                        leadingIcon = if (state.useUpper) { { Icon(Icons.Default.Check, contentDescription = null) } } else null,
-                        modifier = Modifier.weight(1f),
-                        colors = chipColors,
+                        label = {
+                            Text(
+                                text = stringResource(R.string.generator_chk_upper),
+                                textAlign = TextAlign.Center,
+                                maxLines = 3,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        },
+                        leadingIcon = if (state.useUpper) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) } } else null,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .defaultMinSize(minHeight = 48.dp),
                         shape = MaterialTheme.shapes.medium
                     )
                 }
+
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    FilterChip(
+                    ElevatedFilterChip(
                         selected = state.useDigits,
                         onClick = { viewModel.toggleDigits(!state.useDigits) },
-                        label = { Text(stringResource(R.string.generator_chk_digits)) },
-                        leadingIcon = if (state.useDigits) { { Icon(Icons.Default.Check, contentDescription = null) } } else null,
-                        modifier = Modifier.weight(1f),
-                        colors = chipColors,
+                        label = {
+                            Text(
+                                text = stringResource(R.string.generator_chk_digits),
+                                textAlign = TextAlign.Center,
+                                maxLines = 3,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        },
+                        leadingIcon = if (state.useDigits) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) } } else null,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .defaultMinSize(minHeight = 48.dp),
                         shape = MaterialTheme.shapes.medium
                     )
-                    FilterChip(
+                    ElevatedFilterChip(
                         selected = state.useSymbols,
                         onClick = { viewModel.toggleSymbols(!state.useSymbols) },
-                        label = { Text(stringResource(R.string.generator_chk_symbols)) },
-                        leadingIcon = if (state.useSymbols) { { Icon(Icons.Default.Check, contentDescription = null) } } else null,
-                        modifier = Modifier.weight(1f),
-                        colors = chipColors,
+                        label = {
+                            Text(
+                                text = stringResource(R.string.generator_chk_symbols),
+                                textAlign = TextAlign.Center,
+                                maxLines = 3,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        },
+                        leadingIcon = if (state.useSymbols) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) } } else null,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .defaultMinSize(minHeight = 48.dp),
                         shape = MaterialTheme.shapes.medium
                     )
                 }
