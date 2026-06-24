@@ -40,6 +40,11 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 
 enum class ChangePasswordStep { NONE, VERIFY_CURRENT, ENTER_NEW }
 
@@ -210,18 +215,26 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
 
-            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            ) {
                 ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_theme_label)) },
-                    leadingContent = { Icon(Icons.Default.Palette, contentDescription = null) },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    headlineContent = { Text(stringResource(R.string.settings_theme_label), fontWeight = FontWeight.Bold) },
+                    leadingContent = { Icon(Icons.Default.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                     supportingContent = { ThemeSelector(currentTheme = state.theme, onThemeSelected = viewModel::updateTheme) }
                 )
 
-                HorizontalDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                )
 
                 ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_language_label)) },
-                    leadingContent = { Icon(Icons.Default.Language, contentDescription = null) },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    headlineContent = { Text(stringResource(R.string.settings_language_label), fontWeight = FontWeight.Bold) },
+                    leadingContent = { Icon(Icons.Default.Language, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                     supportingContent = {
                         LanguageSelector(
                             currentLanguage = state.language,
@@ -231,11 +244,15 @@ fun SettingsScreen(
                 )
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                    HorizontalDivider()
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    )
                     ListItem(
-                        headlineContent = { Text(stringResource(R.string.system_colors)) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        headlineContent = { Text(stringResource(R.string.system_colors), fontWeight = FontWeight.Bold) },
                         supportingContent = { Text(stringResource(R.string.system_colors_material_you)) },
-                        leadingContent = { Icon(Icons.Default.FormatPaint, contentDescription = null) },
+                        leadingContent = { Icon(Icons.Default.FormatPaint, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                         trailingContent = {
                             Switch(
                                 checked = state.useDynamicColor,
@@ -251,12 +268,17 @@ fun SettingsScreen(
             Text(
                 text = stringResource(R.string.settings_section_security),
                 style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
             )
-            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            ) {
                 ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_btn_change_pass)) },
-                    leadingContent = { Icon(Icons.Default.Lock, contentDescription = null) },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    headlineContent = { Text(stringResource(R.string.settings_btn_change_pass), fontWeight = FontWeight.SemiBold) },
+                    leadingContent = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                     modifier = Modifier.clickable { changePassStep = ChangePasswordStep.VERIFY_CURRENT }
                 )
             }
@@ -266,21 +288,30 @@ fun SettingsScreen(
             Text(
                 text = stringResource(R.string.settings_section_data),
                 style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
             )
-            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            ) {
                 ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_btn_export)) },
-                    leadingContent = { Icon(Icons.Default.Upload, contentDescription = null) },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    headlineContent = { Text(stringResource(R.string.settings_btn_export), fontWeight = FontWeight.SemiBold) },
+                    leadingContent = { Icon(Icons.Default.Upload, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                     modifier = Modifier.clickable { exportLauncher.launch(Constants.DEFAULT_BACKUP_FILE_NAME) }
                 )
 
-                HorizontalDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                )
 
                 ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_btn_import)) },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    headlineContent = { Text(stringResource(R.string.settings_btn_import), fontWeight = FontWeight.SemiBold) },
                     supportingContent = { Text(stringResource(R.string.settings_import_note)) },
-                    leadingContent = { Icon(Icons.Default.Download, contentDescription = null) },
+                    leadingContent = { Icon(Icons.Default.Download, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                     modifier = Modifier.clickable { importLauncher.launch(arrayOf(Constants.MIME_TYPE_ANY)) }
                 )
             }
@@ -447,7 +478,7 @@ fun NewMasterPasswordDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
-                    value = String(confirmPassword), // MODIFICADO
+                    value = String(confirmPassword),
                     onValueChange = { confirmPassword = it.toCharArray() },
                     textStyle = androidx.compose.ui.text.TextStyle(
                         fontFamily = JetBrainsMonoFontFamily,
