@@ -1,20 +1,30 @@
 package com.rubenalba.paxxword.ui.settings
 
-import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.FormatPaint
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -24,29 +34,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.domain.model.AppLanguage
 import com.rubenalba.paxxword.domain.model.AppTheme
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
-import kotlinx.coroutines.launch
 import com.rubenalba.paxxword.util.Constants
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.FormatPaint
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import kotlinx.coroutines.launch
 
 enum class ChangePasswordStep { NONE, VERIFY_CURRENT, ENTER_NEW }
 
@@ -88,12 +82,10 @@ fun SettingsScreen(
                 Toast.makeText(context, s.msgId, Toast.LENGTH_SHORT).show()
                 viewModel.resetBackupState()
             }
-
             is BackupState.Error -> {
                 Toast.makeText(context, s.msgId, Toast.LENGTH_LONG).show()
                 viewModel.resetBackupState()
             }
-
             else -> {}
         }
     }
@@ -101,16 +93,13 @@ fun SettingsScreen(
     LaunchedEffect(changePassState) {
         when (val s = changePassState) {
             is ChangePasswordState.Success -> {
-                Toast.makeText(context, R.string.settings_msg_pass_success, Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(context, R.string.settings_msg_pass_success, Toast.LENGTH_SHORT).show()
                 viewModel.resetChangePasswordState()
             }
-
             is ChangePasswordState.Error -> {
                 Toast.makeText(context, s.msgId, Toast.LENGTH_LONG).show()
                 viewModel.resetChangePasswordState()
             }
-
             else -> {}
         }
     }
@@ -151,11 +140,7 @@ fun SettingsScreen(
                     if (isValid) {
                         changePassStep = ChangePasswordStep.ENTER_NEW
                     } else {
-                        Toast.makeText(
-                            context,
-                            R.string.settings_msg_pass_incorrect,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(context, R.string.settings_msg_pass_incorrect, Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -212,50 +197,41 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
 
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
             ) {
-                ListItem(
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                    headlineContent = { Text(stringResource(R.string.settings_theme_label), fontWeight = FontWeight.Bold) },
-                    leadingContent = { Icon(Icons.Default.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                    supportingContent = { ThemeSelector(currentTheme = state.theme, onThemeSelected = viewModel::updateTheme) }
+                SettingsItem(
+                    icon = Icons.Default.Palette,
+                    title = stringResource(R.string.settings_theme_label),
+                    content = {
+                        ThemeSelector(currentTheme = state.theme, onThemeSelected = viewModel::updateTheme)
+                    }
                 )
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                )
+                SettingsDivider()
 
-                ListItem(
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                    headlineContent = { Text(stringResource(R.string.settings_language_label), fontWeight = FontWeight.Bold) },
-                    leadingContent = { Icon(Icons.Default.Language, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                    supportingContent = {
-                        LanguageSelector(
-                            currentLanguage = state.language,
-                            onLanguageSelected = { lang -> viewModel.updateLanguage(lang) }
-                        )
+                SettingsItem(
+                    icon = Icons.Default.Language,
+                    title = stringResource(R.string.settings_language_label),
+                    content = {
+                        LanguageSelector(currentLanguage = state.language, onLanguageSelected = viewModel::updateLanguage)
                     }
                 )
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                    )
-                    ListItem(
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                        headlineContent = { Text(stringResource(R.string.system_colors), fontWeight = FontWeight.Bold) },
-                        supportingContent = { Text(stringResource(R.string.system_colors_material_you)) },
-                        leadingContent = { Icon(Icons.Default.FormatPaint, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                        trailingContent = {
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Default.FormatPaint,
+                        title = stringResource(R.string.system_colors),
+                        subtitle = stringResource(R.string.system_colors_material_you),
+                        action = {
                             Switch(
                                 checked = state.useDynamicColor,
                                 onCheckedChange = viewModel::updateDynamicColor
@@ -265,60 +241,120 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SettingsSectionTitle(text = stringResource(R.string.settings_section_security))
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+                ) {
+                    SettingsItem(
+                        icon = Icons.Default.Lock,
+                        title = stringResource(R.string.settings_btn_change_pass),
+                        onClick = { changePassStep = ChangePasswordStep.VERIFY_CURRENT }
+                    )
+                }
+            }
 
-            Text(
-                text = stringResource(R.string.settings_section_security),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
-            )
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
-            ) {
-                ListItem(
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                    headlineContent = { Text(stringResource(R.string.settings_btn_change_pass), fontWeight = FontWeight.SemiBold) },
-                    leadingContent = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                    modifier = Modifier.clickable { changePassStep = ChangePasswordStep.VERIFY_CURRENT }
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SettingsSectionTitle(text = stringResource(R.string.settings_section_data))
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+                ) {
+                    SettingsItem(
+                        icon = Icons.Default.Upload,
+                        title = stringResource(R.string.settings_btn_export),
+                        onClick = { exportLauncher.launch(Constants.DEFAULT_BACKUP_FILE_NAME) }
+                    )
+
+                    SettingsDivider()
+
+                    SettingsItem(
+                        icon = Icons.Default.Download,
+                        title = stringResource(R.string.settings_btn_import),
+                        subtitle = stringResource(R.string.settings_import_note),
+                        onClick = { importLauncher.launch(arrayOf(Constants.MIME_TYPE_ANY)) }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
 
+@Composable
+fun SettingsItem(
+    icon: ImageVector,
+    title: String,
+    subtitle: String? = null,
+    onClick: (() -> Unit)? = null,
+    action: (@Composable () -> Unit)? = null,
+    content: (@Composable () -> Unit)? = null
+) {
+    val modifier = if (onClick != null) {
+        Modifier.clickable(onClick = onClick)
+    } else {
+        Modifier
+    }
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        verticalAlignment = if (content != null || subtitle != null) Alignment.Top else Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(top = if (content != null || subtitle != null) 2.dp else 0.dp)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = stringResource(R.string.settings_section_data),
+                text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
+                fontWeight = FontWeight.SemiBold
             )
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
-            ) {
-                ListItem(
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                    headlineContent = { Text(stringResource(R.string.settings_btn_export), fontWeight = FontWeight.SemiBold) },
-                    leadingContent = { Icon(Icons.Default.Upload, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                    modifier = Modifier.clickable { exportLauncher.launch(Constants.DEFAULT_BACKUP_FILE_NAME) }
+            if (subtitle != null) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                )
-
-                ListItem(
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                    headlineContent = { Text(stringResource(R.string.settings_btn_import), fontWeight = FontWeight.SemiBold) },
-                    supportingContent = { Text(stringResource(R.string.settings_import_note)) },
-                    leadingContent = { Icon(Icons.Default.Download, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                    modifier = Modifier.clickable { importLauncher.launch(arrayOf(Constants.MIME_TYPE_ANY)) }
-                )
+            }
+            if (content != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                content()
+            }
+        }
+        if (action != null) {
+            Spacer(modifier = Modifier.width(16.dp))
+            Box(modifier = Modifier.align(Alignment.CenterVertically)) {
+                action()
             }
         }
     }
+}
+
+@Composable
+fun SettingsDivider() {
+    HorizontalDivider(
+        modifier = Modifier.padding(start = 56.dp),
+        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+    )
+}
+
+@Composable
+fun SettingsSectionTitle(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(start = 16.dp)
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)
