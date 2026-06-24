@@ -31,6 +31,15 @@ import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import kotlinx.coroutines.launch
 import com.rubenalba.paxxword.util.Constants
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.FormatPaint
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Upload
 
 enum class ChangePasswordStep { NONE, VERIFY_CURRENT, ENTER_NEW }
 
@@ -198,96 +207,83 @@ fun SettingsScreen(
                 .padding(padding)
                 .padding(horizontal = 24.dp, vertical = 16.dp)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = stringResource(R.string.settings_theme_label),
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            ThemeSelector(currentTheme = state.theme, onThemeSelected = viewModel::updateTheme)
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.system_colors),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = stringResource(R.string.system_colors_material_you),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_theme_label)) },
+                    leadingContent = { Icon(Icons.Default.Palette, contentDescription = null) },
+                    supportingContent = { ThemeSelector(currentTheme = state.theme, onThemeSelected = viewModel::updateTheme) }
+                )
+
+                HorizontalDivider()
+
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_language_label)) },
+                    leadingContent = { Icon(Icons.Default.Language, contentDescription = null) },
+                    supportingContent = {
+                        LanguageSelector(
+                            currentLanguage = state.language,
+                            onLanguageSelected = { lang -> viewModel.updateLanguage(lang) }
                         )
                     }
-                    Switch(
-                        checked = state.useDynamicColor,
-                        onCheckedChange = viewModel::updateDynamicColor
+                )
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                    HorizontalDivider()
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.system_colors)) },
+                        supportingContent = { Text(stringResource(R.string.system_colors_material_you)) },
+                        leadingContent = { Icon(Icons.Default.FormatPaint, contentDescription = null) },
+                        trailingContent = {
+                            Switch(
+                                checked = state.useDynamicColor,
+                                onCheckedChange = viewModel::updateDynamicColor
+                            )
+                        }
                     )
                 }
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
-
-            Text(
-                text = stringResource(R.string.settings_language_label),
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            LanguageSelector(
-                currentLanguage = state.language,
-                onLanguageSelected = { lang ->
-                    viewModel.updateLanguage(lang)
-                }
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = stringResource(R.string.settings_section_security),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
             )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { changePassStep = ChangePasswordStep.VERIFY_CURRENT },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.settings_btn_change_pass))
+            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_btn_change_pass)) },
+                    leadingContent = { Icon(Icons.Default.Lock, contentDescription = null) },
+                    modifier = Modifier.clickable { changePassStep = ChangePasswordStep.VERIFY_CURRENT }
+                )
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = stringResource(R.string.settings_section_data),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_btn_export)) },
+                    leadingContent = { Icon(Icons.Default.Upload, contentDescription = null) },
+                    modifier = Modifier.clickable { exportLauncher.launch(Constants.DEFAULT_BACKUP_FILE_NAME) }
+                )
 
-            OutlinedButton(
-                onClick = { exportLauncher.launch(Constants.DEFAULT_BACKUP_FILE_NAME) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.settings_btn_export))
+                HorizontalDivider()
+
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_btn_import)) },
+                    supportingContent = { Text(stringResource(R.string.settings_import_note)) },
+                    leadingContent = { Icon(Icons.Default.Download, contentDescription = null) },
+                    modifier = Modifier.clickable { importLauncher.launch(arrayOf(Constants.MIME_TYPE_ANY)) }
+                )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = { importLauncher.launch(arrayOf(Constants.MIME_TYPE_ANY)) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.settings_btn_import))
-            }
-            Text(
-                text = stringResource(R.string.settings_import_note),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
