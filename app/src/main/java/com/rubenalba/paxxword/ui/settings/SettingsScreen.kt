@@ -444,9 +444,8 @@ fun PasswordConfirmDialog(
                 OutlinedTextField(
                     value = String(password),
                     onValueChange = { password = it.toCharArray() },
-                    textStyle = androidx.compose.ui.text.TextStyle(
-                        fontFamily = JetBrainsMonoFontFamily,
-                        fontSize = 16.sp
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        fontFamily = JetBrainsMonoFontFamily
                     ),
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     singleLine = true,
@@ -511,9 +510,8 @@ fun NewMasterPasswordDialog(
                 OutlinedTextField(
                     value = String(password),
                     onValueChange = { password = it.toCharArray() },
-                    textStyle = androidx.compose.ui.text.TextStyle(
-                        fontFamily = JetBrainsMonoFontFamily,
-                        fontSize = 16.sp
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        fontFamily = JetBrainsMonoFontFamily
                     ),
                     label = { Text(stringResource(R.string.settings_label_new_pass)) },
                     singleLine = true,
@@ -547,9 +545,8 @@ fun NewMasterPasswordDialog(
                 OutlinedTextField(
                     value = String(confirmPassword),
                     onValueChange = { confirmPassword = it.toCharArray() },
-                    textStyle = androidx.compose.ui.text.TextStyle(
-                        fontFamily = JetBrainsMonoFontFamily,
-                        fontSize = 16.sp
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        fontFamily = JetBrainsMonoFontFamily
                     ),
                     label = { Text(stringResource(R.string.settings_label_confirm_pass)) },
                     singleLine = true,

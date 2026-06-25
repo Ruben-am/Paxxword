@@ -187,9 +187,8 @@ fun AuthContent(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                textStyle = androidx.compose.ui.text.TextStyle(
-                    fontFamily = JetBrainsMonoFontFamily,
-                    fontSize = 16.sp
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = JetBrainsMonoFontFamily
                 ),
                 label = { Text(stringResource(R.string.auth_label_master_password)) },
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -230,9 +229,8 @@ fun AuthContent(
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    textStyle = androidx.compose.ui.text.TextStyle(
-                        fontFamily = JetBrainsMonoFontFamily,
-                        fontSize = 16.sp
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        fontFamily = JetBrainsMonoFontFamily
                     ),
                     label = { Text(stringResource(R.string.auth_label_confirm_password)) },
                     visualTransformation = if (isConfirmVisible) VisualTransformation.None else PasswordVisualTransformation(),

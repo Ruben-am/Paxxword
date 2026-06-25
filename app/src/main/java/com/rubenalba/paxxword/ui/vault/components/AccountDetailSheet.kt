@@ -215,9 +215,8 @@ fun AccountDetailContent(
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
-                textStyle = androidx.compose.ui.text.TextStyle(
-                    fontFamily = if (isSecret) JetBrainsMonoFontFamily else ManropeFontFamily,
-                    fontSize = 16.sp
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = if (isSecret) JetBrainsMonoFontFamily else MaterialTheme.typography.bodyLarge.fontFamily
                 ),
                 label = { Text(label) },
                 modifier = Modifier.fillMaxWidth(),

@@ -43,10 +43,10 @@ fun PasswordGeneratorDialog(
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = androidx.compose.ui.text.TextStyle(
+                    textStyle = MaterialTheme.typography.titleMedium.copy(
                         fontFamily = JetBrainsMonoFontFamily,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
                     ),
                     trailingIcon = {
                         Row {
