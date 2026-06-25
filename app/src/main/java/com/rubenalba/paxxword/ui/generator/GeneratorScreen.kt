@@ -62,9 +62,8 @@ fun GeneratorScreen(
                         .fillMaxWidth()
                         .padding(vertical = 32.dp, horizontal = 16.dp),
                     textAlign = TextAlign.Center,
-                    style = androidx.compose.ui.text.TextStyle(
+                    style = MaterialTheme.typography.headlineMedium.copy(
                         fontFamily = JetBrainsMonoFontFamily,
-                        fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 2.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
