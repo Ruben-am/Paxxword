@@ -18,11 +18,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rubenalba.paxxword.R
 
-enum class PasswordStrength(val color: Color, val fraction: Float, @StringRes val labelRes: Int?) {
-    NONE(Color.Transparent, 0f, null),
-    WEAK(Color(0xFFEF5350), 0.33f, R.string.strength_weak),
-    FAIR(Color(0xFFFFA726), 0.66f, R.string.strength_fair),
-    STRONG(Color(0xFF66BB6A), 1f, R.string.strength_strong)
+enum class PasswordStrength(val fraction: Float, @StringRes val labelRes: Int?) {
+    NONE(0f, null),
+    WEAK(0.33f, R.string.strength_weak),
+    FAIR(0.66f, R.string.strength_fair),
+    STRONG(1f, R.string.strength_strong)
 }
 
 fun calculatePasswordStrength(password: String): PasswordStrength {
@@ -47,13 +47,20 @@ fun PasswordStrengthBar(password: String, modifier: Modifier = Modifier) {
 
     if (strength != PasswordStrength.NONE) {
 
+        val targetColor = when (strength) {
+            PasswordStrength.NONE -> Color.Transparent
+            PasswordStrength.WEAK -> MaterialTheme.colorScheme.error
+            PasswordStrength.FAIR -> MaterialTheme.colorScheme.secondary
+            PasswordStrength.STRONG -> MaterialTheme.colorScheme.primary
+        }
+
         val animatedProgress by animateFloatAsState(
             targetValue = strength.fraction,
             label = "strength_progress"
         )
 
         val animatedColor by animateColorAsState(
-            targetValue = strength.color,
+            targetValue = targetColor,
             label = "strength_color"
         )
 
@@ -64,7 +71,6 @@ fun PasswordStrengthBar(password: String, modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
             val trackColor = MaterialTheme.colorScheme.surfaceVariant
 
             Canvas(modifier = Modifier.weight(1f).height(4.dp)) {
