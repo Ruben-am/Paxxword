@@ -41,6 +41,9 @@ import com.rubenalba.paxxword.domain.model.AppTheme
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import com.rubenalba.paxxword.util.Constants
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.foundation.layout.size
 
 enum class ChangePasswordStep { NONE, VERIFY_CURRENT, ENTER_NEW }
 
@@ -234,7 +237,18 @@ fun SettingsScreen(
                         action = {
                             Switch(
                                 checked = state.useDynamicColor,
-                                onCheckedChange = viewModel::updateDynamicColor
+                                onCheckedChange = viewModel::updateDynamicColor,
+                                thumbContent = if (state.useDynamicColor) {
+                                    {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    }
+                                } else {
+                                    null
+                                }
                             )
                         }
                     )
