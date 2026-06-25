@@ -30,8 +30,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rubenalba.paxxword.domain.model.AccountModel
 import com.rubenalba.paxxword.R
-import kotlin.math.abs
-
 @Composable
 fun AccountItem(
     account: AccountModel,
@@ -54,24 +52,33 @@ fun AccountItem(
         ) {
             val initial = account.serviceName.firstOrNull()?.uppercase() ?: "?"
 
-            val color = remember(account.serviceName) {
-                val hash = account.serviceName.hashCode()
-                val hue = abs(hash % 360).toFloat()
-                Color.hsv(hue = hue, saturation = 0.7f, value = 0.7f)
+            val colorScheme = MaterialTheme.colorScheme
+            val avatarColorPairs = remember(colorScheme) {
+                listOf(
+                    colorScheme.primaryContainer to colorScheme.onPrimaryContainer,
+                    colorScheme.secondaryContainer to colorScheme.onSecondaryContainer,
+                    colorScheme.tertiaryContainer to colorScheme.onTertiaryContainer,
+                    colorScheme.errorContainer to colorScheme.onErrorContainer
+                )
+            }
+
+            val colorPair = remember(account.serviceName, avatarColorPairs) {
+                val hash = kotlin.math.abs(account.serviceName.hashCode())
+                avatarColorPairs[hash % avatarColorPairs.size]
             }
 
             Box(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(color),
+                    .background(colorPair.first),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = initial,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = colorPair.second
                 )
             }
 
