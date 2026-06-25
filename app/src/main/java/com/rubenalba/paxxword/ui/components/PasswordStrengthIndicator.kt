@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,12 +47,13 @@ fun PasswordStrengthBar(password: String, modifier: Modifier = Modifier) {
     val strength = calculatePasswordStrength(password)
 
     if (strength != PasswordStrength.NONE) {
+        val isDark = isSystemInDarkTheme()
 
         val targetColor = when (strength) {
             PasswordStrength.NONE -> Color.Transparent
-            PasswordStrength.WEAK -> MaterialTheme.colorScheme.error
-            PasswordStrength.FAIR -> MaterialTheme.colorScheme.secondary
-            PasswordStrength.STRONG -> MaterialTheme.colorScheme.primary
+            PasswordStrength.WEAK -> if (isDark) Color(0xFFEF5350) else Color(0xFFD32F2F)
+            PasswordStrength.FAIR -> if (isDark) Color(0xFFFFB74D) else Color(0xFFF57C00)
+            PasswordStrength.STRONG -> if (isDark) Color(0xFF81C784) else Color(0xFF388E3C)
         }
 
         val animatedProgress by animateFloatAsState(
