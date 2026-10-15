@@ -31,28 +31,41 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import com.rubenalba.paxxword.ui.components.SnackbarController
+import com.rubenalba.paxxword.ui.components.rememberSnackbarController
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VaultScreen(
     viewModel: VaultViewModel = hiltViewModel(),
+    snackbarController: SnackbarController = rememberSnackbarController(),
     onNavigateToTrash: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedAccount by viewModel.selectedAccount.collectAsStateWithLifecycle()
     val isSheetOpen by viewModel.isSheetOpen.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-
     val folders by viewModel.folders.collectAsStateWithLifecycle()
     val selectedFolderId by viewModel.selectedFolderId.collectAsStateWithLifecycle()
     var showAddFolderDialog by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
     val toastFormatMsg = stringResource(R.string.toast_copied)
+    val deletedMsg = stringResource(R.string.snackbar_account_deleted)
+    val undoLabel = stringResource(R.string.snackbar_action_undo)
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val onDeleteWithUndo: (Long) -> Unit = { accountId ->
+        viewModel.deleteAccount(accountId)
+        snackbarController.showMessage(
+            message = deletedMsg,
+            actionLabel = undoLabel,
+            duration = SnackbarDuration.Short,
+            onAction = { viewModel.restoreAccount(accountId) }
+        )
+    }
 
     AccountDetailSheet(
         account = selectedAccount,
@@ -60,11 +73,11 @@ fun VaultScreen(
         isOpen = isSheetOpen,
         onDismiss = viewModel::onDismissSheet,
         onSave = viewModel::saveAccount,
-        onDelete = viewModel::deleteAccount,
+        onDelete = onDeleteWithUndo,
         onCopy = { label, text, isSensitive ->
             viewModel.copyToClipboard(label, text, isSensitive)
             val finalMsg = String.format(toastFormatMsg, label)
-            Toast.makeText(context, finalMsg, Toast.LENGTH_SHORT).show()
+            snackbarController.showMessage(message = finalMsg)
         }
     )
 
@@ -97,6 +110,7 @@ fun VaultScreen(
         }
     ) {
         Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarController.hostState) },
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
@@ -114,7 +128,10 @@ fun VaultScreen(
                     },
                     actions = {
                         IconButton(onClick = onNavigateToTrash) {
-                            Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.content_desc_trash))
+                            Icon(
+                                Icons.Default.DeleteOutline,
+                                contentDescription = stringResource(R.string.content_desc_trash)
+                            )
                         }
                     }
                 )
@@ -167,7 +184,7 @@ fun VaultScreen(
                                         val dismissState = rememberSwipeToDismissBoxState(
                                             confirmValueChange = { dismissValue ->
                                                 if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                                                    viewModel.deleteAccount(account.id)
+                                                    onDeleteWithUndo(account.id)
                                                     true
                                                 } else {
                                                     false

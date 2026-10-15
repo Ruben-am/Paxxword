@@ -172,4 +172,7 @@
     <string name="trash_dialog_empty_title">Vaciar papelera</string>
     <string name="trash_dialog_empty_msg">¿Estás seguro de que deseas eliminar permanentemente todos los elementos de la papelera? Esta acción no se puede deshacer.</string>
     <string name="trash_desc_empty">Vaciar papelera</string>
+
+    <string name="snackbar_account_deleted">Cuenta movida a la papelera</string>
+    <string name="snackbar_action_undo">Deshacer</string>
 </resources>

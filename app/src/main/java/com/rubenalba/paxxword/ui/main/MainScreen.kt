@@ -2,7 +2,6 @@ package com.rubenalba.paxxword.ui.main
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Settings
@@ -23,11 +22,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.rubenalba.paxxword.R
+import com.rubenalba.paxxword.ui.components.rememberSnackbarController
 import com.rubenalba.paxxword.ui.generator.GeneratorScreen
-import com.rubenalba.paxxword.ui.settings.SettingsScreen
-import com.rubenalba.paxxword.ui.vault.VaultScreen
-import com.rubenalba.paxxword.ui.trash.TrashScreen
 import com.rubenalba.paxxword.ui.navigation.Screen
+import com.rubenalba.paxxword.ui.settings.SettingsScreen
+import com.rubenalba.paxxword.ui.trash.TrashScreen
+import com.rubenalba.paxxword.ui.vault.VaultScreen
 
 sealed class BottomNavItem(val route: String, val titleResId: Int, val icon: ImageVector) {
     object Vault : BottomNavItem(Screen.VaultTab.route, R.string.tab_vault, Icons.Default.Lock)
@@ -38,6 +38,8 @@ sealed class BottomNavItem(val route: String, val titleResId: Int, val icon: Ima
 @Composable
 fun MainScreen() {
     val bottomNavController = rememberNavController()
+    val snackbarController = rememberSnackbarController()
+
     val items = listOf(
         BottomNavItem.Vault,
         BottomNavItem.Generator,
@@ -51,8 +53,10 @@ fun MainScreen() {
                 val currentDestination = navBackStackEntry?.destination
 
                 items.forEach { item ->
+                    val tabTitle = stringResource(item.titleResId)
                     NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = stringResource(item.titleResId)) },
+                        icon = { Icon(item.icon, contentDescription = tabTitle) },
+                        label = { Text(text = tabTitle) },
                         selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                         onClick = {
                             bottomNavController.navigate(item.route) {
@@ -74,17 +78,19 @@ fun MainScreen() {
             modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             composable(BottomNavItem.Vault.route) {
-                VaultScreen(onNavigateToTrash = {
-                    bottomNavController.navigate(Screen.Trash.route)
-                })
+                VaultScreen(
+                    snackbarController = snackbarController,
+                    onNavigateToTrash = {
+                        bottomNavController.navigate(Screen.Trash.route)
+                    }
+                )
             }
             composable(BottomNavItem.Generator.route) {
-                GeneratorScreen()
+                GeneratorScreen(snackbarController = snackbarController)
             }
             composable(BottomNavItem.Settings.route) {
-                SettingsScreen()
+                SettingsScreen(snackbarController = snackbarController)
             }
-
             composable(Screen.Trash.route) {
                 TrashScreen(onBack = { bottomNavController.popBackStack() })
             }
