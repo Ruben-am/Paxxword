@@ -25,13 +25,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun PasswordGeneratorDialog(
     onDismiss: () -> Unit,
     onApply: (String) -> Unit,
+    onCopiedFeedback: ((String) -> Unit)? = null,
     viewModel: GeneratorViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-
-    val context = LocalContext.current
-
     val clipboardLabel = stringResource(R.string.clipboard_label_password)
+    val copiedTempMsg = stringResource(R.string.toast_password_copied_temp)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -55,7 +54,7 @@ fun PasswordGeneratorDialog(
                             }
                             IconButton(onClick = {
                                 viewModel.copyToClipboard(clipboardLabel)
-                                Toast.makeText(context, R.string.toast_password_copied_temp, Toast.LENGTH_SHORT).show()
+                                onCopiedFeedback?.invoke(copiedTempMsg)
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.ContentCopy,

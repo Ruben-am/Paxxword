@@ -1,6 +1,5 @@
 package com.rubenalba.paxxword.ui.settings
 
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -9,6 +8,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FormatPaint
 import androidx.compose.material.icons.filled.Language
@@ -22,7 +23,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -30,7 +30,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,26 +37,24 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.domain.model.AppLanguage
 import com.rubenalba.paxxword.domain.model.AppTheme
+import com.rubenalba.paxxword.ui.components.SnackbarController
+import com.rubenalba.paxxword.ui.components.rememberSnackbarController
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import com.rubenalba.paxxword.util.Constants
 import kotlinx.coroutines.launch
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.filled.Close
 
 enum class ChangePasswordStep { NONE, VERIFY_CURRENT, ENTER_NEW }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    snackbarController: SnackbarController = rememberSnackbarController()
 ) {
     val state by viewModel.settingsState.collectAsStateWithLifecycle()
     val backupState by viewModel.backupState.collectAsStateWithLifecycle()
     val changePassState by viewModel.changePasswordState.collectAsStateWithLifecycle()
 
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     var showPasswordDialog by remember { mutableStateOf<BackupOperation?>(null) }
@@ -80,28 +77,60 @@ fun SettingsScreen(
             }
         }
 
-    LaunchedEffect(backupState) {
-        when (val s = backupState) {
+    val backupMessage = when (val s = backupState) {
+        is BackupState.Success -> stringResource(s.msgId)
+        is BackupState.Error -> stringResource(s.msgId)
+        else -> null
+    }
+
+    LaunchedEffect(backupState, backupMessage) {
+        when (backupState) {
             is BackupState.Success -> {
-                Toast.makeText(context, s.msgId, Toast.LENGTH_SHORT).show()
+                backupMessage?.let {
+                    snackbarController.showMessage(
+                        message = it,
+                        duration = SnackbarDuration.Short
+                    )
+                }
                 viewModel.resetBackupState()
             }
             is BackupState.Error -> {
-                Toast.makeText(context, s.msgId, Toast.LENGTH_LONG).show()
+                backupMessage?.let {
+                    snackbarController.showMessage(
+                        message = it,
+                        duration = SnackbarDuration.Long
+                    )
+                }
                 viewModel.resetBackupState()
             }
             else -> {}
         }
     }
 
-    LaunchedEffect(changePassState) {
-        when (val s = changePassState) {
+    val changePassMessage = when (val s = changePassState) {
+        is ChangePasswordState.Success -> stringResource(R.string.settings_msg_pass_success)
+        is ChangePasswordState.Error -> stringResource(s.msgId)
+        else -> null
+    }
+
+    LaunchedEffect(changePassState, changePassMessage) {
+        when (changePassState) {
             is ChangePasswordState.Success -> {
-                Toast.makeText(context, R.string.settings_msg_pass_success, Toast.LENGTH_SHORT).show()
+                changePassMessage?.let {
+                    snackbarController.showMessage(
+                        message = it,
+                        duration = SnackbarDuration.Short
+                    )
+                }
                 viewModel.resetChangePasswordState()
             }
             is ChangePasswordState.Error -> {
-                Toast.makeText(context, s.msgId, Toast.LENGTH_LONG).show()
+                changePassMessage?.let {
+                    snackbarController.showMessage(
+                        message = it,
+                        duration = SnackbarDuration.Long
+                    )
+                }
                 viewModel.resetChangePasswordState()
             }
             else -> {}
@@ -135,6 +164,8 @@ fun SettingsScreen(
     }
 
     if (changePassStep == ChangePasswordStep.VERIFY_CURRENT) {
+        val incorrectPassMsg = stringResource(R.string.settings_msg_pass_incorrect)
+
         PasswordConfirmDialog(
             title = stringResource(R.string.settings_dialog_verify_title),
             message = stringResource(R.string.settings_dialog_verify_msg),
@@ -144,7 +175,10 @@ fun SettingsScreen(
                     if (isValid) {
                         changePassStep = ChangePasswordStep.ENTER_NEW
                     } else {
-                        Toast.makeText(context, R.string.settings_msg_pass_incorrect, Toast.LENGTH_SHORT).show()
+                        snackbarController.showMessage(
+                            message = incorrectPassMsg,
+                            duration = SnackbarDuration.Short
+                        )
                     }
                 }
             },
@@ -192,6 +226,7 @@ fun SettingsScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarController.hostState) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.settings_title)) }

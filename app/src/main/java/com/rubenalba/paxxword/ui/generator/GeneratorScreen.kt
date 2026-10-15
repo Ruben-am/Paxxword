@@ -25,17 +25,21 @@ import com.rubenalba.paxxword.R
 import com.rubenalba.paxxword.ui.theme.JetBrainsMonoFontFamily
 import com.rubenalba.paxxword.ui.components.PasswordStrengthBar
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rubenalba.paxxword.ui.components.SnackbarController
+import com.rubenalba.paxxword.ui.components.rememberSnackbarController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GeneratorScreen(
-    viewModel: GeneratorViewModel = hiltViewModel()
+    viewModel: GeneratorViewModel = hiltViewModel(),
+    snackbarController: SnackbarController = rememberSnackbarController()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
     val clipboardLabel = stringResource(R.string.clipboard_label_password)
+    val copiedMessage = stringResource(R.string.toast_password_copied)
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarController.hostState) },
         topBar = {
             CenterAlignedTopAppBar(title = { Text(stringResource(R.string.generator_title)) })
         }
@@ -116,7 +120,7 @@ fun GeneratorScreen(
                 ElevatedCard(
                     onClick = {
                         viewModel.copyToClipboard(clipboardLabel)
-                        Toast.makeText(context, R.string.toast_password_copied, Toast.LENGTH_SHORT).show()
+                        snackbarController.showMessage(message = copiedMessage)
                     },
                     modifier = Modifier
                         .weight(1f)

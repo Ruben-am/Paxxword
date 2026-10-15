@@ -28,6 +28,7 @@ class VaultViewModel @Inject constructor(
     private val getAccountsUseCase: GetAccountsUseCase,
     private val saveAccountUseCase: SaveAccountUseCase,
     private val deleteAccountUseCase: DeleteAccountUseCase,
+    private val restoreAccountUseCase: RestoreAccountUseCase,
     private val secureClipboardManager: SecureClipboardManager
 ) : ViewModel() {
 
@@ -112,6 +113,17 @@ class VaultViewModel @Inject constructor(
             try {
                 deleteAccountUseCase(id)
                 onDismissSheet()
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun restoreAccount(id: Long) {
+        viewModelScope.launch {
+            try {
+                restoreAccountUseCase(id)
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 e.printStackTrace()
