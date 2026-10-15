@@ -172,4 +172,7 @@
     <string name="trash_dialog_empty_title">Empty Trash</string>
     <string name="trash_dialog_empty_msg">Are you sure you want to permanently delete all items in the trash? This action cannot be undone.</string>
     <string name="trash_desc_empty">Empty trash</string>
+
+    <string name="snackbar_account_deleted">Account moved to trash</string>
+    <string name="snackbar_action_undo">Undo</string>
 </resources>
